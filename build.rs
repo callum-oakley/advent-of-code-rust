@@ -15,7 +15,6 @@ fn main() {
     let mut solutions: HashMap<u16, HashMap<u8, Solution>> = HashMap::new();
     for entry in fs::read_dir("src/solutions").unwrap() {
         let name: String = entry.unwrap().file_name().into_string().unwrap();
-        println!("{}", name);
         if name.len() == 8 && name.starts_with("year") {
             if let Ok(year) = name[4..].parse::<u16>() {
                 for entry in fs::read_dir(format!("src/solutions/year{}", year)).unwrap() {
