@@ -7,6 +7,7 @@ use std::{
 
 use regex::Regex;
 
+mod grid;
 mod solutions;
 
 fn get(path: &str) -> reqwest::Result<String> {

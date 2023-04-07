@@ -2,6 +2,8 @@
 
 mod year2015 {
     pub mod day01;
+    pub mod day02;
+    pub mod day03;
 }
 
 use std::collections::HashMap;
@@ -21,6 +23,24 @@ pub fn build() -> HashMap<u16, HashMap<u8, Solution>> {
             part1: Some(|input| year2015::day01::part1(input).to_string()),
             part2: Some(|input| year2015::day01::part2(input).to_string()),
             tests: Some(year2015::day01::tests),
+        },
+    );
+
+    solutions.entry(2015).or_insert_with(HashMap::new).insert(
+        2,
+        Solution {
+            part1: Some(|input| year2015::day02::part1(input).to_string()),
+            part2: Some(|input| year2015::day02::part2(input).to_string()),
+            tests: None,
+        },
+    );
+
+    solutions.entry(2015).or_insert_with(HashMap::new).insert(
+        3,
+        Solution {
+            part1: Some(|input| year2015::day03::part1(input).to_string()),
+            part2: Some(|input| year2015::day03::part2(input).to_string()),
+            tests: Some(year2015::day03::tests),
         },
     );
 
