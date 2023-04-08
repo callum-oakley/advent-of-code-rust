@@ -5,6 +5,7 @@ mod year2015 {
     pub mod day02;
     pub mod day03;
     pub mod day04;
+    pub mod day05;
 }
 
 use std::collections::HashMap;
@@ -51,6 +52,15 @@ pub fn build() -> HashMap<u16, HashMap<u8, Solution>> {
             part1: Some(|input| year2015::day04::part1(input).to_string()),
             part2: Some(|input| year2015::day04::part2(input).to_string()),
             tests: Some(year2015::day04::tests),
+        },
+    );
+
+    solutions.entry(2015).or_insert_with(HashMap::new).insert(
+        5,
+        Solution {
+            part1: Some(|input| year2015::day05::part1(input).to_string()),
+            part2: Some(|input| year2015::day05::part2(input).to_string()),
+            tests: Some(year2015::day05::tests),
         },
     );
 
