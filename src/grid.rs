@@ -1,9 +1,12 @@
 use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
+use lazy_static::lazy_static;
+use regex::Regex;
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct Point {
-    x: i32,
-    y: i32,
+    pub x: i32,
+    pub y: i32,
 }
 
 pub const Z: Point = Point { x: 0, y: 0 };
@@ -20,6 +23,19 @@ impl From<char> for Point {
             'v' => S,
             '<' => W,
             _ => unreachable!(),
+        }
+    }
+}
+
+impl From<&str> for Point {
+    fn from(s: &str) -> Self {
+        lazy_static! {
+            static ref INT: Regex = Regex::new(r"-?\d+").unwrap();
+        }
+        let mut ints = INT.find_iter(s);
+        Point {
+            x: ints.next().unwrap().as_str().parse().unwrap(),
+            y: ints.next().unwrap().as_str().parse().unwrap(),
         }
     }
 }
