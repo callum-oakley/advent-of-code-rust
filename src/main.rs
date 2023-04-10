@@ -9,7 +9,6 @@ use std::{
 
 use regex::Regex;
 
-mod combinatorics;
 mod grid;
 mod solutions;
 mod uniq;
