@@ -33,17 +33,20 @@ fn parse(s: &str) -> impl Iterator<Item = Instruction> + '_ {
 }
 
 fn part_<F: Fn(&Op, &mut u8)>(update: F, input: &str) -> u32 {
-    let mut lights = [[0u8; 1000]; 1000];
+    let mut lights = vec![[0u8; 1000]; 1000];
     for instruction in parse(input) {
         for y in instruction.from.y..=instruction.to.y {
             for x in instruction.from.x..=instruction.to.x {
-                update(&instruction.op, &mut lights[y as usize][x as usize]);
+                update(
+                    &instruction.op,
+                    &mut lights[usize::try_from(y).unwrap()][usize::try_from(x).unwrap()],
+                );
             }
         }
     }
     lights
         .into_iter()
-        .map(|row| row.into_iter().map(|light| light as u32).sum::<u32>())
+        .map(|row| row.into_iter().map(u32::from).sum::<u32>())
         .sum()
 }
 

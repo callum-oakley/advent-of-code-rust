@@ -1,3 +1,5 @@
+#![warn(clippy::pedantic)]
+
 use std::{
     collections::BTreeMap,
     fs,
@@ -12,7 +14,7 @@ mod solutions;
 
 fn get(path: &str) -> reqwest::Result<String> {
     reqwest::blocking::Client::new()
-        .get(format!("https://adventofcode.com/{}", path))
+        .get(format!("https://adventofcode.com/{path}"))
         .header(
             "cookie",
             format!("session={}", fs::read_to_string(".session").unwrap().trim()),
@@ -23,12 +25,12 @@ fn get(path: &str) -> reqwest::Result<String> {
 }
 
 fn get_input(year: u16, day: u8) -> String {
-    let path = format!("input/{}/{:0>2}", year, day);
+    let path = format!("input/{year}/{day:0>2}");
     let path = Path::new(&path);
     if path.exists() {
         fs::read_to_string(path).unwrap()
     } else {
-        let input = get(&format!("{}/day/{}/input", year, day)).unwrap();
+        let input = get(&format!("{year}/day/{day}/input")).unwrap();
         fs::create_dir_all(path.parent().unwrap()).unwrap();
         fs::write(path, &input).unwrap();
         input
@@ -36,12 +38,12 @@ fn get_input(year: u16, day: u8) -> String {
 }
 
 fn get_answer(year: u16, day: u8, part: u8) -> Option<String> {
-    let path = format!("answer/{}/{:0>2}/{}", year, day, part);
+    let path = format!("answer/{year}/{day:0>2}/{part}");
     let path = Path::new(&path);
     if path.exists() {
         Some(fs::read_to_string(path).unwrap())
     } else {
-        let page = get(&format!("{}/day/{}", year, day)).unwrap();
+        let page = get(&format!("{year}/day/{day}")).unwrap();
         let mut answers: Vec<String> = Regex::new(r"Your puzzle answer was <code>([^<]*)")
             .unwrap()
             .captures_iter(&page)
@@ -107,23 +109,23 @@ fn run_year(year: u16, year_solutions: &BTreeMap<u8, solutions::Solution>) -> Du
     }
 
     println!("{:\u{2500}^80}", "");
-    println!("{} ** *   {: >5.0?}", year, elapsed);
+    println!("{year} ** *   {elapsed: >5.0?}");
 
     elapsed
 }
 
-fn run(solutions: BTreeMap<u16, BTreeMap<u8, solutions::Solution>>) {
+fn run(solutions: &BTreeMap<u16, BTreeMap<u8, solutions::Solution>>) {
     let mut elapsed = Duration::new(0, 0);
-    for (year, year_solutions) in &solutions {
+    for (year, year_solutions) in solutions {
         elapsed += run_year(*year, year_solutions);
         println!("{:\u{2550}^80}", "");
     }
 
-    println!("**** ** *   {: >5.0?}", elapsed);
+    println!("**** ** *   {elapsed: >5.0?}");
     println!("{:\u{2500}^80}", "");
 }
 
 fn main() {
     println!("{:\u{2500}^80}", "");
-    run(solutions::build());
+    run(&solutions::build());
 }

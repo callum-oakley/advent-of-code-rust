@@ -21,7 +21,7 @@ impl<'a> From<&'a str> for Input<'a> {
 }
 
 enum Gate<'a> {
-    Nop(Input<'a>),
+    Noop(Input<'a>),
     Not(Input<'a>),
     And(Input<'a>, Input<'a>),
     Or(Input<'a>, Input<'a>),
@@ -32,17 +32,17 @@ enum Gate<'a> {
 type Circuit<'a> = HashMap<Wire<'a>, Gate<'a>>;
 
 fn parse(input: &str) -> Circuit {
-    let nop = Regex::new(r"^(\w+) -> (\w+)$").unwrap();
+    let noop = Regex::new(r"^(\w+) -> (\w+)$").unwrap();
     let not = Regex::new(r"^NOT (\w+) -> (\w+)$").unwrap();
     let binop = Regex::new(r"^(\w+) (\w+) (\w+) -> (\w+)$").unwrap();
 
     let mut circuit = HashMap::new();
     for line in input.lines() {
         let line = line.trim();
-        if let Some(captures) = nop.captures(line) {
+        if let Some(captures) = noop.captures(line) {
             circuit.insert(
                 captures.get(2).unwrap().as_str(),
-                Gate::Nop(captures.get(1).unwrap().as_str().into()),
+                Gate::Noop(captures.get(1).unwrap().as_str().into()),
             );
         } else if let Some(captures) = not.captures(line) {
             circuit.insert(
@@ -64,7 +64,7 @@ fn parse(input: &str) -> Circuit {
                 ),
             );
         } else {
-            panic!("failed to parse: {}", line);
+            panic!("failed to parse: {line}");
         }
     }
     circuit
@@ -82,7 +82,7 @@ fn emulate<'a>(
                 cache[&wire]
             } else {
                 let signal = match circuit[wire] {
-                    Gate::Nop(a) => emulate(cache, circuit, a),
+                    Gate::Noop(a) => emulate(cache, circuit, a),
                     Gate::Not(a) => !emulate(cache, circuit, a),
                     Gate::And(a, b) => emulate(cache, circuit, a) & emulate(cache, circuit, b),
                     Gate::Or(a, b) => emulate(cache, circuit, a) | emulate(cache, circuit, b),
@@ -102,7 +102,7 @@ pub fn part1(input: &str) -> Signal {
 
 pub fn part2(input: &str) -> Signal {
     let mut circuit = parse(input);
-    circuit.insert("b", Gate::Nop(Input::Signal(part1(input))));
+    circuit.insert("b", Gate::Noop(Input::Signal(part1(input))));
     emulate(&mut HashMap::new(), &circuit, Input::Wire("a"))
 }
 

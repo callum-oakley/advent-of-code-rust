@@ -14,7 +14,7 @@ fn part_(zeroes: usize, input: &str) -> usize {
     let mut hasher = Md5::new();
     let mut i = 0;
     loop {
-        hasher.update(format!("{}{}", input, i));
+        hasher.update(format!("{input}{i}"));
         let hash = hasher.finalize_reset();
         if starts_with_zeroes(zeroes, &hash) {
             return i;
@@ -32,6 +32,6 @@ pub fn part2(input: &str) -> usize {
 }
 
 pub fn tests() {
-    assert_eq!(part1("abcdef"), 609043);
-    assert_eq!(part1("pqrstuv"), 1048970);
+    assert_eq!(part1("abcdef"), 609_043);
+    assert_eq!(part1("pqrstuv"), 1_048_970);
 }

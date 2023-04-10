@@ -12,7 +12,7 @@ fn parse(input: &str) -> impl Iterator<Item = [u32; 3]> + '_ {
             captures[2].parse().unwrap(),
             captures[3].parse().unwrap(),
         ];
-        sides.sort();
+        sides.sort_unstable();
         sides
     })
 }
