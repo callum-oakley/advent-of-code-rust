@@ -10,7 +10,7 @@ mod year2015 {
     pub mod day07;
 }
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 pub struct Solution {
     pub part1: Option<fn(&str) -> String>,
@@ -18,10 +18,10 @@ pub struct Solution {
     pub tests: Option<fn() -> ()>,
 }
 
-pub fn build() -> HashMap<u16, HashMap<u8, Solution>> {
-    let mut solutions: HashMap<u16, HashMap<u8, Solution>> = HashMap::new();
+pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
+    let mut solutions: BTreeMap<u16, BTreeMap<u8, Solution>> = BTreeMap::new();
 
-    solutions.entry(2015).or_insert_with(HashMap::new).insert(
+    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
         1,
         Solution {
             part1: Some(|input| year2015::day01::part1(input).to_string()),
@@ -30,7 +30,7 @@ pub fn build() -> HashMap<u16, HashMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(HashMap::new).insert(
+    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
         2,
         Solution {
             part1: Some(|input| year2015::day02::part1(input).to_string()),
@@ -39,7 +39,7 @@ pub fn build() -> HashMap<u16, HashMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(HashMap::new).insert(
+    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
         3,
         Solution {
             part1: Some(|input| year2015::day03::part1(input).to_string()),
@@ -48,7 +48,7 @@ pub fn build() -> HashMap<u16, HashMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(HashMap::new).insert(
+    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
         4,
         Solution {
             part1: Some(|input| year2015::day04::part1(input).to_string()),
@@ -57,7 +57,7 @@ pub fn build() -> HashMap<u16, HashMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(HashMap::new).insert(
+    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
         5,
         Solution {
             part1: Some(|input| year2015::day05::part1(input).to_string()),
@@ -66,7 +66,7 @@ pub fn build() -> HashMap<u16, HashMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(HashMap::new).insert(
+    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
         6,
         Solution {
             part1: Some(|input| year2015::day06::part1(input).to_string()),
@@ -75,7 +75,7 @@ pub fn build() -> HashMap<u16, HashMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(HashMap::new).insert(
+    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
         7,
         Solution {
             part1: Some(|input| year2015::day07::part1(input).to_string()),

@@ -1,5 +1,5 @@
 use std::{
-    collections::HashMap,
+    collections::BTreeMap,
     fs,
     path::Path,
     time::{Duration, Instant},
@@ -100,13 +100,10 @@ fn run_day(year: u16, day: u8, solution: &solutions::Solution) -> Duration {
     elapsed
 }
 
-fn run_year(year: u16, year_solutions: &HashMap<u8, solutions::Solution>) -> Duration {
-    let mut days: Vec<_> = year_solutions.keys().collect();
-    days.sort();
-
+fn run_year(year: u16, year_solutions: &BTreeMap<u8, solutions::Solution>) -> Duration {
     let mut elapsed = Duration::new(0, 0);
-    for day in days {
-        elapsed += run_day(year, *day, &year_solutions[day]);
+    for (day, solution) in year_solutions {
+        elapsed += run_day(year, *day, solution);
     }
 
     println!("{:\u{2500}^80}", "");
@@ -115,13 +112,10 @@ fn run_year(year: u16, year_solutions: &HashMap<u8, solutions::Solution>) -> Dur
     elapsed
 }
 
-fn run(solutions: HashMap<u16, HashMap<u8, solutions::Solution>>) {
-    let mut years: Vec<_> = solutions.keys().collect();
-    years.sort();
-
+fn run(solutions: BTreeMap<u16, BTreeMap<u8, solutions::Solution>>) {
     let mut elapsed = Duration::new(0, 0);
-    for year in years {
-        elapsed += run_year(*year, &solutions[year]);
+    for (year, year_solutions) in &solutions {
+        elapsed += run_year(*year, year_solutions);
         println!("{:\u{2550}^80}", "");
     }
 
