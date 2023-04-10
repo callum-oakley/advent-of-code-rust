@@ -20,15 +20,15 @@ fn parse(s: &str) -> impl Iterator<Item = Instruction> + '_ {
         static ref RE: Regex =
             Regex::new(r"(turn on|turn off|toggle) (\d+,\d+) through (\d+,\d+)").unwrap();
     }
-    RE.captures_iter(s).map(|capture| Instruction {
-        op: match &capture[1] {
+    RE.captures_iter(s).map(|captures| Instruction {
+        op: match &captures[1] {
             "turn on" => Op::On,
             "turn off" => Op::Off,
             "toggle" => Op::Toggle,
             _ => unreachable!(),
         },
-        from: capture[2].into(),
-        to: capture[3].into(),
+        from: captures[2].into(),
+        to: captures[3].into(),
     })
 }
 
