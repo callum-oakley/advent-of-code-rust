@@ -9,8 +9,10 @@ use std::{
 
 use regex::Regex;
 
+mod combinatorics;
 mod grid;
 mod solutions;
+mod uniq;
 
 fn get(path: &str) -> reqwest::Result<String> {
     reqwest::blocking::Client::new()
