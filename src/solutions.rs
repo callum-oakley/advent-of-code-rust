@@ -11,6 +11,7 @@ mod year2015 {
     pub mod day08;
     pub mod day09;
     pub mod day10;
+    pub mod day11;
 }
 
 use std::collections::BTreeMap;
@@ -21,6 +22,9 @@ pub struct Solution {
     pub tests: Option<fn() -> ()>,
 }
 
+// Clippy doesn't like the redundant to_string when the solution is
+// already a String.
+#[allow(clippy::redundant_clone)]
 pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
     let mut solutions: BTreeMap<u16, BTreeMap<u8, Solution>> = BTreeMap::new();
 
@@ -111,6 +115,15 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
             part1: Some(|input| year2015::day10::part1(input).to_string()),
             part2: Some(|input| year2015::day10::part2(input).to_string()),
             tests: Some(year2015::day10::tests),
+        },
+    );
+
+    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+        11,
+        Solution {
+            part1: Some(|input| year2015::day11::part1(input).to_string()),
+            part2: Some(|input| year2015::day11::part2(input).to_string()),
+            tests: Some(year2015::day11::tests),
         },
     );
 
