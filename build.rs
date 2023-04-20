@@ -1,5 +1,6 @@
 use std::{
     collections::BTreeMap,
+    env,
     fs::{self, File},
     io::Write,
     process::Command,
@@ -11,33 +12,54 @@ struct Solution {
     tests: bool,
 }
 
-fn main() {
-    let mut solutions: BTreeMap<u16, BTreeMap<u8, Solution>> = BTreeMap::new();
-    for entry in fs::read_dir("src/solutions").unwrap() {
-        let name: String = entry.unwrap().file_name().into_string().unwrap();
-        if name.len() == 8 && name.starts_with("year") {
-            if let Ok(year) = name[4..].parse::<u16>() {
-                for entry in fs::read_dir(format!("src/solutions/year{}", year)).unwrap() {
-                    let name: String = entry.unwrap().file_name().into_string().unwrap();
-                    if name.len() == 8 && name.starts_with("day") && name.ends_with(".rs") {
-                        if let Ok(day) = name[3..5].parse::<u8>() {
-                            let content = fs::read_to_string(format!(
-                                "src/solutions/year{}/day{:02}.rs",
-                                year, day
-                            ))
-                            .unwrap();
-                            solutions.entry(year).or_insert_with(BTreeMap::new).insert(
-                                day,
-                                Solution {
-                                    part1: content.contains("pub fn part1"),
-                                    part2: content.contains("pub fn part2"),
-                                    tests: content.contains("pub fn tests"),
-                                },
-                            );
-                        }
+fn insert_day(solutions: &mut BTreeMap<u16, BTreeMap<u8, Solution>>, year: u16, day: u8) {
+    let content =
+        fs::read_to_string(format!("src/solutions/year{}/day{:02}.rs", year, day)).unwrap();
+    solutions.entry(year).or_insert_with(BTreeMap::new).insert(
+        day,
+        Solution {
+            part1: content.contains("pub fn part1"),
+            part2: content.contains("pub fn part2"),
+            tests: content.contains("pub fn tests"),
+        },
+    );
+}
+
+fn insert_year(solutions: &mut BTreeMap<u16, BTreeMap<u8, Solution>>, year: u16) {
+    match env::var("DAY").as_deref() {
+        Ok("") | Err(_) => {
+            for entry in fs::read_dir(format!("src/solutions/year{}", year)).unwrap() {
+                let name: String = entry.unwrap().file_name().into_string().unwrap();
+                if name.len() == 8 && name.starts_with("day") && name.ends_with(".rs") {
+                    if let Ok(day) = name[3..5].parse::<u8>() {
+                        insert_day(solutions, year, day);
                     }
                 }
             }
+        }
+        Ok(day) => {
+            let day = day.parse::<u8>().unwrap();
+            insert_day(solutions, year, day);
+        }
+    }
+}
+
+fn main() {
+    let mut solutions: BTreeMap<u16, BTreeMap<u8, Solution>> = BTreeMap::new();
+    match env::var("YEAR").as_deref() {
+        Ok("") | Err(_) => {
+            for entry in fs::read_dir("src/solutions").unwrap() {
+                let name: String = entry.unwrap().file_name().into_string().unwrap();
+                if name.len() == 8 && name.starts_with("year") {
+                    if let Ok(year) = name[4..].parse::<u16>() {
+                        insert_year(&mut solutions, year);
+                    }
+                }
+            }
+        }
+        Ok(year) => {
+            let year = year.parse::<u16>().unwrap();
+            insert_year(&mut solutions, year);
         }
     }
 

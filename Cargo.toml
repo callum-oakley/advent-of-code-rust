@@ -3,6 +3,9 @@ name = "advent-of-code-rust"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+allow_dead_code = []
+
 [dependencies]
 lazy_static = "1"
 md-5 = "0.10"

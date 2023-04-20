@@ -1,4 +1,5 @@
 #![warn(clippy::pedantic)]
+#![cfg_attr(feature = "allow_dead_code", allow(dead_code))]
 
 use std::{
     collections::BTreeMap,
