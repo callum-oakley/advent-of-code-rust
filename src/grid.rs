@@ -1,4 +1,4 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
+use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
 
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -9,11 +9,21 @@ pub struct Point {
     pub y: i32,
 }
 
-pub const Z: Point = Point { x: 0, y: 0 };
+pub const NW: Point = Point { x: -1, y: -1 };
 pub const N: Point = Point { x: 0, y: -1 };
-pub const E: Point = Point { x: 1, y: 0 };
-pub const S: Point = Point { x: 0, y: 1 };
+pub const NE: Point = Point { x: 1, y: -1 };
 pub const W: Point = Point { x: -1, y: 0 };
+pub const Z: Point = Point { x: 0, y: 0 };
+pub const E: Point = Point { x: 1, y: 0 };
+pub const SW: Point = Point { x: -1, y: 1 };
+pub const S: Point = Point { x: 0, y: 1 };
+pub const SE: Point = Point { x: 1, y: 1 };
+
+impl Point {
+    pub fn adjacent8(self) -> [Point; 8] {
+        [NW, N, NE, W, E, SW, S, SE].map(|dir| dir + self)
+    }
+}
 
 impl From<char> for Point {
     fn from(c: char) -> Self {
@@ -105,5 +115,122 @@ impl MulAssign<i32> for Point {
 impl DivAssign<i32> for Point {
     fn div_assign(&mut self, scalar: i32) {
         *self = *self / scalar;
+    }
+}
+
+pub struct Rect<T> {
+    inner: Vec<Vec<T>>,
+    pub size: Point,
+}
+
+impl<T: Clone> Rect<T> {
+    pub fn new(init: T, size: Point) -> Self {
+        Self {
+            inner: vec![
+                vec![init; usize::try_from(size.x).unwrap()];
+                usize::try_from(size.y).unwrap()
+            ],
+            size,
+        }
+    }
+}
+
+impl<T> Rect<T> {
+    pub fn parse<F: Fn(char) -> T>(s: &str, f: F) -> Self {
+        let mut inner = Vec::new();
+        for line in s.lines() {
+            inner.push(Vec::new());
+            for c in line.chars() {
+                inner.last_mut().unwrap().push(f(c));
+            }
+        }
+        let size = if inner.is_empty() {
+            Point { x: 0, y: 0 }
+        } else {
+            Point {
+                x: i32::try_from(inner[0].len()).unwrap(),
+                y: i32::try_from(inner.len()).unwrap(),
+            }
+        };
+        Self { inner, size }
+    }
+
+    pub fn get(&self, index: Point) -> Option<&T> {
+        if index.y < 0 || index.x < 0 {
+            None
+        } else {
+            self.inner
+                .get(usize::try_from(index.y).unwrap())
+                .and_then(|row| row.get(usize::try_from(index.x).unwrap()))
+        }
+    }
+
+    pub fn get_mut(&mut self, index: Point) -> Option<&mut T> {
+        if index.y < 0 || index.x < 0 {
+            None
+        } else {
+            self.inner
+                .get_mut(usize::try_from(index.y).unwrap())
+                .and_then(|row| row.get_mut(usize::try_from(index.x).unwrap()))
+        }
+    }
+
+    pub fn iter(&self) -> RectIter<T> {
+        RectIter {
+            grid: self,
+            index: Z,
+        }
+    }
+
+    pub fn keys(&self) -> impl Iterator<Item = Point> + '_ {
+        self.iter().map(|(key, _)| key)
+    }
+
+    pub fn values(&self) -> impl Iterator<Item = &T> {
+        self.iter().map(|(_, value)| value)
+    }
+}
+
+impl<T> Index<Point> for Rect<T> {
+    type Output = T;
+
+    fn index(&self, index: Point) -> &T {
+        &self.inner[usize::try_from(index.y).unwrap()][usize::try_from(index.x).unwrap()]
+    }
+}
+
+impl<T> IndexMut<Point> for Rect<T> {
+    fn index_mut(&mut self, index: Point) -> &mut T {
+        &mut self.inner[usize::try_from(index.y).unwrap()][usize::try_from(index.x).unwrap()]
+    }
+}
+
+impl<'a, T> IntoIterator for &'a Rect<T> {
+    type Item = (Point, &'a T);
+    type IntoIter = RectIter<'a, T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+pub struct RectIter<'a, T> {
+    grid: &'a Rect<T>,
+    index: Point,
+}
+
+impl<'a, T> Iterator for RectIter<'a, T> {
+    type Item = (Point, &'a T);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.grid.get(self.index).map(|value| {
+            let index = self.index;
+            self.index.x += 1;
+            if self.index.x >= self.grid.size.x {
+                self.index.x = 0;
+                self.index.y += 1;
+            }
+            (index, value)
+        })
     }
 }
