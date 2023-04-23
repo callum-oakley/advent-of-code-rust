@@ -50,9 +50,9 @@ impl<'a> PartialEq for State<'a> {
     }
 }
 
-impl<'a> Ord for State<'a> {
-    fn cmp(&self, other: &Self) -> Ordering {
-        (self.steps + self.molecule.len()).cmp(&(other.steps + other.molecule.len()))
+impl<'a> Hash for State<'a> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.molecule.hash(state);
     }
 }
 
@@ -62,20 +62,26 @@ impl<'a> PartialOrd for State<'a> {
     }
 }
 
-impl<'a> Hash for State<'a> {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.molecule.hash(state);
+impl<'a> Ord for State<'a> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        // The molecule length is NOT an admissible heuristic, but the
+        // relaxation returns the correct answer in this case.
+        (self.steps + self.molecule.len()).cmp(&(other.steps + other.molecule.len()))
     }
 }
 
 impl<'a> search::State for State<'a> {
-    fn adjacent(&self) -> Vec<State<'a>> {
+    type Adjacent = Vec<State<'a>>;
+
+    fn adjacent(&self) -> Self::Adjacent {
         step(self.reactions, &self.molecule)
             .map(|molecule| State {
                 molecule,
                 steps: self.steps + 1,
                 reactions: self.reactions,
             })
+            // Would be nice to avoid this collect but the concrete type of the
+            // iterator is a mess.
             .collect()
     }
 }
