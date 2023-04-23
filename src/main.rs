@@ -12,6 +12,7 @@ use regex::Regex;
 
 mod combinatorics;
 mod grid;
+mod search;
 mod solutions;
 mod uniq;
 
