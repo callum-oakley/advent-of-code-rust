@@ -1,3 +1,5 @@
+use std::iter;
+
 // https://en.wikipedia.org/wiki/Permutation#Generation_in_lexicographic_order
 // Mutates the input into the lexicographically next permutation. Returns false
 // if we've reached the end.
@@ -10,4 +12,21 @@ pub fn permute<T: PartialOrd>(xs: &mut [T]) -> bool {
         }
     }
     false
+}
+
+pub fn combination<T>(k: usize, items: &[T]) -> Box<dyn Iterator<Item = Vec<&T>> + '_> {
+    if k == 0 {
+        Box::new(iter::once(Vec::new()))
+    } else if k > items.len() {
+        Box::new(iter::empty())
+    } else {
+        Box::new(
+            combination(k - 1, &items[1..])
+                .map(|mut choice| {
+                    choice.push(&items[0]);
+                    choice
+                })
+                .chain(combination(k, &items[1..])),
+        )
+    }
 }
