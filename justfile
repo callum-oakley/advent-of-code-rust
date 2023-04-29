@@ -1,5 +1,8 @@
+debug := "false"
+
 run year="" day="":
-    YEAR={{ year }} DAY={{ day }} cargo run -r -F allow_dead_code
+    YEAR={{ year }} DAY={{ day }} cargo run -F allow_dead_code \
+        {{ if debug == "true" { "" } else { "-r" } }}
     cargo clippy
 
 log:

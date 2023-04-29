@@ -4,7 +4,7 @@ use regex::Regex;
 
 use crate::combinatorics::combination;
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 struct Item {
     cost: i32,
     damage: i32,
@@ -44,7 +44,8 @@ impl Item {
                             .iter()
                             .chain(armor_choice)
                             .chain(ring_choice)
-                            .map(|&i| i.clone())
+                            .copied()
+                            .copied()
                             .collect(),
                     );
                 }
