@@ -72,7 +72,7 @@ fn main() {
         for day in year_solutions.keys() {
             writeln!(f, "pub mod day{:0>2};", day).unwrap();
         }
-        writeln!(f, "}}").unwrap();
+        writeln!(f, "}}\n").unwrap();
     }
 
     writeln!(

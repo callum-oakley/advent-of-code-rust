@@ -19,9 +19,42 @@ pub const SW: Point = Point { x: -1, y: 1 };
 pub const S: Point = Point { x: 0, y: 1 };
 pub const SE: Point = Point { x: 1, y: 1 };
 
+#[derive(Copy, Clone, Debug)]
+pub enum Turn {
+    Left,
+    Right,
+}
+
+impl From<&str> for Turn {
+    fn from(s: &str) -> Self {
+        match s {
+            "L" => Turn::Left,
+            "R" => Turn::Right,
+            _ => unreachable!(),
+        }
+    }
+}
+
 impl Point {
-    pub fn adjacent8(self) -> [Point; 8] {
+    pub fn adjacent8(self) -> [Self; 8] {
         [NW, N, NE, W, E, SW, S, SE].map(|dir| dir + self)
+    }
+
+    pub fn manhattan(self) -> i32 {
+        self.x.abs() + self.y.abs()
+    }
+
+    pub fn turn(self, t: Turn) -> Self {
+        match t {
+            Turn::Left => Point {
+                x: self.y,
+                y: -self.x,
+            },
+            Turn::Right => Point {
+                x: -self.y,
+                y: self.x,
+            },
+        }
     }
 }
 
