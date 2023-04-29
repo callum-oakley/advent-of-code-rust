@@ -1,7 +1,7 @@
 use std::{
-    cmp::Reverse,
+    cmp::{Ordering, Reverse},
     collections::{BinaryHeap, HashSet, VecDeque},
-    hash::Hash,
+    hash::{Hash, Hasher},
 };
 
 trait Queue {
@@ -51,68 +51,152 @@ impl<T: Ord> Queue for BinaryHeap<Reverse<T>> {
     }
 }
 
+/// A state in a searchable state space. If we can move to adjacent states, and
+/// we can hash a state to see if we've visited it already, then we can traverse
+/// the corresponding space. `StateWrapper` will implement `PartialEq`, `Eq`,
+/// and `Hash` based on `hash_key` such that two states with the same `hash_key`
+/// will be considered equal.
 pub trait State {
     type Adjacent;
+    type HashKey;
 
-    fn adjacent(&self) -> Self::Adjacent;
+    fn adjacent(self) -> Self::Adjacent;
+    fn hash_key(self) -> Self::HashKey;
 }
 
-pub struct Traversal<S: State, Q> {
+pub struct StateWrapper<S>(S);
+
+impl<S> PartialEq for StateWrapper<S>
+where
+    for<'a> &'a S: State,
+    for<'a> <&'a S as State>::HashKey: PartialEq,
+{
+    fn eq(&self, other: &Self) -> bool {
+        self.0.hash_key() == other.0.hash_key()
+    }
+}
+
+impl<S> Eq for StateWrapper<S>
+where
+    for<'a> &'a S: State,
+    for<'a> <&'a S as State>::HashKey: Eq,
+{
+}
+
+impl<S> Hash for StateWrapper<S>
+where
+    for<'a> &'a S: State,
+    for<'a> <&'a S as State>::HashKey: Hash,
+{
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.0.hash_key().hash(state);
+    }
+}
+
+/// Represent an ordering based on a key, e.g. a cost or a cost + a heuristic.
+/// `StateWrapper` will implement `Ord` and `PartialOrd` based on this.
+pub trait OrdKey {
+    type OrdKey;
+
+    fn ord_key(self) -> Self::OrdKey;
+}
+
+impl<S> PartialOrd for StateWrapper<S>
+where
+    for<'a> &'a S: State + OrdKey,
+    for<'a> <&'a S as State>::HashKey: PartialEq,
+    for<'a> <&'a S as OrdKey>::OrdKey: PartialOrd,
+{
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.0.ord_key().partial_cmp(&other.0.ord_key())
+    }
+}
+
+impl<S> Ord for StateWrapper<S>
+where
+    for<'a> &'a S: State + OrdKey,
+    for<'a> <&'a S as State>::HashKey: Eq,
+    for<'a> <&'a S as OrdKey>::OrdKey: Ord,
+{
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.0.ord_key().cmp(&other.0.ord_key())
+    }
+}
+
+pub struct Traversal<S, Q> {
     queue: Q,
-    visited: HashSet<S>,
+    visited: HashSet<StateWrapper<S>>,
 }
 
 impl<S, Q> Iterator for Traversal<S, Q>
 where
-    S: State + Eq + Hash + Clone,
-    S::Adjacent: IntoIterator<Item = S>,
-    Q: Queue<Item = S>,
+    S: Clone,
+    for<'a> &'a S: State,
+    for<'a> <&'a S as State>::Adjacent: IntoIterator<Item = S>,
+    for<'a> <&'a S as State>::HashKey: Hash + Eq,
+    Q: Queue<Item = StateWrapper<S>>,
 {
     type Item = S;
 
     fn next(&mut self) -> Option<Self::Item> {
         while let Some(state) = self.queue.pop() {
             if !self.visited.contains(&state) {
-                self.visited.insert(state.clone());
-                for s in state.adjacent() {
+                self.visited.insert(StateWrapper(state.0.clone()));
+                for s in state.0.adjacent() {
+                    let s = StateWrapper(s);
                     if !self.visited.contains(&s) {
                         self.queue.push(s);
                     }
                 }
-                return Some(state);
+                return Some(state.0);
             }
         }
         None
     }
 }
 
-/// Traverse the state space breadth first. Implement Hash and Eq on S to
-/// specify when two states should be considered the same.
+/// Traverse the state space breadth first.
 #[allow(dead_code)]
-pub fn breadth_first<S: State>(start: S) -> Traversal<S, VecDeque<S>> {
+pub fn breadth_first<S>(start: S) -> Traversal<S, VecDeque<StateWrapper<S>>>
+where
+    for<'a> &'a S: State,
+{
     Traversal {
-        queue: VecDeque::from([start]),
+        queue: VecDeque::from([StateWrapper(start)]),
         visited: HashSet::new(),
     }
 }
 
-/// Traverse the state space depth first. Implement Hash and Eq on S to specify
-/// when two states should be considered the same.
+/// Traverse the state space depth first.
 #[allow(dead_code)]
-pub fn depth_first<S: State>(start: S) -> Traversal<S, Vec<S>> {
+pub fn depth_first<S>(start: S) -> Traversal<S, Vec<StateWrapper<S>>>
+where
+    for<'a> &'a S: State,
+{
     Traversal {
-        queue: Vec::from([start]),
+        queue: Vec::from([StateWrapper(start)]),
         visited: HashSet::new(),
     }
 }
 
-/// Traverse the state space in increasing order according to Ord. If Ord
+// Workaround for a HRTB bug https://github.com/rust-lang/rust/issues/90950
+// See https://stackoverflow.com/a/53365549
+pub trait EqHack<'a>: Eq {}
+impl<'a, T> EqHack<'a> for T where T: Eq {}
+pub trait OrdHack<'a>: Ord {}
+impl<'a, T> OrdHack<'a> for T where T: Ord {}
+
+/// Traverse the state space in increasing order of `ord_key`. If `ord_key`
 /// represents an ordering by a cost function then this is Dijkstra's algorithm.
-/// If it also factors in a heuristic then this is A*. Implement Hash and Eq on
-/// S to specify when two states should be considered the same.
-pub fn min_first<S: State + Ord>(start: S) -> Traversal<S, BinaryHeap<Reverse<S>>> {
+/// If it also factors in a heuristic then this is A*.
+pub fn min_first<S>(start: S) -> Traversal<S, BinaryHeap<Reverse<StateWrapper<S>>>>
+where
+    for<'a> &'a S: State + OrdKey,
+    for<'a> <&'a S as State>::HashKey: EqHack<'a>,
+    for<'a> <&'a S as OrdKey>::OrdKey: OrdHack<'a>,
+{
     Traversal {
-        queue: BinaryHeap::from([Reverse(start)]),
+        queue: BinaryHeap::from([Reverse(StateWrapper(start))]),
         visited: HashSet::new(),
     }
 }

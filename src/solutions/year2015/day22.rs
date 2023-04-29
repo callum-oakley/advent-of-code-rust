@@ -137,10 +137,11 @@ impl State {
     }
 }
 
-impl search::State for State {
+impl<'a> search::State for &'a State {
     type Adjacent = Vec<State>;
+    type HashKey = Self;
 
-    fn adjacent(&self) -> Self::Adjacent {
+    fn adjacent(self) -> Self::Adjacent {
         let mut state = self.clone();
         if state.hard_mode && state.turn == Turn::Player {
             state.player.hp -= 1;
@@ -170,17 +171,17 @@ impl search::State for State {
             Turn::Boss => vec![state.boss_attack()],
         }
     }
-}
 
-impl PartialOrd for State {
-    fn partial_cmp(&self, other: &Self) -> Option<cmp::Ordering> {
-        Some(self.cmp(other))
+    fn hash_key(self) -> Self::HashKey {
+        self
     }
 }
 
-impl Ord for State {
-    fn cmp(&self, other: &Self) -> cmp::Ordering {
-        self.mana_spent.cmp(&other.mana_spent)
+impl<'a> search::OrdKey for &'a State {
+    type OrdKey = i32;
+
+    fn ord_key(self) -> Self::OrdKey {
+        self.mana_spent
     }
 }
 

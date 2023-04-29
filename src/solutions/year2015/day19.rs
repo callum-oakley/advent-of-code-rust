@@ -1,8 +1,4 @@
-use std::{
-    cmp::Ordering,
-    hash::{Hash, Hasher},
-    mem,
-};
+use std::mem;
 
 use crate::{search, uniq::Uniq};
 
@@ -37,43 +33,18 @@ pub fn part1(input: &str) -> usize {
     Uniq::new(step(&reactions, molecule)).count()
 }
 
-#[derive(Eq, Clone)]
+#[derive(Clone)]
 struct State<'a> {
     molecule: String,
     steps: usize,
     reactions: &'a [(&'a str, &'a str)],
 }
 
-impl<'a> PartialEq for State<'a> {
-    fn eq(&self, other: &Self) -> bool {
-        self.molecule == other.molecule
-    }
-}
-
-impl<'a> Hash for State<'a> {
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.molecule.hash(state);
-    }
-}
-
-impl<'a> PartialOrd for State<'a> {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
-impl<'a> Ord for State<'a> {
-    fn cmp(&self, other: &Self) -> Ordering {
-        // The molecule length is NOT an admissible heuristic, but the
-        // relaxation returns the correct answer in this case.
-        (self.steps + self.molecule.len()).cmp(&(other.steps + other.molecule.len()))
-    }
-}
-
-impl<'a> search::State for State<'a> {
+impl<'a, 'b> search::State for &'b State<'a> {
     type Adjacent = Vec<State<'a>>;
+    type HashKey = &'b str;
 
-    fn adjacent(&self) -> Self::Adjacent {
+    fn adjacent(self) -> Self::Adjacent {
         step(self.reactions, &self.molecule)
             .map(|molecule| State {
                 molecule,
@@ -83,6 +54,20 @@ impl<'a> search::State for State<'a> {
             // Would be nice to avoid this collect but the concrete type of the
             // iterator is a mess.
             .collect()
+    }
+
+    fn hash_key(self) -> Self::HashKey {
+        &self.molecule
+    }
+}
+
+impl<'a, 'b> search::OrdKey for &'b State<'a> {
+    type OrdKey = usize;
+
+    fn ord_key(self) -> Self::OrdKey {
+        // The molecule length is NOT an admissible heuristic, but the
+        // relaxation returns the correct answer in this case.
+        self.steps + self.molecule.len()
     }
 }
 
