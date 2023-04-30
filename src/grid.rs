@@ -61,10 +61,10 @@ impl Point {
 impl From<char> for Point {
     fn from(c: char) -> Self {
         match c {
-            '^' => N,
-            '>' => E,
-            'v' => S,
-            '<' => W,
+            'N' | 'U' | '^' => N,
+            'E' | 'R' | '>' => E,
+            'S' | 'D' | 'v' => S,
+            'W' | 'L' | '<' => W,
             _ => unreachable!(),
         }
     }
