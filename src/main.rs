@@ -16,6 +16,12 @@ mod search;
 mod solutions;
 mod uniq;
 
+fn sig_figs(n: u32, duration: Duration) -> Duration {
+    let nanos = u64::try_from(duration.as_nanos()).unwrap();
+    let magnitude = 10u64.pow(nanos.ilog10() - n + 1);
+    Duration::from_nanos(nanos / magnitude * magnitude)
+}
+
 fn get(path: &str) -> reqwest::Result<String> {
     reqwest::blocking::Client::new()
         .get(format!("https://adventofcode.com/{path}"))
@@ -76,11 +82,11 @@ fn run_part(year: u16, day: u8, part: u8, f: fn(&str) -> String, input: &str) ->
     }
 
     println!(
-        "{} {:0>2} {}   {: >5.0?}   {}{}",
+        "{} {:0>2} {}   {: >5?}   {}{}",
         year,
         day,
         part,
-        elapsed,
+        sig_figs(2, elapsed),
         answer,
         if expected.is_none() { " ?" } else { "" }
     );
@@ -113,7 +119,7 @@ fn run_year(year: u16, year_solutions: &BTreeMap<u8, solutions::Solution>) -> Du
     }
 
     println!("{:\u{2500}^80}", "");
-    println!("{year} ** *   {elapsed: >5.0?}");
+    println!("{} ** *   {: >5?}", year, sig_figs(2, elapsed));
 
     elapsed
 }
@@ -125,7 +131,7 @@ fn run(solutions: &BTreeMap<u16, BTreeMap<u8, solutions::Solution>>) {
         println!("{:\u{2550}^80}", "");
     }
 
-    println!("**** ** *   {elapsed: >5.0?}");
+    println!("**** ** *   {: >5?}", sig_figs(2, elapsed));
     println!("{:\u{2500}^80}", "");
 }
 

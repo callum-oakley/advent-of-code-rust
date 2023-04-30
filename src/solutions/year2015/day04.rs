@@ -1,3 +1,5 @@
+use std::io::{Cursor, Seek, Write};
+
 use md5::{Digest, Md5};
 
 fn starts_with_zeroes(zeroes: usize, hash: &[u8]) -> bool {
@@ -12,15 +14,17 @@ fn starts_with_zeroes(zeroes: usize, hash: &[u8]) -> bool {
 
 fn part_(zeroes: usize, input: &str) -> usize {
     let mut hasher = Md5::new();
-    let mut i = 0;
-    loop {
-        hasher.update(format!("{input}{i}"));
+    let mut buffer = Cursor::new(Vec::new());
+    for i in 0.. {
+        write!(buffer, "{input}{i}").unwrap();
+        hasher.update(buffer.get_ref());
+        buffer.rewind().unwrap();
         let hash = hasher.finalize_reset();
         if starts_with_zeroes(zeroes, &hash) {
             return i;
         }
-        i += 1;
     }
+    unreachable!()
 }
 
 pub fn part1(input: &str) -> usize {
