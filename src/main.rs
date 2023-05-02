@@ -18,6 +18,9 @@ mod uniq;
 
 fn sig_figs(n: u32, duration: Duration) -> Duration {
     let nanos = u64::try_from(duration.as_nanos()).unwrap();
+    if nanos == 0 {
+        return duration;
+    }
     let magnitude = 10u64.pow(nanos.ilog10() - n + 1);
     Duration::from_nanos(nanos / magnitude * magnitude)
 }
