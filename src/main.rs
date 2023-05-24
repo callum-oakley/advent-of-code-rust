@@ -98,7 +98,7 @@ fn run_part(year: u16, day: u8, part: u8, f: fn(&str) -> String, input: &str) ->
     elapsed
 }
 
-fn run_day(year: u16, day: u8, solution: &solutions::Solution) -> Duration {
+fn run_day(year: u16, day: u8, solution: &solutions::Solution) -> (Duration, usize) {
     if let Some(tests) = solution.tests {
         tests();
     }
@@ -107,35 +107,61 @@ fn run_day(year: u16, day: u8, solution: &solutions::Solution) -> Duration {
     let input = input.trim_end();
 
     let mut elapsed = Duration::new(0, 0);
+    let mut stars = 0;
     if let Some(part1) = solution.part1 {
         elapsed += run_part(year, day, 1, part1, input);
+        stars += 1;
     }
     if let Some(part2) = solution.part2 {
         elapsed += run_part(year, day, 2, part2, input);
+        stars += 1;
     }
-    elapsed
+    (elapsed, stars)
 }
 
-fn run_year(year: u16, year_solutions: &BTreeMap<u8, solutions::Solution>) -> Duration {
+fn run_year(year: u16, year_solutions: &BTreeMap<u8, solutions::Solution>) -> (Duration, usize) {
     let mut elapsed = Duration::new(0, 0);
+    let mut stars = 0;
     for (day, solution) in year_solutions {
-        elapsed += run_day(year, *day, solution);
+        let (e, s) = run_day(year, *day, solution);
+        elapsed += e;
+        stars += s;
+    }
+
+    if stars == 49 {
+        // day 25 part 2
+        stars += 1;
     }
 
     println!("{:\u{2500}^80}", "");
-    println!("{} ** *   {: >5?}", year, sig_figs(2, elapsed));
+    println!(
+        "{} ** *   {: >5?}   {} / 50",
+        year,
+        sig_figs(2, elapsed),
+        stars,
+    );
 
-    elapsed
+    (elapsed, stars)
 }
 
 fn run(solutions: &BTreeMap<u16, BTreeMap<u8, solutions::Solution>>) {
     let mut elapsed = Duration::new(0, 0);
+    let mut stars = 0;
+    let mut available = 0;
     for (year, year_solutions) in solutions {
-        elapsed += run_year(*year, year_solutions);
+        let (e, s) = run_year(*year, year_solutions);
+        elapsed += e;
+        stars += s;
+        available += 50;
         println!("{:\u{2550}^80}", "");
     }
 
-    println!("**** ** *   {: >5?}", sig_figs(2, elapsed));
+    println!(
+        "**** ** *   {: >5?}   {} / {}",
+        sig_figs(2, elapsed),
+        stars,
+        available,
+    );
     println!("{:\u{2500}^80}", "");
 }
 
