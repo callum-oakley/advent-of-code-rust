@@ -82,7 +82,7 @@ fn run_part(year: u16, day: u8, part: u8, f: fn(&str) -> String, input: &str) ->
 
     let expected = get_answer(year, day, part);
     if let Some(ref expected) = expected {
-        assert_eq!(expected, &answer);
+        assert_eq!(&answer, expected);
     }
 
     println!(
