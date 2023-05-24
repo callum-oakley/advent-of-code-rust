@@ -1,9 +1,12 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign};
+use std::{
+    fmt::{self, Write},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
+};
 
 use lazy_static::lazy_static;
 use regex::Regex;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Point {
     pub x: i32,
     pub y: i32,
@@ -235,6 +238,18 @@ impl<T> Index<Point> for Rect<T> {
 impl<T> IndexMut<Point> for Rect<T> {
     fn index_mut(&mut self, index: Point) -> &mut T {
         &mut self.inner[usize::try_from(index.y).unwrap()][usize::try_from(index.x).unwrap()]
+    }
+}
+
+impl fmt::Display for Rect<bool> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        for y in 0..self.size.y {
+            for x in 0..self.size.x {
+                f.write_char(if self[Point { x, y }] { '#' } else { '.' })?;
+            }
+            f.write_char('\n')?;
+        }
+        Ok(())
     }
 }
 
