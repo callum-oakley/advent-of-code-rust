@@ -1,6 +1,8 @@
-use std::collections::HashMap;
+type Reg = usize;
 
-type Reg = char;
+fn reg(s: &str) -> Reg {
+    s.chars().next().unwrap() as usize - 'a' as usize
+}
 
 #[derive(PartialEq, Eq, Hash)]
 enum Arg {
@@ -9,10 +11,10 @@ enum Arg {
 }
 
 impl Arg {
-    fn value(&self, regs: &HashMap<Reg, i32>) -> i32 {
+    fn value(&self, regs: &[i32]) -> i32 {
         match self {
             Arg::Lit(lit) => *lit,
-            Arg::Reg(reg) => regs[reg],
+            Arg::Reg(reg) => regs[*reg],
         }
     }
 }
@@ -22,7 +24,7 @@ impl From<&str> for Arg {
         if let Ok(n) = s.parse() {
             Arg::Lit(n)
         } else {
-            Arg::Reg(s.chars().next().unwrap())
+            Arg::Reg(reg(s))
         }
     }
 }
@@ -43,9 +45,9 @@ fn parse(input: &str) -> Vec<Instruction> {
             let x = words.next();
             let y = words.next();
             match op.unwrap() {
-                "cpy" => Instruction::Cpy(x.unwrap().into(), y.unwrap().chars().next().unwrap()),
-                "inc" => Instruction::Inc(x.unwrap().chars().next().unwrap()),
-                "dec" => Instruction::Dec(x.unwrap().chars().next().unwrap()),
+                "cpy" => Instruction::Cpy(x.unwrap().into(), reg(y.unwrap())),
+                "inc" => Instruction::Inc(reg(x.unwrap())),
+                "dec" => Instruction::Dec(reg(x.unwrap())),
                 "jnz" => Instruction::Jnz(x.unwrap().into(), y.unwrap().into()),
                 _ => unreachable!(),
             }
@@ -56,20 +58,18 @@ fn parse(input: &str) -> Vec<Instruction> {
 fn part_(c: i32, input: &str) -> i32 {
     let instructions = parse(input);
 
-    let mut regs = HashMap::new();
-    regs.insert('c', c);
-
+    let mut regs = [0, 0, c, 0];
     let mut ip = 0;
     while ip < instructions.len() {
         match &instructions[ip] {
             Instruction::Cpy(x, y) => {
-                regs.insert(*y, x.value(&regs));
+                regs[*y] = x.value(&regs);
             }
             Instruction::Inc(x) => {
-                *regs.entry(*x).or_insert(0) += 1;
+                regs[*x] += 1;
             }
             Instruction::Dec(x) => {
-                *regs.entry(*x).or_insert(0) -= 1;
+                regs[*x] -= 1;
             }
             Instruction::Jnz(x, y) => {
                 if x.value(&regs) != 0 {
@@ -85,7 +85,7 @@ fn part_(c: i32, input: &str) -> i32 {
         }
         ip += 1;
     }
-    regs[&'a']
+    regs[reg("a")]
 }
 
 pub fn part1(input: &str) -> i32 {
