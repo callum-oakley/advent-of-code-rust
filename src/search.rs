@@ -155,9 +155,10 @@ where
     }
 }
 
+pub type BreadthFirstTraversal<S> = Traversal<S, VecDeque<StateWrapper<S>>>;
+
 /// Traverse the state space breadth first.
-#[allow(dead_code)]
-pub fn breadth_first<S>(start: S) -> Traversal<S, VecDeque<StateWrapper<S>>>
+pub fn breadth_first<S>(start: S) -> BreadthFirstTraversal<S>
 where
     for<'a> &'a S: State,
 {
@@ -167,9 +168,11 @@ where
     }
 }
 
+pub type DepthFirstTraversal<S> = Traversal<S, Vec<StateWrapper<S>>>;
+
 /// Traverse the state space depth first.
 #[allow(dead_code)]
-pub fn depth_first<S>(start: S) -> Traversal<S, Vec<StateWrapper<S>>>
+pub fn depth_first<S>(start: S) -> DepthFirstTraversal<S>
 where
     for<'a> &'a S: State,
 {
@@ -186,10 +189,12 @@ impl<'a, T> EqHack<'a> for T where T: Eq {}
 pub trait OrdHack<'a>: Ord {}
 impl<'a, T> OrdHack<'a> for T where T: Ord {}
 
+pub type MinFirstTraversal<S> = Traversal<S, BinaryHeap<Reverse<StateWrapper<S>>>>;
+
 /// Traverse the state space in increasing order of `ord_key`. If `ord_key`
 /// represents an ordering by a cost function then this is Dijkstra's algorithm.
 /// If it also factors in a heuristic then this is A*.
-pub fn min_first<S>(start: S) -> Traversal<S, BinaryHeap<Reverse<StateWrapper<S>>>>
+pub fn min_first<S>(start: S) -> MinFirstTraversal<S>
 where
     for<'a> &'a S: State + OrdKey,
     for<'a> <&'a S as State>::HashKey: EqHack<'a>,

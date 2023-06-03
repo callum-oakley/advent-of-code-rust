@@ -39,6 +39,10 @@ impl From<&str> for Turn {
 }
 
 impl Point {
+    pub fn adjacent4(self) -> [Self; 4] {
+        [N, W, E, S].map(|dir| dir + self)
+    }
+
     pub fn adjacent8(self) -> [Self; 8] {
         [NW, N, NE, W, E, SW, S, SE].map(|dir| dir + self)
     }
