@@ -37,7 +37,7 @@ fn part_(stretch_rounds: usize, input: &str) -> usize {
         // NOTE "Only consider the first such triplet in a hash"
         'triple: for triple in hash.get_ref().windows(3) {
             for digit in 0..16 {
-                let hex = (char::from_digit(digit.into(), 16).unwrap()) as u8;
+                let hex = char::from_digit(digit.into(), 16).unwrap() as u8;
                 if triple.iter().all(|b| *b == hex) {
                     states[i] = State::Triple(digit);
                     break 'triple;
@@ -47,7 +47,7 @@ fn part_(stretch_rounds: usize, input: &str) -> usize {
 
         for quintuple in hash.get_ref().windows(5) {
             for digit in 0..16 {
-                let hex = (char::from_digit(digit.into(), 16).unwrap()) as u8;
+                let hex = char::from_digit(digit.into(), 16).unwrap() as u8;
                 if quintuple.iter().all(|b| *b == hex) {
                     for state in &mut states[i.saturating_sub(1000)..i] {
                         if let State::Triple(triple) = state {

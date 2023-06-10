@@ -10,6 +10,7 @@ use std::{
 
 use regex::Regex;
 
+mod chinese_remainder;
 mod combinatorics;
 mod grid;
 mod ocr;

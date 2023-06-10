@@ -9,8 +9,8 @@ log:
     just run | tee results.log
 
 init year day:
-    #! /usr/bin/env bash
-    set -euxo pipefail
+    #! /bin/sh
+    set -eux
     dir="src/solutions/year{{ year }}"
     mkdir -p "${dir}"
     path="${dir}/day$(printf %02s {{ day }}).rs"
