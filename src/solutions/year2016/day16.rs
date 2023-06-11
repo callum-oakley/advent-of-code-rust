@@ -1,14 +1,3 @@
-fn parse(input: &str) -> Vec<bool> {
-    input.chars().map(|c| c == '1').collect()
-}
-
-fn print(curve: Vec<bool>) -> String {
-    curve
-        .into_iter()
-        .map(|bit| if bit { '1' } else { '0' })
-        .collect()
-}
-
 fn dragon_fill(disk: usize, curve: &mut Vec<bool>) {
     while curve.len() < disk {
         let prev_len = curve.len();
@@ -19,20 +8,30 @@ fn dragon_fill(disk: usize, curve: &mut Vec<bool>) {
     }
 }
 
-fn checksum(curve: &mut Vec<bool>) {
-    while curve.len() % 2 == 0 {
-        for i in (0..curve.len()).step_by(2) {
-            curve[i / 2] = curve[i] == curve[i + 1];
-        }
-        curve.truncate(curve.len() / 2);
+fn checksum(curve: &[bool]) -> String {
+    let mut res_len = curve.len();
+    let mut chunk_size = 1;
+    while res_len % 2 == 0 {
+        res_len /= 2;
+        chunk_size *= 2;
     }
+
+    let mut res = String::with_capacity(res_len);
+    for chunk in curve.chunks(chunk_size) {
+        if chunk.iter().filter(|bit| **bit).count() % 2 == 0 {
+            res.push('1');
+        } else {
+            res.push('0');
+        }
+    }
+    res
 }
 
 fn part_(disk: usize, input: &str) -> String {
-    let mut curve = parse(input);
+    let mut curve = Vec::with_capacity(disk);
+    curve.extend(input.chars().map(|c| c == '1'));
     dragon_fill(disk, &mut curve);
-    checksum(&mut curve);
-    print(curve)
+    checksum(&curve)
 }
 
 pub fn part1(input: &str) -> String {
