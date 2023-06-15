@@ -171,7 +171,6 @@ where
 pub type DepthFirstTraversal<S> = Traversal<S, Vec<StateWrapper<S>>>;
 
 /// Traverse the state space depth first.
-#[allow(dead_code)]
 pub fn depth_first<S>(start: S) -> DepthFirstTraversal<S>
 where
     for<'a> &'a S: State,
