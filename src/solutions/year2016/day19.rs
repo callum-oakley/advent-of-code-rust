@@ -1,4 +1,3 @@
-// The only difference between the parts is
 fn part_(part: u8, input: &str) -> usize {
     let mut size = input.parse().unwrap();
 
