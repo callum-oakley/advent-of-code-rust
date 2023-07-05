@@ -20,9 +20,9 @@ fn part_(part: u8, input: &str) -> usize {
 
     let mut seen = HashMap::new();
     let mut cycle = 0;
-    seen.insert(banks.clone(), cycle);
 
     loop {
+        seen.insert(banks.clone(), cycle);
         redistribute(&mut banks);
         cycle += 1;
         if let Some(prev) = seen.get(&banks) {
@@ -31,7 +31,6 @@ fn part_(part: u8, input: &str) -> usize {
             }
             return cycle;
         }
-        seen.insert(banks.clone(), cycle);
     }
 }
 
