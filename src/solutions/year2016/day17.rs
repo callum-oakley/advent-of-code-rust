@@ -1,3 +1,5 @@
+use std::iter;
+
 use md5::{Digest, Md5};
 
 use crate::{
@@ -12,15 +14,14 @@ struct State<'input> {
     pos: Point,
 }
 
-impl<'a, 'input> search::State for &'a State<'input> {
-    type Adjacent = Vec<State<'input>>;
-    type HashKey = &'a str;
+impl<'input> search::State for State<'input> {
+    type HashKey = String;
 
-    fn adjacent(self) -> Self::Adjacent {
+    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
         let mut res = Vec::new();
 
         if self.pos == (Point { x: 3, y: 3 }) {
-            return res;
+            return Box::new(iter::empty());
         }
 
         let mut hasher = Md5::new();
@@ -53,11 +54,11 @@ impl<'a, 'input> search::State for &'a State<'input> {
             res.push(state);
         }
 
-        res
+        Box::new(res.into_iter())
     }
 
-    fn hash_key(self) -> Self::HashKey {
-        &self.path
+    fn hash_key(&self) -> Self::HashKey {
+        self.path.clone()
     }
 }
 

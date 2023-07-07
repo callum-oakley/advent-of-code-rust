@@ -49,37 +49,36 @@ struct State<'a> {
     steps: usize,
 }
 
-impl<'a, 'b> search::State for &'b State<'a> {
-    type Adjacent = Vec<State<'a>>;
-
+impl<'a> search::State for State<'a> {
     type HashKey = (Point, Point);
 
-    fn adjacent(self) -> Self::Adjacent {
-        self.hole
-            .adjacent4()
-            .into_iter()
-            .filter(|p| self.viable.contains(p))
-            .map(|p| {
-                let mut state = self.clone();
-                if state.goal == p {
-                    state.goal = state.hole;
-                }
-                state.hole = p;
-                state.steps += 1;
-                state
-            })
-            .collect()
+    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
+        Box::new(
+            self.hole
+                .adjacent4()
+                .into_iter()
+                .filter(|p| self.viable.contains(p))
+                .map(|p| {
+                    let mut state = self.clone();
+                    if state.goal == p {
+                        state.goal = state.hole;
+                    }
+                    state.hole = p;
+                    state.steps += 1;
+                    state
+                }),
+        )
     }
 
-    fn hash_key(self) -> Self::HashKey {
+    fn hash_key(&self) -> Self::HashKey {
         (self.hole, self.goal)
     }
 }
 
-impl<'a, 'b> search::OrdKey for &'b State<'a> {
+impl<'a> search::OrdKey for State<'a> {
     type OrdKey = usize;
 
-    fn ord_key(self) -> Self::OrdKey {
+    fn ord_key(&self) -> Self::OrdKey {
         self.steps
             // First we have to move the hole next to the goal.
             + usize::try_from((self.goal - self.hole).manhattan()).unwrap()

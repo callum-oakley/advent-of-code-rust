@@ -11,24 +11,24 @@ struct State {
     seed: u32,
 }
 
-impl search::State for &State {
-    type Adjacent = Vec<State>;
+impl search::State for State {
     type HashKey = Point;
 
-    fn adjacent(self) -> Self::Adjacent {
-        self.pos
-            .adjacent4()
-            .into_iter()
-            .filter(|pos| pos.x >= 0 && pos.y >= 0 && is_open(self.seed, *pos))
-            .map(|pos| State {
-                pos,
-                steps: self.steps + 1,
-                seed: self.seed,
-            })
-            .collect()
+    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
+        Box::new(
+            self.pos
+                .adjacent4()
+                .into_iter()
+                .filter(|pos| pos.x >= 0 && pos.y >= 0 && is_open(self.seed, *pos))
+                .map(|pos| State {
+                    pos,
+                    steps: self.steps + 1,
+                    seed: self.seed,
+                }),
+        )
     }
 
-    fn hash_key(self) -> Self::HashKey {
+    fn hash_key(&self) -> Self::HashKey {
         self.pos
     }
 }

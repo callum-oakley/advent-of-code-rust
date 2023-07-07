@@ -1,4 +1,4 @@
-use std::{cmp, collections::BTreeMap};
+use std::{cmp, collections::BTreeMap, iter};
 
 use regex::Regex;
 
@@ -137,50 +137,50 @@ impl State {
     }
 }
 
-impl<'a> search::State for &'a State {
-    type Adjacent = Vec<State>;
+impl search::State for State {
     type HashKey = Self;
 
-    fn adjacent(self) -> Self::Adjacent {
+    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
         let mut state = self.clone();
         if state.hard_mode && state.turn == Turn::Player {
             state.player.hp -= 1;
             if state.player.hp <= 0 {
-                return vec![];
+                return Box::new(iter::empty());
             }
         }
 
         state.apply_effects();
         if state.player.hp <= 0 {
-            return vec![];
+            return Box::new(iter::empty());
         } else if state.boss.hp <= 0 {
-            return vec![state];
+            return Box::new(iter::once(state));
         }
 
         match state.turn {
-            Turn::Player => SPELLS
-                .iter()
-                .filter(|spell| {
-                    spell.cost <= state.player.mana
-                        && spell
-                            .effect
-                            .map_or(true, |(effect, _)| !state.effects.contains_key(&effect))
-                })
-                .map(|spell| state.player_attack(spell))
-                .collect(),
-            Turn::Boss => vec![state.boss_attack()],
+            Turn::Player => Box::new(SPELLS.iter().filter_map(move |spell| {
+                if spell.cost <= state.player.mana
+                    && spell
+                        .effect
+                        .map_or(true, |(effect, _)| !state.effects.contains_key(&effect))
+                {
+                    Some(state.player_attack(spell))
+                } else {
+                    None
+                }
+            })),
+            Turn::Boss => Box::new(iter::once(state.boss_attack())),
         }
     }
 
-    fn hash_key(self) -> Self::HashKey {
-        self
+    fn hash_key(&self) -> Self::HashKey {
+        self.clone()
     }
 }
 
-impl<'a> search::OrdKey for &'a State {
+impl search::OrdKey for State {
     type OrdKey = i32;
 
-    fn ord_key(self) -> Self::OrdKey {
+    fn ord_key(&self) -> Self::OrdKey {
         self.mana_spent
     }
 }

@@ -17,25 +17,24 @@ struct State<'a> {
     steps: u32,
 }
 
-impl<'a, 'b> search::State for &'b State<'a> {
-    type Adjacent = Vec<State<'a>>;
-
+impl<'a> search::State for State<'a> {
     type HashKey = Point;
 
-    fn adjacent(self) -> Self::Adjacent {
-        self.p
-            .adjacent4()
-            .into_iter()
-            .filter(|p| self.ducts.contains(p))
-            .map(|p| State {
-                p,
-                steps: self.steps + 1,
-                ..self.clone()
-            })
-            .collect()
+    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
+        Box::new(
+            self.p
+                .adjacent4()
+                .into_iter()
+                .filter(|p| self.ducts.contains(p))
+                .map(|p| State {
+                    p,
+                    steps: self.steps + 1,
+                    ..self.clone()
+                }),
+        )
     }
 
-    fn hash_key(self) -> Self::HashKey {
+    fn hash_key(&self) -> Self::HashKey {
         self.p
     }
 }

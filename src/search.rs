@@ -57,19 +57,18 @@ impl<T: Ord> Queue for BinaryHeap<Reverse<T>> {
 /// and `Hash` based on `hash_key` such that two states with the same `hash_key`
 /// will be considered equal.
 pub trait State {
-    type Adjacent;
     type HashKey;
 
-    fn adjacent(self) -> Self::Adjacent;
-    fn hash_key(self) -> Self::HashKey;
+    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_>;
+    fn hash_key(&self) -> Self::HashKey;
 }
 
 pub struct StateWrapper<S>(S);
 
 impl<S> PartialEq for StateWrapper<S>
 where
-    for<'a> &'a S: State,
-    for<'a> <&'a S as State>::HashKey: PartialEq,
+    S: State,
+    <S as State>::HashKey: PartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
         self.0.hash_key() == other.0.hash_key()
@@ -78,15 +77,15 @@ where
 
 impl<S> Eq for StateWrapper<S>
 where
-    for<'a> &'a S: State,
-    for<'a> <&'a S as State>::HashKey: Eq,
+    S: State,
+    <S as State>::HashKey: Eq,
 {
 }
 
 impl<S> Hash for StateWrapper<S>
 where
-    for<'a> &'a S: State,
-    for<'a> <&'a S as State>::HashKey: Hash,
+    S: State,
+    <S as State>::HashKey: Hash,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.hash_key().hash(state);
@@ -98,14 +97,14 @@ where
 pub trait OrdKey {
     type OrdKey;
 
-    fn ord_key(self) -> Self::OrdKey;
+    fn ord_key(&self) -> Self::OrdKey;
 }
 
 impl<S> PartialOrd for StateWrapper<S>
 where
-    for<'a> &'a S: State + OrdKey,
-    for<'a> <&'a S as State>::HashKey: PartialEq,
-    for<'a> <&'a S as OrdKey>::OrdKey: PartialOrd,
+    S: State + OrdKey,
+    <S as State>::HashKey: PartialEq,
+    <S as OrdKey>::OrdKey: PartialOrd,
 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.0.ord_key().partial_cmp(&other.0.ord_key())
@@ -114,9 +113,9 @@ where
 
 impl<S> Ord for StateWrapper<S>
 where
-    for<'a> &'a S: State + OrdKey,
-    for<'a> <&'a S as State>::HashKey: Eq,
-    for<'a> <&'a S as OrdKey>::OrdKey: Ord,
+    S: State + OrdKey,
+    <S as State>::HashKey: Eq,
+    <S as OrdKey>::OrdKey: Ord,
 {
     fn cmp(&self, other: &Self) -> Ordering {
         self.0.ord_key().cmp(&other.0.ord_key())
@@ -130,10 +129,8 @@ pub struct Traversal<S, Q> {
 
 impl<S, Q> Iterator for Traversal<S, Q>
 where
-    S: Clone,
-    for<'a> &'a S: State,
-    for<'a> <&'a S as State>::Adjacent: IntoIterator<Item = S>,
-    for<'a> <&'a S as State>::HashKey: Hash + Eq,
+    S: Clone + State,
+    <S as State>::HashKey: Hash + Eq,
     Q: Queue<Item = StateWrapper<S>>,
 {
     type Item = S;
@@ -160,7 +157,7 @@ pub type BreadthFirstTraversal<S> = Traversal<S, VecDeque<StateWrapper<S>>>;
 /// Traverse the state space breadth first.
 pub fn breadth_first<S>(start: S) -> BreadthFirstTraversal<S>
 where
-    for<'a> &'a S: State,
+    S: State,
 {
     Traversal {
         queue: VecDeque::from([StateWrapper(start)]),
@@ -173,20 +170,13 @@ pub type DepthFirstTraversal<S> = Traversal<S, Vec<StateWrapper<S>>>;
 /// Traverse the state space depth first.
 pub fn depth_first<S>(start: S) -> DepthFirstTraversal<S>
 where
-    for<'a> &'a S: State,
+    S: State,
 {
     Traversal {
         queue: Vec::from([StateWrapper(start)]),
         visited: HashSet::new(),
     }
 }
-
-// Workaround for a HRTB bug https://github.com/rust-lang/rust/issues/90950
-// See https://stackoverflow.com/a/53365549
-pub trait EqHack<'a>: Eq {}
-impl<'a, T> EqHack<'a> for T where T: Eq {}
-pub trait OrdHack<'a>: Ord {}
-impl<'a, T> OrdHack<'a> for T where T: Ord {}
 
 pub type MinFirstTraversal<S> = Traversal<S, BinaryHeap<Reverse<StateWrapper<S>>>>;
 
@@ -195,9 +185,9 @@ pub type MinFirstTraversal<S> = Traversal<S, BinaryHeap<Reverse<StateWrapper<S>>
 /// If it also factors in a heuristic then this is A*.
 pub fn min_first<S>(start: S) -> MinFirstTraversal<S>
 where
-    for<'a> &'a S: State + OrdKey,
-    for<'a> <&'a S as State>::HashKey: EqHack<'a>,
-    for<'a> <&'a S as OrdKey>::OrdKey: OrdHack<'a>,
+    S: State + OrdKey,
+    <S as State>::HashKey: Eq,
+    <S as OrdKey>::OrdKey: Ord,
 {
     Traversal {
         queue: BinaryHeap::from([Reverse(StateWrapper(start))]),

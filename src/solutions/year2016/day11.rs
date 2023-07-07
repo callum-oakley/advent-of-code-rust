@@ -122,11 +122,10 @@ impl State {
     }
 }
 
-impl<'a> search::State for &'a State {
-    type Adjacent = Vec<State>;
-    type HashKey = (u8, &'a Vec<Item>);
+impl search::State for State {
+    type HashKey = (u8, Vec<Item>);
 
-    fn adjacent(self) -> Self::Adjacent {
+    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
         let mut res = Vec::new();
         for lift in self.adjacent_floors() {
             let items_on_floor = self.items_on_floor();
@@ -152,18 +151,18 @@ impl<'a> search::State for &'a State {
                 }
             }
         }
-        res
+        Box::new(res.into_iter())
     }
 
-    fn hash_key(self) -> Self::HashKey {
-        (self.lift, &self.items)
+    fn hash_key(&self) -> Self::HashKey {
+        (self.lift, self.items.clone())
     }
 }
 
-impl<'a> search::OrdKey for &'a State {
+impl search::OrdKey for State {
     type OrdKey = u8;
 
-    fn ord_key(self) -> Self::OrdKey {
+    fn ord_key(&self) -> Self::OrdKey {
         self.steps + self.heuristic()
     }
 }

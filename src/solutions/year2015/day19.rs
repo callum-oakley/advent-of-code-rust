@@ -40,31 +40,26 @@ struct State<'a> {
     reactions: &'a [(&'a str, &'a str)],
 }
 
-impl<'a, 'b> search::State for &'b State<'a> {
-    type Adjacent = Vec<State<'a>>;
-    type HashKey = &'b str;
+impl<'a> search::State for State<'a> {
+    type HashKey = String;
 
-    fn adjacent(self) -> Self::Adjacent {
-        step(self.reactions, &self.molecule)
-            .map(|molecule| State {
-                molecule,
-                steps: self.steps + 1,
-                reactions: self.reactions,
-            })
-            // Would be nice to avoid this collect but the concrete type of the
-            // iterator is a mess.
-            .collect()
+    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
+        Box::new(step(self.reactions, &self.molecule).map(|molecule| State {
+            molecule,
+            steps: self.steps + 1,
+            reactions: self.reactions,
+        }))
     }
 
-    fn hash_key(self) -> Self::HashKey {
-        &self.molecule
+    fn hash_key(&self) -> Self::HashKey {
+        self.molecule.clone()
     }
 }
 
-impl<'a, 'b> search::OrdKey for &'b State<'a> {
+impl<'a> search::OrdKey for State<'a> {
     type OrdKey = usize;
 
-    fn ord_key(self) -> Self::OrdKey {
+    fn ord_key(&self) -> Self::OrdKey {
         // The molecule length is NOT an admissible heuristic, but the
         // relaxation returns the correct answer in this case.
         self.steps + self.molecule.len()
