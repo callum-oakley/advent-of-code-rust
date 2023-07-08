@@ -1,10 +1,12 @@
 use std::collections::HashSet;
 
-fn valid(part: u8, phrase: &str) -> bool {
+use crate::part::Part;
+
+fn valid(part: Part, phrase: &str) -> bool {
     let mut seen = HashSet::new();
     for word in phrase.split_whitespace() {
         let mut word = Vec::from(word);
-        if part == 2 {
+        if part == Part::Two {
             word.sort_unstable();
         }
 
@@ -17,21 +19,27 @@ fn valid(part: u8, phrase: &str) -> bool {
 }
 
 pub fn part1(input: &str) -> usize {
-    input.lines().filter(|phrase| valid(1, phrase)).count()
+    input
+        .lines()
+        .filter(|phrase| valid(Part::One, phrase))
+        .count()
 }
 
 pub fn part2(input: &str) -> usize {
-    input.lines().filter(|phrase| valid(2, phrase)).count()
+    input
+        .lines()
+        .filter(|phrase| valid(Part::Two, phrase))
+        .count()
 }
 
 pub fn tests() {
-    assert!(valid(1, "aa bb cc dd ee"));
-    assert!(!valid(1, "aa bb cc dd aa"));
-    assert!(valid(1, "aa bb cc dd aaa"));
+    assert!(valid(Part::One, "aa bb cc dd ee"));
+    assert!(!valid(Part::One, "aa bb cc dd aa"));
+    assert!(valid(Part::One, "aa bb cc dd aaa"));
 
-    assert!(valid(2, "abcde fghij"));
-    assert!(!valid(2, "abcde xyz ecdab"));
-    assert!(valid(2, "a ab abc abd abf abj"));
-    assert!(valid(2, "iiii oiii ooii oooi oooo"));
-    assert!(!valid(2, "oiii ioii iioi iiio"));
+    assert!(valid(Part::Two, "abcde fghij"));
+    assert!(!valid(Part::Two, "abcde xyz ecdab"));
+    assert!(valid(Part::Two, "a ab abc abd abf abj"));
+    assert!(valid(Part::Two, "iiii oiii ooii oooi oooo"));
+    assert!(!valid(Part::Two, "oiii ioii iioi iiio"));
 }

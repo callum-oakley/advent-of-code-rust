@@ -15,6 +15,7 @@ mod combinatorics;
 mod grid;
 mod hex_grid;
 mod ocr;
+mod part;
 mod search;
 mod solutions;
 mod uniq;

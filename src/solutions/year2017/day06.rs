@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::part::Part;
+
 fn redistribute(banks: &mut [u8]) {
     // max_by_key is last wins, and we want first wins, so rev
     let mut i = (0..banks.len()).rev().max_by_key(|i| banks[*i]).unwrap();
@@ -12,7 +14,7 @@ fn redistribute(banks: &mut [u8]) {
     }
 }
 
-fn part_(part: u8, input: &str) -> usize {
+fn part_(part: Part, input: &str) -> usize {
     let mut banks = input
         .split_whitespace()
         .map(|w| w.parse().unwrap())
@@ -26,20 +28,20 @@ fn part_(part: u8, input: &str) -> usize {
         redistribute(&mut banks);
         cycle += 1;
         if let Some(prev) = seen.get(&banks) {
-            if part == 2 {
-                return cycle - prev;
-            }
-            return cycle;
+            return match part {
+                Part::One => cycle,
+                Part::Two => cycle - prev,
+            };
         }
     }
 }
 
 pub fn part1(input: &str) -> usize {
-    part_(1, input)
+    part_(Part::One, input)
 }
 
 pub fn part2(input: &str) -> usize {
-    part_(2, input)
+    part_(Part::Two, input)
 }
 
 pub fn tests() {

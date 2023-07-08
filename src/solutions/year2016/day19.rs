@@ -1,4 +1,6 @@
-fn part_(part: u8, input: &str) -> usize {
+use crate::part::Part;
+
+fn part_(part: Part, input: &str) -> usize {
     let mut size = input.parse().unwrap();
 
     // Zero-index elves because it makes the maths nicer.
@@ -9,11 +11,14 @@ fn part_(part: u8, input: &str) -> usize {
     }
 
     // The elf to the right of the next victim.
-    let mut right_of_victim = if part == 1 { 0 } else { size / 2 - 1 };
+    let mut right_of_victim = match part {
+        Part::One => 0,
+        Part::Two => size / 2 - 1,
+    };
 
     while size > 1 {
         left[right_of_victim] = left[left[right_of_victim]];
-        if part == 1 || size % 2 == 1 {
+        if part == Part::One || size % 2 == 1 {
             right_of_victim = left[right_of_victim];
         }
         size -= 1;
@@ -24,11 +29,11 @@ fn part_(part: u8, input: &str) -> usize {
 }
 
 pub fn part1(input: &str) -> usize {
-    part_(1, input)
+    part_(Part::One, input)
 }
 
 pub fn part2(input: &str) -> usize {
-    part_(2, input)
+    part_(Part::Two, input)
 }
 
 pub fn tests() {

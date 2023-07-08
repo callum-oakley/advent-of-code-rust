@@ -1,5 +1,7 @@
 use std::{cmp, collections::HashMap};
 
+use crate::part::Part;
+
 struct Instruction<'a> {
     reg: &'a str,
     op: &'a str,
@@ -23,7 +25,7 @@ fn parse(input: &str) -> impl Iterator<Item = Instruction> + '_ {
     })
 }
 
-fn part_(part: u8, input: &str) -> i32 {
+fn part_(part: Part, input: &str) -> i32 {
     let mut regs = HashMap::new();
     let mut max_val = 0;
     for instruction in parse(input) {
@@ -46,19 +48,18 @@ fn part_(part: u8, input: &str) -> i32 {
             max_val = cmp::max(max_val, regs[instruction.reg]);
         }
     }
-    if part == 1 {
-        *regs.values().max().unwrap()
-    } else {
-        max_val
+    match part {
+        Part::One => *regs.values().max().unwrap(),
+        Part::Two => max_val,
     }
 }
 
 pub fn part1(input: &str) -> i32 {
-    part_(1, input)
+    part_(Part::One, input)
 }
 
 pub fn part2(input: &str) -> i32 {
-    part_(2, input)
+    part_(Part::Two, input)
 }
 
 pub fn tests() {

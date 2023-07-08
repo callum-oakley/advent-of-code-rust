@@ -1,4 +1,7 @@
-use crate::grid::{Point, Rect};
+use crate::{
+    grid::{Point, Rect},
+    part::Part,
+};
 
 fn step(lights: &mut Rect<bool>, scrap: &mut Rect<bool>) {
     for (pos, light) in &*lights {
@@ -20,15 +23,15 @@ fn fix_corners(lights: &mut Rect<bool>) {
     }
 }
 
-fn part_(part: u8, steps: u32, input: &str) -> usize {
+fn part_(part: Part, steps: u32, input: &str) -> usize {
     let mut lights = Rect::parse(input, |c| c == '#');
     let mut scrap = Rect::new(false, lights.size);
-    if part == 2 {
+    if part == Part::Two {
         fix_corners(&mut lights);
     }
     for _ in 0..steps {
         step(&mut lights, &mut scrap);
-        if part == 2 {
+        if part == Part::Two {
             fix_corners(&mut lights);
         }
     }
@@ -36,15 +39,15 @@ fn part_(part: u8, steps: u32, input: &str) -> usize {
 }
 
 pub fn part1(input: &str) -> usize {
-    part_(1, 100, input)
+    part_(Part::One, 100, input)
 }
 
 pub fn part2(input: &str) -> usize {
-    part_(2, 100, input)
+    part_(Part::Two, 100, input)
 }
 
 pub fn tests() {
     let example = ".#.#.#\n...##.\n#....#\n..#...\n#.#..#\n####..";
-    assert_eq!(part_(1, 4, example), 4);
-    assert_eq!(part_(2, 5, example), 17);
+    assert_eq!(part_(Part::One, 4, example), 4);
+    assert_eq!(part_(Part::Two, 5, example), 17);
 }

@@ -1,4 +1,6 @@
-fn part_(part: u8, input: &str) -> usize {
+use crate::part::Part;
+
+fn part_(part: Part, input: &str) -> usize {
     let mut mem = input
         .split_whitespace()
         .map(|offset| offset.parse().unwrap())
@@ -7,7 +9,7 @@ fn part_(part: u8, input: &str) -> usize {
     let mut ip = 0i32;
     while ip >= 0 && (usize::try_from(ip).unwrap()) < mem.len() {
         let offset = mem[usize::try_from(ip).unwrap()];
-        if part == 2 && offset >= 3 {
+        if part == Part::Two && offset >= 3 {
             mem[usize::try_from(ip).unwrap()] -= 1;
         } else {
             mem[usize::try_from(ip).unwrap()] += 1;
@@ -19,11 +21,11 @@ fn part_(part: u8, input: &str) -> usize {
 }
 
 pub fn part1(input: &str) -> usize {
-    part_(1, input)
+    part_(Part::One, input)
 }
 
 pub fn part2(input: &str) -> usize {
-    part_(2, input)
+    part_(Part::Two, input)
 }
 
 pub fn tests() {

@@ -1,3 +1,5 @@
+use crate::part::Part;
+
 #[derive(Clone, Copy)]
 enum State {
     Normal,
@@ -5,7 +7,7 @@ enum State {
     Escape,
 }
 
-fn part_(part: u8, input: &str) -> u32 {
+fn part_(part: Part, input: &str) -> u32 {
     let mut score = 0;
     let mut garbage = 0;
     let mut depth = 0;
@@ -34,19 +36,18 @@ fn part_(part: u8, input: &str) -> u32 {
             _ => (),
         }
     }
-    if part == 1 {
-        score
-    } else {
-        garbage
+    match part {
+        Part::One => score,
+        Part::Two => garbage,
     }
 }
 
 pub fn part1(input: &str) -> u32 {
-    part_(1, input)
+    part_(Part::One, input)
 }
 
 pub fn part2(input: &str) -> u32 {
-    part_(2, input)
+    part_(Part::Two, input)
 }
 
 pub fn tests() {
