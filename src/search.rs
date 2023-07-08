@@ -68,7 +68,7 @@ pub struct StateWrapper<S>(S);
 impl<S> PartialEq for StateWrapper<S>
 where
     S: State,
-    <S as State>::HashKey: PartialEq,
+    S::HashKey: PartialEq,
 {
     fn eq(&self, other: &Self) -> bool {
         self.0.hash_key() == other.0.hash_key()
@@ -78,14 +78,14 @@ where
 impl<S> Eq for StateWrapper<S>
 where
     S: State,
-    <S as State>::HashKey: Eq,
+    S::HashKey: Eq,
 {
 }
 
 impl<S> Hash for StateWrapper<S>
 where
     S: State,
-    <S as State>::HashKey: Hash,
+    S::HashKey: Hash,
 {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.0.hash_key().hash(state);
@@ -103,8 +103,8 @@ pub trait OrdKey {
 impl<S> PartialOrd for StateWrapper<S>
 where
     S: State + OrdKey,
-    <S as State>::HashKey: PartialEq,
-    <S as OrdKey>::OrdKey: PartialOrd,
+    S::HashKey: PartialEq,
+    S::OrdKey: PartialOrd,
 {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         self.0.ord_key().partial_cmp(&other.0.ord_key())
@@ -114,8 +114,8 @@ where
 impl<S> Ord for StateWrapper<S>
 where
     S: State + OrdKey,
-    <S as State>::HashKey: Eq,
-    <S as OrdKey>::OrdKey: Ord,
+    S::HashKey: Eq,
+    S::OrdKey: Ord,
 {
     fn cmp(&self, other: &Self) -> Ordering {
         self.0.ord_key().cmp(&other.0.ord_key())
@@ -130,7 +130,7 @@ pub struct Traversal<S, Q> {
 impl<S, Q> Iterator for Traversal<S, Q>
 where
     S: Clone + State,
-    <S as State>::HashKey: Hash + Eq,
+    S::HashKey: Hash + Eq,
     Q: Queue<Item = StateWrapper<S>>,
 {
     type Item = S;
@@ -155,10 +155,7 @@ where
 pub type BreadthFirstTraversal<S> = Traversal<S, VecDeque<StateWrapper<S>>>;
 
 /// Traverse the state space breadth first.
-pub fn breadth_first<S>(start: S) -> BreadthFirstTraversal<S>
-where
-    S: State,
-{
+pub fn breadth_first<S: State>(start: S) -> BreadthFirstTraversal<S> {
     Traversal {
         queue: VecDeque::from([StateWrapper(start)]),
         visited: HashSet::new(),
@@ -168,10 +165,7 @@ where
 pub type DepthFirstTraversal<S> = Traversal<S, Vec<StateWrapper<S>>>;
 
 /// Traverse the state space depth first.
-pub fn depth_first<S>(start: S) -> DepthFirstTraversal<S>
-where
-    S: State,
-{
+pub fn depth_first<S: State>(start: S) -> DepthFirstTraversal<S> {
     Traversal {
         queue: Vec::from([StateWrapper(start)]),
         visited: HashSet::new(),
@@ -186,8 +180,8 @@ pub type MinFirstTraversal<S> = Traversal<S, BinaryHeap<Reverse<StateWrapper<S>>
 pub fn min_first<S>(start: S) -> MinFirstTraversal<S>
 where
     S: State + OrdKey,
-    <S as State>::HashKey: Eq,
-    <S as OrdKey>::OrdKey: Ord,
+    S::HashKey: Eq,
+    S::OrdKey: Ord,
 {
     Traversal {
         queue: BinaryHeap::from([Reverse(StateWrapper(start))]),
