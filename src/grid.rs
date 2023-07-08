@@ -1,5 +1,6 @@
 use std::{
     fmt::{self, Write},
+    iter::Sum,
     ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
@@ -155,6 +156,12 @@ impl MulAssign<i32> for Point {
 impl DivAssign<i32> for Point {
     fn div_assign(&mut self, scalar: i32) {
         *self = *self / scalar;
+    }
+}
+
+impl Sum for Point {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.fold(Z, |a, b| a + b)
     }
 }
 

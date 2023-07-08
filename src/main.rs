@@ -13,6 +13,7 @@ use regex::Regex;
 mod chinese_remainder;
 mod combinatorics;
 mod grid;
+mod hex_grid;
 mod ocr;
 mod search;
 mod solutions;
