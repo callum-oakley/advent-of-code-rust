@@ -252,6 +252,20 @@ impl<T> IndexMut<Point> for Rect<T> {
     }
 }
 
+impl<T> Index<&Point> for Rect<T> {
+    type Output = T;
+
+    fn index(&self, index: &Point) -> &T {
+        &self.inner[usize::try_from(index.y).unwrap()][usize::try_from(index.x).unwrap()]
+    }
+}
+
+impl<T> IndexMut<&Point> for Rect<T> {
+    fn index_mut(&mut self, index: &Point) -> &mut T {
+        &mut self.inner[usize::try_from(index.y).unwrap()][usize::try_from(index.x).unwrap()]
+    }
+}
+
 impl fmt::Display for Rect<bool> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for y in 0..self.size.y {
