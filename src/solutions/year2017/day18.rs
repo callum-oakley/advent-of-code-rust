@@ -1,28 +1,13 @@
-use std::{
-    sync::mpsc::{channel, Receiver, Sender},
-    thread,
-    time::Duration,
-};
-
-use crate::part::Part;
+use std::collections::VecDeque;
 
 fn reg(s: &str) -> usize {
     s.chars().next().unwrap() as usize - 'a' as usize
 }
 
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 enum Arg {
     Lit(i64),
     Reg(usize),
-}
-
-impl Arg {
-    fn value(&self, registers: &[i64]) -> i64 {
-        match *self {
-            Arg::Lit(lit) => lit,
-            Arg::Reg(reg) => registers[reg],
-        }
-    }
 }
 
 impl From<&str> for Arg {
@@ -68,6 +53,12 @@ fn parse(input: &str) -> Vec<Instruction> {
         .collect()
 }
 
+struct Machine<'a> {
+    ip: usize,
+    regs: [i64; 16],
+    instructions: &'a [Instruction],
+}
+
 fn offset(ip: usize, n: i64) -> usize {
     if n < 0 {
         ip - usize::try_from(-n).unwrap()
@@ -76,89 +67,127 @@ fn offset(ip: usize, n: i64) -> usize {
     }
 }
 
-fn run(
-    part: Part,
-    pid: i64,
-    tx: &Sender<i64>,
-    rx: &Receiver<i64>,
-    instructions: &[Instruction],
-) -> i64 {
-    let mut registers = [0; 26];
-    registers[reg("p")] = pid;
+impl<'a> Machine<'a> {
+    fn new(pid: i64, instructions: &'a [Instruction]) -> Self {
+        let mut regs = [0; 16];
+        regs[reg("p")] = pid;
+        Machine {
+            ip: 0,
+            regs,
+            instructions,
+        }
+    }
 
-    let mut ip = 0;
+    fn value(&self, arg: Arg) -> i64 {
+        match arg {
+            Arg::Lit(lit) => lit,
+            Arg::Reg(reg) => self.regs[reg],
+        }
+    }
+
+    // Run until reaching a snd or rcv and then return to let the caller decide
+    // what to do.
+    fn run(&mut self) {
+        while self.ip < self.instructions.len() {
+            match &self.instructions[self.ip] {
+                Instruction::Snd(_) | Instruction::Rcv(_) => {
+                    self.ip += 1;
+                    return;
+                }
+                Instruction::Set(x, y) => {
+                    self.regs[*x] = self.value(*y);
+                }
+                Instruction::Add(x, y) => {
+                    self.regs[*x] += self.value(*y);
+                }
+                Instruction::Mul(x, y) => {
+                    self.regs[*x] *= self.value(*y);
+                }
+                Instruction::Mod(x, y) => {
+                    self.regs[*x] %= self.value(*y);
+                }
+                Instruction::Jgz(x, y) => {
+                    if self.value(*x) > 0 {
+                        self.ip = offset(self.ip, self.value(*y));
+                        continue;
+                    }
+                }
+            }
+            self.ip += 1;
+        }
+    }
+
+    fn resume_from_rcv(&mut self, val: i64) {
+        let Instruction::Rcv(x) = self.instructions[self.ip - 1] else {
+            panic!("tried to resume from rcv but not in rcv state");
+        };
+        self.regs[x] = val;
+        self.run();
+    }
+}
+
+pub fn part1(input: &str) -> i64 {
+    let instructions = parse(input);
+
+    let mut m = Machine::new(0, &instructions);
+    m.run();
+
     let mut res = 0;
 
-    while ip < instructions.len() {
-        match &instructions[ip] {
-            Instruction::Snd(x) => match part {
-                Part::One => {
-                    res = x.value(&registers);
-                }
-                Part::Two => {
-                    res += 1;
-                    tx.send(x.value(&registers)).unwrap();
-                }
-            },
-            Instruction::Rcv(x) => match part {
-                Part::One => {
-                    if registers[*x] != 0 {
-                        break;
-                    }
-                }
-                Part::Two => {
-                    if let Ok(val) = rx.recv_timeout(Duration::from_millis(1)) {
-                        registers[*x] = val;
-                    } else {
-                        // deadlock
-                        break;
-                    }
-                }
-            },
-            Instruction::Set(x, y) => {
-                registers[*x] = y.value(&registers);
+    loop {
+        match m.instructions[m.ip - 1] {
+            Instruction::Snd(x) => {
+                res = m.value(x);
+                m.run();
             }
-            Instruction::Add(x, y) => {
-                registers[*x] += y.value(&registers);
-            }
-            Instruction::Mul(x, y) => {
-                registers[*x] *= y.value(&registers);
-            }
-            Instruction::Mod(x, y) => {
-                registers[*x] %= y.value(&registers);
-            }
-            Instruction::Jgz(x, y) => {
-                if x.value(&registers) > 0 {
-                    ip = offset(ip, y.value(&registers));
-                    continue;
+            Instruction::Rcv(x) => {
+                if m.regs[x] != 0 {
+                    break;
                 }
+                m.run();
             }
+            _ => unreachable!(),
         }
-        ip += 1;
     }
 
     res
 }
 
-pub fn part1(input: &str) -> i64 {
-    let (tx, rx) = channel();
-    run(Part::One, 0, &tx, &rx, &parse(input))
-}
-
-pub fn part2(input: &str) -> i64 {
+pub fn part2(input: &str) -> usize {
     let instructions = parse(input);
 
-    let (tx_a, rx_a) = channel();
-    let (tx_b, rx_b) = channel();
+    let mut m_0 = Machine::new(0, &instructions);
+    let mut m_1 = Machine::new(1, &instructions);
+    m_0.run();
+    m_1.run();
 
-    let prog_1 = {
-        let instructions = instructions.clone();
-        thread::spawn(move || run(Part::Two, 1, &tx_b, &rx_a, &instructions))
-    };
+    let mut inbox_0 = VecDeque::new();
+    let mut inbox_1 = VecDeque::new();
 
-    run(Part::Two, 0, &tx_a, &rx_b, &instructions);
+    let mut res = 0;
 
-    prog_1.join().unwrap()
+    loop {
+        match (&m_0.instructions[m_0.ip - 1], &m_1.instructions[m_1.ip - 1]) {
+            (Instruction::Rcv(_), _) if !inbox_0.is_empty() => {
+                m_0.resume_from_rcv(inbox_0.pop_front().unwrap());
+            }
+            (_, Instruction::Rcv(_)) if !inbox_1.is_empty() => {
+                m_1.resume_from_rcv(inbox_1.pop_front().unwrap());
+            }
+            (Instruction::Snd(x), _) => {
+                inbox_1.push_back(m_0.value(*x));
+                m_0.run();
+            }
+            (_, Instruction::Snd(x)) => {
+                res += 1;
+                inbox_0.push_back(m_1.value(*x));
+                m_1.run();
+            }
+            _ => break,
+        }
+    }
+
+    res
 }
 
 pub fn tests() {
