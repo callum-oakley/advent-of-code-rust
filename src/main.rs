@@ -108,7 +108,7 @@ fn run_day(year: u16, day: u8, solution: &solutions::Solution) -> (Duration, usi
     }
 
     let input = get_input(year, day);
-    let input = input.trim_end();
+    let input = input.trim_end_matches('\n');
 
     let mut elapsed = Duration::new(0, 0);
     let mut stars = 0;
