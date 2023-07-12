@@ -1,17 +1,17 @@
 use std::cmp;
 
-use crate::hex_grid::{self, Point, Z};
+use crate::grid_hex::{self, Point, Z};
 
 pub fn part1(input: &str) -> i32 {
-    hex_grid::dist(input.split(',').map(hex_grid::from_str).sum::<Point>())
+    grid_hex::dist(input.split(',').map(grid_hex::from_str).sum::<Point>())
 }
 
 pub fn part2(input: &str) -> i32 {
     let mut furthest = 0;
     let mut pos = Z;
-    for step in input.split(',').map(hex_grid::from_str) {
+    for step in input.split(',').map(grid_hex::from_str) {
         pos += step;
-        furthest = cmp::max(furthest, hex_grid::dist(pos));
+        furthest = cmp::max(furthest, grid_hex::dist(pos));
     }
     furthest
 }
