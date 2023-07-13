@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 
 #[derive(Clone, PartialEq, Eq, Hash)]
-struct Block {
+struct Pattern {
     size: usize,
-    data: [bool; 16],
+    data: Vec<bool>,
 }
 
-impl Block {
-    fn rotate(&self) -> Self {
+impl Pattern {
+    fn rotate(&self) -> Pattern {
         let mut res = self.clone();
         for y in 0..self.size {
             for x in 0..self.size {
@@ -17,7 +17,7 @@ impl Block {
         res
     }
 
-    fn reflect(&self) -> Self {
+    fn reflect(&self) -> Pattern {
         let mut res = self.clone();
         for y in 0..self.size {
             for x in 0..self.size {
@@ -27,7 +27,7 @@ impl Block {
         res
     }
 
-    fn symmetries(&self) -> [Block; 8] {
+    fn symmetries(&self) -> [Pattern; 8] {
         [
             self.clone(),
             self.rotate(),
@@ -39,53 +39,8 @@ impl Block {
             self.reflect().rotate().rotate().rotate(),
         ]
     }
-}
 
-impl From<&str> for Block {
-    fn from(s: &str) -> Self {
-        let size = match s.len() {
-            5 => 2,
-            11 => 3,
-            19 => 4,
-            _ => unreachable!(),
-        };
-        let mut res = Block {
-            size,
-            data: [false; 16],
-        };
-        let mut x = 0;
-        let mut y = 0;
-        for c in s.chars() {
-            match c {
-                '#' => {
-                    res.data[x + y * size] = true;
-                }
-                '/' => {
-                    x = 0;
-                    y += 1;
-                    continue;
-                }
-                _ => (),
-            }
-            x += 1;
-        }
-        res
-    }
-}
-
-struct Pattern {
-    size: usize,
-    data: Vec<bool>,
-}
-
-struct Chunked {
-    outer_size: usize,
-    inner_size: usize,
-    data: Vec<Block>,
-}
-
-impl Pattern {
-    fn chunk(&self) -> Chunked {
+    fn blocks(&self) -> Blocks {
         let (inner_size, outer_size) = if self.size % 2 == 0 {
             (2, self.size / 2)
         } else {
@@ -93,9 +48,9 @@ impl Pattern {
         };
 
         let mut data = vec![
-            Block {
+            Pattern {
                 size: inner_size,
-                data: [false; 16],
+                data: vec![false; inner_size * inner_size],
             };
             outer_size * outer_size
         ];
@@ -111,7 +66,7 @@ impl Pattern {
             }
         }
 
-        Chunked {
+        Blocks {
             outer_size,
             inner_size,
             data,
@@ -119,8 +74,46 @@ impl Pattern {
     }
 }
 
-impl Chunked {
-    fn enhance(&mut self, rules: &HashMap<Block, Block>) {
+impl From<&str> for Pattern {
+    fn from(s: &str) -> Pattern {
+        let size = match s.len() {
+            5 => 2,
+            11 => 3,
+            19 => 4,
+            _ => unreachable!(),
+        };
+
+        let mut data = vec![false; size * size];
+
+        let mut x = 0;
+        let mut y = 0;
+        for c in s.chars() {
+            match c {
+                '#' => {
+                    data[x + y * size] = true;
+                }
+                '/' => {
+                    x = 0;
+                    y += 1;
+                    continue;
+                }
+                _ => (),
+            }
+            x += 1;
+        }
+
+        Pattern { size, data }
+    }
+}
+
+struct Blocks {
+    outer_size: usize,
+    inner_size: usize,
+    data: Vec<Pattern>,
+}
+
+impl Blocks {
+    fn enhance(&mut self, rules: &HashMap<Pattern, Pattern>) {
         for block in &mut self.data {
             *block = rules[block].clone();
         }
@@ -146,12 +139,12 @@ impl Chunked {
     }
 }
 
-fn parse(input: &str) -> HashMap<Block, Block> {
+fn parse(input: &str) -> HashMap<Pattern, Pattern> {
     let mut res = HashMap::new();
     for line in input.lines() {
         let (from, to) = line.split_once(" => ").unwrap();
-        let from = Block::from(from);
-        let to = Block::from(to);
+        let from = Pattern::from(from);
+        let to = Pattern::from(to);
         for from in from.symmetries() {
             res.insert(from, to.clone());
         }
@@ -161,15 +154,12 @@ fn parse(input: &str) -> HashMap<Block, Block> {
 
 fn part_(iterations: usize, input: &str) -> usize {
     let rules = parse(input);
-    let mut pattern = Pattern {
-        size: 3,
-        data: vec![false, true, false, false, false, true, true, true, true],
-    };
+    let mut pattern = Pattern::from(".#./..#/###");
 
     for _ in 0..iterations {
-        let mut chunks = pattern.chunk();
-        chunks.enhance(&rules);
-        pattern = chunks.collapse();
+        let mut blocks = pattern.blocks();
+        blocks.enhance(&rules);
+        pattern = blocks.collapse();
     }
 
     pattern.data.into_iter().filter(|p| *p).count()
