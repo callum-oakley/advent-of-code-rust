@@ -1,7 +1,10 @@
 use std::{
     fmt::{self, Write},
     iter::Sum,
-    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
+    ops::{
+        Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Rem, RemAssign, Sub,
+        SubAssign,
+    },
 };
 
 use lazy_static::lazy_static;
@@ -113,6 +116,17 @@ impl Sub for Point {
     }
 }
 
+impl Mul for Point {
+    type Output = Self;
+
+    fn mul(self, other: Self) -> Self {
+        Self {
+            x: self.x * other.x,
+            y: self.y * other.y,
+        }
+    }
+}
+
 impl Mul<i32> for Point {
     type Output = Self;
 
@@ -124,6 +138,17 @@ impl Mul<i32> for Point {
     }
 }
 
+impl Div for Point {
+    type Output = Self;
+
+    fn div(self, other: Self) -> Self {
+        Self {
+            x: self.x / other.x,
+            y: self.y / other.y,
+        }
+    }
+}
+
 impl Div<i32> for Point {
     type Output = Self;
 
@@ -131,6 +156,17 @@ impl Div<i32> for Point {
         Self {
             x: self.x / scalar,
             y: self.y / scalar,
+        }
+    }
+}
+
+impl Rem for Point {
+    type Output = Self;
+
+    fn rem(self, other: Self) -> Self {
+        Self {
+            x: self.x % other.x,
+            y: self.y % other.y,
         }
     }
 }
@@ -147,9 +183,21 @@ impl SubAssign for Point {
     }
 }
 
+impl MulAssign for Point {
+    fn mul_assign(&mut self, other: Self) {
+        *self = *self * other;
+    }
+}
+
 impl MulAssign<i32> for Point {
     fn mul_assign(&mut self, scalar: i32) {
         *self = *self * scalar;
+    }
+}
+
+impl DivAssign for Point {
+    fn div_assign(&mut self, other: Self) {
+        *self = *self / other;
     }
 }
 
@@ -159,12 +207,19 @@ impl DivAssign<i32> for Point {
     }
 }
 
+impl RemAssign for Point {
+    fn rem_assign(&mut self, other: Self) {
+        *self = *self % other;
+    }
+}
+
 impl Sum for Point {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(Z, |a, b| a + b)
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Rect<T> {
     inner: Vec<Vec<T>>,
     pub size: Point,
