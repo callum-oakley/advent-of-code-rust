@@ -31,16 +31,37 @@ fn sig_figs(n: u32, duration: Duration) -> Duration {
     Duration::from_nanos(nanos / magnitude * magnitude)
 }
 
-fn get(path: &str) -> reqwest::Result<String> {
-    reqwest::blocking::Client::new()
+fn get(path: &str) -> Result<String, String> {
+    let res = match reqwest::blocking::Client::new()
         .get(format!("https://adventofcode.com/{path}"))
         .header(
             "cookie",
             format!("session={}", fs::read_to_string(".session").unwrap().trim()),
         )
-        .send()?
-        .error_for_status()?
-        .text()
+        .send()
+    {
+        Ok(res) => res,
+        Err(err) => {
+            return Err(format!("failed to get {path}: {err}"));
+        }
+    };
+
+    let status = res.status();
+
+    let text = match res.text() {
+        Ok(text) => text,
+        Err(err) => {
+            return Err(format!("failed to get {path}: {err}"));
+        }
+    };
+
+    if status.is_client_error() || status.is_server_error() {
+        return Err(format!(
+            "failed to get {path}: unexpected status: {status}: {text}"
+        ));
+    }
+
+    Ok(text)
 }
 
 fn get_input(year: u16, day: u8) -> String {
@@ -49,7 +70,7 @@ fn get_input(year: u16, day: u8) -> String {
     if path.exists() {
         fs::read_to_string(path).unwrap()
     } else {
-        let input = get(&format!("{year}/day/{day}/input")).unwrap();
+        let input = get(&format!("{year}/day/{day}/input")).expect("failed to get input");
         fs::create_dir_all(path.parent().unwrap()).unwrap();
         fs::write(path, &input).unwrap();
         input
@@ -62,7 +83,9 @@ fn get_answer(year: u16, day: u8, part: u8) -> Option<String> {
     if path.exists() {
         Some(fs::read_to_string(path).unwrap())
     } else {
-        let page = get(&format!("{year}/day/{day}")).unwrap();
+        let Ok(page) = get(&format!("{year}/day/{day}")) else {
+            return None;
+        };
         let mut answers: Vec<String> = Regex::new(r"Your puzzle answer was <code>([^<]*)")
             .unwrap()
             .captures_iter(&page)
