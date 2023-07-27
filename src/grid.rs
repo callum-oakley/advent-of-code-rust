@@ -219,6 +219,38 @@ impl Sum for Point {
     }
 }
 
+pub struct Bounds {
+    pub nw: Point,
+    pub se: Point,
+}
+
+impl Bounds {
+    pub fn new(mut points: impl Iterator<Item = Point>) -> Self {
+        let point = points.next().unwrap();
+        let mut res = Self {
+            nw: point,
+            se: point,
+        };
+
+        for point in points {
+            if point.x < res.nw.x {
+                res.nw.x = point.x;
+            }
+            if point.y < res.nw.y {
+                res.nw.y = point.y;
+            }
+            if point.x > res.se.x {
+                res.se.x = point.x;
+            }
+            if point.y > res.se.y {
+                res.se.y = point.y;
+            }
+        }
+
+        res
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Rect<T> {
     inner: Vec<Vec<T>>,
