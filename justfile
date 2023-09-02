@@ -18,4 +18,4 @@ init year day:
     path="${dir}/day$(printf %02s {{ day }}).rs"
     touch "${path}"
     cargo build
-    "${EDITOR}" "${path}"
+    code "${path}"
