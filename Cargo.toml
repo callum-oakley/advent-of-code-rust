@@ -2,6 +2,7 @@
 name = "advent-of-code-rust"
 version = "0.1.0"
 edition = "2021"
+license = "MIT"
 
 [features]
 allow_dead_code = []
