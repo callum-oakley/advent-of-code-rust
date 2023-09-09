@@ -219,6 +219,7 @@ impl Sum for Point {
     }
 }
 
+#[derive(Debug)]
 pub struct Bounds {
     pub nw: Point,
     pub se: Point,
@@ -350,6 +351,20 @@ impl<T> Index<&Point> for Rect<T> {
 impl<T> IndexMut<&Point> for Rect<T> {
     fn index_mut(&mut self, index: &Point) -> &mut T {
         &mut self.inner[usize::try_from(index.y).unwrap()][usize::try_from(index.x).unwrap()]
+    }
+}
+
+impl<I> From<I> for Rect<bool>
+where
+    I: Iterator<Item = Point> + Clone,
+{
+    fn from(points: I) -> Self {
+        let bounds = Bounds::new(points.clone());
+        let mut res = Self::new(false, bounds.se - bounds.nw + SE);
+        for point in points {
+            res[point - bounds.nw] = true;
+        }
+        res
     }
 }
 
