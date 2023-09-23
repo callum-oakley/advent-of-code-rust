@@ -103,27 +103,29 @@ fn get_answer(year: u16, day: u8, part: u8) -> Option<String> {
     }
 }
 
-fn run_part(year: u16, day: u8, part: u8, f: fn(&str) -> String, input: &str) -> Duration {
+fn run_part(year: u16, day: u8, part: u8, f: fn(&str) -> String, input: &str) -> (Duration, usize) {
     let now = Instant::now();
     let answer = f(input);
     let elapsed = now.elapsed();
+    let mut stars = 0;
 
     let expected = get_answer(year, day, part);
     if let Some(ref expected) = expected {
         assert_eq!(&answer, expected);
+        stars += 1;
     }
 
     println!(
-        "{} {:0>2} {}   {: >5?}   {}{}",
+        "{} {:0>2} {}   {: >5?}   {}   {}",
         year,
         day,
         part,
         sig_figs(2, elapsed),
         answer,
-        if expected.is_none() { " ?" } else { "" }
+        if stars == 0 { "?" } else { "" },
     );
 
-    elapsed
+    (elapsed, stars)
 }
 
 fn run_day(year: u16, day: u8, solution: &solutions::Solution) -> (Duration, usize) {
@@ -137,12 +139,14 @@ fn run_day(year: u16, day: u8, solution: &solutions::Solution) -> (Duration, usi
     let mut elapsed = Duration::new(0, 0);
     let mut stars = 0;
     if let Some(part1) = solution.part1 {
-        elapsed += run_part(year, day, 1, part1, input);
-        stars += 1;
+        let (e, s) = run_part(year, day, 1, part1, input);
+        elapsed += e;
+        stars += s;
     }
     if let Some(part2) = solution.part2 {
-        elapsed += run_part(year, day, 2, part2, input);
-        stars += 1;
+        let (e, s) = run_part(year, day, 2, part2, input);
+        elapsed += e;
+        stars += s;
     }
     (elapsed, stars)
 }
