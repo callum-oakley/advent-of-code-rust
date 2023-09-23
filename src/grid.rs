@@ -94,6 +94,12 @@ impl From<&str> for Point {
     }
 }
 
+impl fmt::Display for Point {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{},{}", self.x, self.y)
+    }
+}
+
 impl Add for Point {
     type Output = Self;
 
