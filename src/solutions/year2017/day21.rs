@@ -38,7 +38,7 @@ fn symmetries(pattern: &Rect<bool>) -> [Rect<bool>; 8] {
 }
 
 fn parse_pattern(s: &str) -> Rect<bool> {
-    Rect::parse(&s.replace('/', "\n"), |c| c == '#')
+    Rect::parse(&s.replace('/', "\n"), |_, c| c == '#')
 }
 
 fn parse_rules(input: &str) -> HashMap<Rect<bool>, Rect<bool>> {

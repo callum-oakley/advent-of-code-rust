@@ -24,7 +24,7 @@ fn fix_corners(lights: &mut Rect<bool>) {
 }
 
 fn part_(part: Part, steps: u32, input: &str) -> usize {
-    let mut lights = Rect::parse(input, |c| c == '#');
+    let mut lights = Rect::parse(input, |_, c| c == '#');
     let mut scrap = Rect::new(false, lights.size);
     if part == Part::Two {
         fix_corners(&mut lights);

@@ -1,9 +1,7 @@
-use std::convert::identity;
-
 use crate::grid::{Point, Rect, Turn, S};
 
 fn part_(input: &str) -> (String, usize) {
-    let grid = Rect::parse(input, identity);
+    let grid = Rect::parse(input, |_, c| c);
 
     let start_x = (0..grid.size.x)
         .find(|&x| grid[Point { x, y: 0 }] == '|')

@@ -8,9 +8,9 @@ use regex::Regex;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Point {
-    pub x: i32,
-    pub y: i32,
     pub z: i32,
+    pub y: i32,
+    pub x: i32,
 }
 
 pub const Z: Point = Point { x: 0, y: 0, z: 0 };

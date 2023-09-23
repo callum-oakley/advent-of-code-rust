@@ -12,8 +12,8 @@ use regex::Regex;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub struct Point {
-    pub x: i32,
     pub y: i32,
+    pub x: i32,
 }
 
 pub const NW: Point = Point { x: -1, y: -1 };
@@ -271,12 +271,16 @@ impl<T: Clone> Rect<T> {
 }
 
 impl<T> Rect<T> {
-    pub fn parse<F: Fn(char) -> T>(s: &str, f: F) -> Self {
+    pub fn parse<F: FnMut(Point, char) -> T>(s: &str, mut f: F) -> Self {
         let mut inner = Vec::new();
         for line in s.lines() {
             inner.push(Vec::new());
             for c in line.chars() {
-                inner.last_mut().unwrap().push(f(c));
+                let pos = Point {
+                    x: i32::try_from(inner.last().unwrap().len()).unwrap(),
+                    y: i32::try_from(inner.len() - 1).unwrap(),
+                };
+                inner.last_mut().unwrap().push(f(pos, c));
             }
         }
         let size = if inner.is_empty() {

@@ -85,7 +85,7 @@ fn part_<T>(bursts: usize, input: &str) -> usize
 where
     T: State + From<char> + Clone + Default,
 {
-    let nodes = Rect::parse(input, T::from);
+    let nodes = Rect::parse(input, |_, c| T::from(c));
     let mut pos = Point {
         x: nodes.size.x / 2,
         y: nodes.size.y / 2,

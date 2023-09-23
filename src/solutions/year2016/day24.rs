@@ -1,7 +1,6 @@
 use std::{
     cmp,
     collections::{HashMap, HashSet},
-    convert::identity,
 };
 
 use crate::{
@@ -58,7 +57,7 @@ fn total_dist(dists: &HashMap<(char, char), u32>, route: &[char]) -> u32 {
 }
 
 fn part_(return_to_start: bool, input: &str) -> u32 {
-    let map = Rect::parse(input, identity);
+    let map = Rect::parse(input, |_, c| c);
 
     let nodes: Vec<(Point, char)> = map
         .iter()
