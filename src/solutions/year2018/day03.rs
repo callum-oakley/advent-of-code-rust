@@ -31,7 +31,7 @@ pub fn part1(input: &str) -> u32 {
     for claim in input.lines().map(Claim::from) {
         for x in claim.pos.x..claim.pos.x + claim.size.x {
             for y in claim.pos.y..claim.pos.y + claim.size.y {
-                let p = Point { x, y };
+                let p = Point { y, x };
                 fabric[p] += 1;
                 if fabric[p] == 2 {
                     res += 1;
@@ -49,7 +49,7 @@ pub fn part2(input: &str) -> u32 {
         disjoint.insert(claim.id);
         for x in claim.pos.x..claim.pos.x + claim.size.x {
             for y in claim.pos.y..claim.pos.y + claim.size.y {
-                let p = Point { x, y };
+                let p = Point { y, x };
                 if let Some(id) = fabric[p] {
                     disjoint.remove(&id);
                     disjoint.remove(&claim.id);

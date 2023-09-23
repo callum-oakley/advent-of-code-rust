@@ -32,7 +32,7 @@ pub fn part1(input: &str) -> u32 {
     let bounds = Bounds::new(coordinates.iter().copied());
     for x in bounds.nw.x..=bounds.se.x {
         for y in bounds.nw.y..=bounds.se.y {
-            if let Some(c) = unique_closest(Point { x, y }, &coordinates) {
+            if let Some(c) = unique_closest(Point { y, x }, &coordinates) {
                 if x == bounds.nw.x || x == bounds.se.x || y == bounds.nw.y || y == bounds.se.y {
                     // This area is inifinite, so we don't care about it.
                     areas.remove(&c);
@@ -54,7 +54,7 @@ fn part2_(tolerance: i32, input: &str) -> u32 {
     let bounds = Bounds::new(coordinates.iter().copied());
     for x in bounds.nw.x..=bounds.se.x {
         for y in bounds.nw.y..=bounds.se.y {
-            let pos = Point { x, y };
+            let pos = Point { y, x };
             if coordinates
                 .iter()
                 .map(|&c| (pos - c).manhattan())

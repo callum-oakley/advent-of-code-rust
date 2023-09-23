@@ -38,7 +38,7 @@ fn disk(input: &str) -> Rect<bool> {
         let row = hash::knot(&format!("{input}-{y}"));
         for x in 0..128 {
             if row & (1 << x) != 0 {
-                res[Point { x, y }] = true;
+                res[Point { y, x }] = true;
             }
         }
     }

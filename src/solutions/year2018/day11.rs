@@ -12,7 +12,7 @@ fn summed_area_table(serial: i32) -> Rect<i32> {
     let mut res = Rect::new(0, Point { x: 301, y: 301 });
     for x in 1..=300 {
         for y in 1..=300 {
-            res[Point { x, y }] = cell(serial, Point { x, y })
+            res[Point { y, x }] = cell(serial, Point { y, x })
                 + res[Point { x: x - 1, y }]
                 + res[Point { x, y: y - 1 }]
                 - res[Point { x: x - 1, y: y - 1 }];
@@ -35,7 +35,7 @@ fn part_(part: Part, input: &str) -> (Point, i32) {
         Part::Two => 1..=300,
     })
     .flat_map(|size| {
-        (1..=301 - size).flat_map(move |x| (1..=301 - size).map(move |y| (Point { x, y }, size)))
+        (1..=301 - size).flat_map(move |x| (1..=301 - size).map(move |y| (Point { y, x }, size)))
     })
     .max_by_key(|&(pos, size)| square(&sat, pos, size))
     .unwrap()

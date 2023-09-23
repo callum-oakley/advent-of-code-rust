@@ -63,7 +63,7 @@ fn part_(size: Point, input: &str) -> Rect<bool> {
             Instruction::Rect(p) => {
                 for x in 0..p.x {
                     for y in 0..p.y {
-                        screen[Point { x, y }] = true;
+                        screen[Point { y, x }] = true;
                     }
                 }
             }

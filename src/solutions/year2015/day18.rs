@@ -18,7 +18,7 @@ fn step(lights: &mut Rect<bool>, scrap: &mut Rect<bool>) {
 fn fix_corners(lights: &mut Rect<bool>) {
     for x in [0, lights.size.x - 1] {
         for y in [0, lights.size.y - 1] {
-            lights[Point { x, y }] = true;
+            lights[Point { y, x }] = true;
         }
     }
 }

@@ -376,7 +376,7 @@ impl fmt::Display for Rect<bool> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for y in 0..self.size.y {
             for x in 0..self.size.x {
-                f.write_char(if self[Point { x, y }] { '#' } else { '.' })?;
+                f.write_char(if self[Point { y, x }] { '#' } else { '.' })?;
             }
             f.write_char('\n')?;
         }
