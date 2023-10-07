@@ -1,6 +1,6 @@
 use std::{
     fmt::{self, Write},
-    iter::Sum,
+    iter::{self, Sum},
     ops::{
         Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Rem, RemAssign, Sub,
         SubAssign,
@@ -320,19 +320,30 @@ impl<T> Rect<T> {
         }
     }
 
-    pub fn iter(&self) -> RectIter<T> {
-        RectIter {
-            grid: self,
-            index: Z,
-        }
-    }
-
-    pub fn keys(&self) -> impl Iterator<Item = Point> + '_ {
-        self.iter().map(|(key, _)| key)
+    pub fn keys(&self) -> impl Iterator<Item = Point> {
+        let size = self.size;
+        let mut pos = Z;
+        iter::from_fn(move || {
+            if pos.y >= size.y {
+                None
+            } else {
+                let res = pos;
+                pos.x += 1;
+                if pos.x >= size.x {
+                    pos.x = 0;
+                    pos.y += 1;
+                }
+                Some(res)
+            }
+        })
     }
 
     pub fn values(&self) -> impl Iterator<Item = &T> {
-        self.iter().map(|(_, value)| value)
+        self.keys().map(|pos| &self[pos])
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (Point, &T)> {
+        self.keys().map(|pos| (pos, &self[pos]))
     }
 }
 
@@ -392,30 +403,9 @@ impl fmt::Display for Rect<bool> {
 
 impl<'a, T> IntoIterator for &'a Rect<T> {
     type Item = (Point, &'a T);
-    type IntoIter = RectIter<'a, T>;
+    type IntoIter = Box<dyn Iterator<Item = Self::Item> + 'a>;
 
     fn into_iter(self) -> Self::IntoIter {
-        self.iter()
-    }
-}
-
-pub struct RectIter<'a, T> {
-    grid: &'a Rect<T>,
-    index: Point,
-}
-
-impl<'a, T> Iterator for RectIter<'a, T> {
-    type Item = (Point, &'a T);
-
-    fn next(&mut self) -> Option<Self::Item> {
-        self.grid.get(self.index).map(|value| {
-            let index = self.index;
-            self.index.x += 1;
-            if self.index.x >= self.grid.size.x {
-                self.index.x = 0;
-                self.index.y += 1;
-            }
-            (index, value)
-        })
+        Box::new(self.iter())
     }
 }
