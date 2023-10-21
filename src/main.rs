@@ -21,6 +21,7 @@ mod part;
 mod search;
 mod solutions;
 mod uniq;
+mod vm_2018;
 
 fn sig_figs(n: u32, duration: Duration) -> Duration {
     let nanos = u64::try_from(duration.as_nanos()).unwrap();

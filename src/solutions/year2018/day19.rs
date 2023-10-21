@@ -1,127 +1,36 @@
-#[derive(Clone, Copy)]
-enum Category {
-    Add,
-    Mul,
-    Set,
-    Gt,
-    Eq,
-}
-
-#[derive(Clone, Copy)]
-enum Mode {
-    Register,
-    Immediate,
-}
-
-impl From<u8> for Mode {
-    fn from(c: u8) -> Self {
-        match c {
-            b'r' => Mode::Register,
-            b'i' => Mode::Immediate,
-            _ => unreachable!(),
-        }
-    }
-}
-
-#[derive(Clone, Copy)]
-struct Op {
-    category: Category,
-    mode_a: Mode,
-    mode_b: Mode,
-}
-
-impl<'a> From<&'a str> for Op {
-    fn from(s: &'a str) -> Self {
-        let s = s.as_bytes();
-        match s[0] {
-            b'a' => Op {
-                category: Category::Add,
-                mode_a: Mode::Register,
-                mode_b: s[3].into(),
-            },
-            b'm' => Op {
-                category: Category::Mul,
-                mode_a: Mode::Register,
-                mode_b: s[3].into(),
-            },
-            b's' => Op {
-                category: Category::Set,
-                mode_a: s[3].into(),
-                mode_b: Mode::Register,
-            },
-            b'g' => Op {
-                category: Category::Gt,
-                mode_a: s[2].into(),
-                mode_b: s[3].into(),
-            },
-            b'e' => Op {
-                category: Category::Eq,
-                mode_a: s[2].into(),
-                mode_b: s[3].into(),
-            },
-            _ => unreachable!(),
-        }
-    }
-}
-
-type Regs = [usize; 6];
-
-#[derive(Clone, Copy)]
-struct Instruction {
-    op: Op,
-    a: usize,
-    b: usize,
-    c: usize,
-}
-
-fn parse_instruction(input: &str) -> Instruction {
-    let mut words = input.split_whitespace();
-    Instruction {
-        op: words.next().unwrap().into(),
-        a: words.next().unwrap().parse().unwrap(),
-        b: words.next().unwrap().parse().unwrap(),
-        c: words.next().unwrap().parse().unwrap(),
-    }
-}
-
-fn parse(input: &str) -> (usize, Vec<Instruction>) {
-    let mut lines = input.lines();
-    (
-        lines
-            .next()
-            .unwrap()
-            .strip_prefix("#ip ")
-            .unwrap()
-            .parse()
-            .unwrap(),
-        lines.map(parse_instruction).collect(),
-    )
-}
-
-fn apply(i: Instruction, regs: &mut Regs) {
-    fn arg(regs: &Regs, mode: Mode, x: usize) -> usize {
-        match mode {
-            Mode::Register => regs[x],
-            Mode::Immediate => x,
-        }
-    }
-    regs[i.c] = match i.op.category {
-        Category::Add => arg(regs, i.op.mode_a, i.a) + arg(regs, i.op.mode_b, i.b),
-        Category::Mul => arg(regs, i.op.mode_a, i.a) * arg(regs, i.op.mode_b, i.b),
-        Category::Set => arg(regs, i.op.mode_a, i.a),
-        Category::Gt => usize::from(arg(regs, i.op.mode_a, i.a) > arg(regs, i.op.mode_b, i.b)),
-        Category::Eq => usize::from(arg(regs, i.op.mode_a, i.a) == arg(regs, i.op.mode_b, i.b)),
-    };
-}
+use crate::vm_2018;
 
 pub fn part1(input: &str) -> usize {
-    let (ip, prog) = parse(input);
+    let (ip, prog) = vm_2018::parse(input);
     let mut regs = [0; 6];
     while let Some(&instruction) = prog.get(regs[ip]) {
-        apply(instruction, &mut regs);
+        vm_2018::apply(instruction, &mut regs);
         regs[ip] += 1;
     }
     regs[0]
+}
+
+// - lines 01 to 16 loop through every pair of numbers r1 and r3 <= r2, test if r1 * r3 = r2, and if
+//   they do, increment r0 by r1. in other words: they find the sum of the divisors of r2
+// - lines 17 to 35 initialise r2 (to 898 in part 1 and 10551298 in part 2)
+pub fn part2(_: &str) -> usize {
+    let r2 = 10_551_298;
+    (1..=r2).filter(|d| r2 % d == 0).sum()
+}
+
+pub fn tests() {
+    let example = [
+        "#ip 0",
+        "seti 5 0 1",
+        "seti 6 0 2",
+        "addi 0 1 0",
+        "addr 1 2 3",
+        "setr 1 0 0",
+        "seti 8 0 4",
+        "seti 9 0 5",
+    ]
+    .join("\n");
+    assert_eq!(part1(&example), 7);
 }
 
 //        #ip 4
@@ -161,26 +70,3 @@ pub fn part1(input: &str) -> usize {
 // 33     addr 2 5 2      r2 = r2 + r5 (898 + 10550400 = 10551298)
 // 34     seti 0 2 0      r0 = 0
 // 35     seti 0 6 4      jump to 1
-//
-// - lines 01 to 16 loop through every pair of numbers r1 and r3 <= r2, test if r1 * r3 = r2, and if
-//   they do, increment r0 by r1. in other words: they find the sum of the divisors of r2
-// - lines 17 to 35 initialise r2 (to 898 in part 1 and 10551298 in part 2)
-pub fn part2(_: &str) -> usize {
-    let r2 = 10_551_298;
-    (1..=r2).filter(|d| r2 % d == 0).sum()
-}
-
-pub fn tests() {
-    let example = [
-        "#ip 0",
-        "seti 5 0 1",
-        "seti 6 0 2",
-        "addi 0 1 0",
-        "addr 1 2 3",
-        "setr 1 0 0",
-        "seti 8 0 4",
-        "seti 9 0 5",
-    ]
-    .join("\n");
-    assert_eq!(part1(&example), 7);
-}

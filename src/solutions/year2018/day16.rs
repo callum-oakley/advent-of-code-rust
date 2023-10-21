@@ -3,29 +3,7 @@ use std::collections::HashSet;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-enum Category {
-    Add,
-    Mul,
-    Ban,
-    Bor,
-    Set,
-    Gt,
-    Eq,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-enum Mode {
-    Register,
-    Immediate,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-struct Op {
-    category: Category,
-    mode_a: Mode,
-    mode_b: Mode,
-}
+use crate::vm_2018;
 
 type Regs = [usize; 4];
 
@@ -43,44 +21,16 @@ struct Sample {
     after: Regs,
 }
 
-#[rustfmt::skip]
-const OPS: [Op; 16] = [
-    Op { category: Category::Add, mode_a: Mode::Register,  mode_b: Mode::Register  }, // addr
-    Op { category: Category::Add, mode_a: Mode::Register,  mode_b: Mode::Immediate }, // addi
-    Op { category: Category::Mul, mode_a: Mode::Register,  mode_b: Mode::Register  }, // mulr
-    Op { category: Category::Mul, mode_a: Mode::Register,  mode_b: Mode::Immediate }, // muli
-    Op { category: Category::Ban, mode_a: Mode::Register,  mode_b: Mode::Register  }, // banr
-    Op { category: Category::Ban, mode_a: Mode::Register,  mode_b: Mode::Immediate }, // bani
-    Op { category: Category::Bor, mode_a: Mode::Register,  mode_b: Mode::Register  }, // borr
-    Op { category: Category::Bor, mode_a: Mode::Register,  mode_b: Mode::Immediate }, // bori
-    Op { category: Category::Set, mode_a: Mode::Register,  mode_b: Mode::Register  }, // setr
-    Op { category: Category::Set, mode_a: Mode::Immediate, mode_b: Mode::Immediate }, // seti
-    Op { category: Category::Gt,  mode_a: Mode::Immediate, mode_b: Mode::Register  }, // gtir
-    Op { category: Category::Gt,  mode_a: Mode::Register,  mode_b: Mode::Immediate }, // gtri
-    Op { category: Category::Gt,  mode_a: Mode::Register,  mode_b: Mode::Register  }, // gtrr
-    Op { category: Category::Eq,  mode_a: Mode::Immediate, mode_b: Mode::Register  }, // eqir
-    Op { category: Category::Eq,  mode_a: Mode::Register,  mode_b: Mode::Immediate }, // eqri
-    Op { category: Category::Eq,  mode_a: Mode::Register,  mode_b: Mode::Register  }, // eqrr
-];
-
-fn apply(ops: [Op; 16], i: Instruction, mut regs: Regs) -> Regs {
-    fn arg(regs: &Regs, mode: Mode, x: usize) -> usize {
-        match mode {
-            Mode::Register => regs[x],
-            Mode::Immediate => x,
-        }
-    }
-    let op = ops[i.opcode];
-    regs[i.c] = match op.category {
-        Category::Add => arg(&regs, op.mode_a, i.a) + arg(&regs, op.mode_b, i.b),
-        Category::Mul => arg(&regs, op.mode_a, i.a) * arg(&regs, op.mode_b, i.b),
-        Category::Ban => arg(&regs, op.mode_a, i.a) & arg(&regs, op.mode_b, i.b),
-        Category::Bor => arg(&regs, op.mode_a, i.a) | arg(&regs, op.mode_b, i.b),
-        Category::Set => arg(&regs, op.mode_a, i.a),
-        Category::Gt => usize::from(arg(&regs, op.mode_a, i.a) > arg(&regs, op.mode_b, i.b)),
-        Category::Eq => usize::from(arg(&regs, op.mode_a, i.a) == arg(&regs, op.mode_b, i.b)),
-    };
-    regs
+fn apply(ops: [vm_2018::Op; 16], i: Instruction, regs: &mut Regs) {
+    vm_2018::apply(
+        vm_2018::Instruction {
+            op: ops[i.opcode],
+            a: i.a,
+            b: i.b,
+            c: i.c,
+        },
+        regs,
+    );
 }
 
 lazy_static! {
@@ -129,13 +79,16 @@ fn parse(input: &str) -> (Vec<Sample>, Vec<Instruction>) {
     )
 }
 
-fn consistent(sample: &Sample) -> impl Iterator<Item = Op> + '_ {
-    OPS.into_iter()
-        .filter(|&op| apply([op; 16], sample.instruction, sample.before) == sample.after)
+fn consistent(sample: &Sample) -> impl Iterator<Item = vm_2018::Op> + '_ {
+    vm_2018::OPS.into_iter().filter(|&op| {
+        let mut before = sample.before;
+        apply([op; 16], sample.instruction, &mut before);
+        before == sample.after
+    })
 }
 
 // Reduce the one-many map of possibilities to a one-one map by process of elimination
-fn eliminate(mut possible: [HashSet<Op>; 16]) -> [Option<Op>; 16] {
+fn eliminate(mut possible: [HashSet<vm_2018::Op>; 16]) -> [Option<vm_2018::Op>; 16] {
     for i in 0..16 {
         if possible[i].len() == 1 {
             let op = *possible[i].iter().next().unwrap();
@@ -161,7 +114,7 @@ pub fn part1(input: &str) -> usize {
 pub fn part2(input: &str) -> usize {
     let (samples, program) = parse(input);
 
-    let mut possible: [HashSet<Op>; 16] = std::array::from_fn(|_| HashSet::new());
+    let mut possible: [HashSet<vm_2018::Op>; 16] = std::array::from_fn(|_| HashSet::new());
     for sample in samples {
         for op in consistent(&sample) {
             possible[sample.instruction.opcode].insert(op);
@@ -173,7 +126,7 @@ pub fn part2(input: &str) -> usize {
 
     let mut regs = [0; 4];
     for instruction in program {
-        regs = apply(ops, instruction, regs);
+        apply(ops, instruction, &mut regs);
     }
     regs[0]
 }
@@ -182,6 +135,6 @@ pub fn tests() {
     let example = "Before: [3, 2, 1, 1]\n9 2 1 2\nAfter:  [3, 2, 2, 1]";
     assert_eq!(
         consistent(&parse_sample(example)).collect::<Vec<_>>(),
-        vec![OPS[1], OPS[2], OPS[9]],
+        vec![vm_2018::OPS[1], vm_2018::OPS[2], vm_2018::OPS[9]],
     );
 }
