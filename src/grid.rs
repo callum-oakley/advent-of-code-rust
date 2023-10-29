@@ -227,34 +227,37 @@ impl Sum for Point {
 
 #[derive(Debug)]
 pub struct Bounds {
-    pub nw: Point,
-    pub se: Point,
+    pub min_y: i32,
+    pub max_y: i32,
+    pub min_x: i32,
+    pub max_x: i32,
 }
 
 impl Bounds {
     pub fn new(mut points: impl Iterator<Item = Point>) -> Self {
         let point = points.next().unwrap();
         let mut res = Self {
-            nw: point,
-            se: point,
+            min_y: point.y,
+            max_y: point.y,
+            min_x: point.x,
+            max_x: point.x,
         };
 
         for point in points {
-            if point.x < res.nw.x {
-                res.nw.x = point.x;
-            }
-            if point.y < res.nw.y {
-                res.nw.y = point.y;
-            }
-            if point.x > res.se.x {
-                res.se.x = point.x;
-            }
-            if point.y > res.se.y {
-                res.se.y = point.y;
-            }
+            res.min_y = res.min_y.min(point.y);
+            res.max_y = res.max_y.max(point.y);
+            res.min_x = res.min_x.min(point.x);
+            res.max_x = res.max_x.max(point.x);
         }
 
         res
+    }
+
+    pub fn size(&self) -> Point {
+        Point {
+            y: self.max_y - self.min_y + 1,
+            x: self.max_x - self.min_x + 1,
+        }
     }
 }
 
@@ -381,9 +384,13 @@ where
 {
     fn from(points: I) -> Self {
         let bounds = Bounds::new(points.clone());
-        let mut res = Self::new(false, bounds.se - bounds.nw + SE);
+        let mut res = Self::new(false, bounds.size());
         for point in points {
-            res[point - bounds.nw] = true;
+            res[point
+                - Point {
+                    y: bounds.min_y,
+                    x: bounds.min_x,
+                }] = true;
         }
         res
     }

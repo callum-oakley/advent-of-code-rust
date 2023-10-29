@@ -30,10 +30,11 @@ pub fn part1(input: &str) -> u32 {
         .collect::<HashMap<_, _>>();
 
     let bounds = Bounds::new(coordinates.iter().copied());
-    for x in bounds.nw.x..=bounds.se.x {
-        for y in bounds.nw.y..=bounds.se.y {
+    for x in bounds.min_x..=bounds.max_x {
+        for y in bounds.min_y..=bounds.max_y {
             if let Some(c) = unique_closest(Point { y, x }, &coordinates) {
-                if x == bounds.nw.x || x == bounds.se.x || y == bounds.nw.y || y == bounds.se.y {
+                if x == bounds.min_x || x == bounds.max_x || y == bounds.min_y || y == bounds.max_y
+                {
                     // This area is inifinite, so we don't care about it.
                     areas.remove(&c);
                 } else if let Some(v) = areas.get_mut(&c) {
@@ -52,8 +53,8 @@ fn part2_(tolerance: i32, input: &str) -> u32 {
     let mut res = 0;
 
     let bounds = Bounds::new(coordinates.iter().copied());
-    for x in bounds.nw.x..=bounds.se.x {
-        for y in bounds.nw.y..=bounds.se.y {
+    for x in bounds.min_x..=bounds.max_x {
+        for y in bounds.min_y..=bounds.max_y {
             let pos = Point { y, x };
             if coordinates
                 .iter()

@@ -1,6 +1,9 @@
 use regex::Regex;
 
-use crate::{grid_3d::Point, search};
+use crate::{
+    grid_3d::{Bounds, Point},
+    search,
+};
 
 #[derive(Copy, Clone)]
 struct Bot {
@@ -100,22 +103,17 @@ pub fn part1(input: &str) -> usize {
 // to finding a lowest cost path to a cube of width 1.
 pub fn part2(input: &str) -> i32 {
     let bots = parse(input);
-
-    let min_x = bots.iter().map(|bot| bot.pos.x).min().unwrap();
-    let max_x = bots.iter().map(|bot| bot.pos.x).max().unwrap();
-    let min_y = bots.iter().map(|bot| bot.pos.y).min().unwrap();
-    let max_y = bots.iter().map(|bot| bot.pos.y).max().unwrap();
-    let min_z = bots.iter().map(|bot| bot.pos.z).min().unwrap();
-    let max_z = bots.iter().map(|bot| bot.pos.z).max().unwrap();
-
+    let bounds = Bounds::new(bots.iter().map(|bot| bot.pos));
     search::min_first(State {
         cube: Cube {
             pos: Point {
-                z: min_z,
-                y: min_y,
-                x: min_x,
+                z: bounds.min_z,
+                y: bounds.min_y,
+                x: bounds.min_x,
             },
-            w: (max_x - min_x).max(max_y - min_y).max(max_z - min_z),
+            w: (bounds.max_x - bounds.min_x)
+                .max(bounds.max_y - bounds.min_y)
+                .max(bounds.max_z - bounds.min_z),
         },
         bots: &bots,
     })
