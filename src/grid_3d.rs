@@ -15,22 +15,6 @@ pub struct Point {
 
 pub const Z: Point = Point { x: 0, y: 0, z: 0 };
 
-#[derive(Copy, Clone, Debug)]
-pub enum Turn {
-    Left,
-    Right,
-}
-
-impl From<&str> for Turn {
-    fn from(s: &str) -> Self {
-        match s {
-            "L" => Turn::Left,
-            "R" => Turn::Right,
-            _ => unreachable!(),
-        }
-    }
-}
-
 impl Point {
     pub fn manhattan(self) -> i32 {
         self.x.abs() + self.y.abs() + self.z.abs()
