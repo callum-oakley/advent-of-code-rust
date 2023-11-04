@@ -86,6 +86,9 @@ impl From<&str> for Point {
         lazy_static! {
             static ref INT: Regex = Regex::new(r"-?\d+").unwrap();
         }
+        if s.len() == 1 {
+            return s.chars().next().unwrap().into();
+        }
         let mut ints = INT.find_iter(s);
         Point {
             x: ints.next().unwrap().as_str().parse().unwrap(),
