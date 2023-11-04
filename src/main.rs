@@ -17,6 +17,7 @@ mod grid_3d;
 mod grid_4d;
 mod grid_hex;
 mod hash;
+mod intcode;
 mod ocr;
 mod part;
 mod search;
