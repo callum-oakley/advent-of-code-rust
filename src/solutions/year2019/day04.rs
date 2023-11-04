@@ -9,7 +9,7 @@ fn valid(part: Part, pass: &str) -> bool {
         }
         if pass[i] == pass[i + 1] {
             if part == Part::Two
-                && (pass.get(i - 1) == Some(&pass[i]) || pass.get(i + 2) == Some(&pass[i]))
+                && (i > 0 && pass[i - 1] == pass[i] || i + 2 < pass.len() && pass[i + 2] == pass[i])
             {
                 continue;
             }
