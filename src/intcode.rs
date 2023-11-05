@@ -6,14 +6,6 @@ pub struct VM {
     pub ip: usize,
 }
 
-pub fn parse(input: &str) -> VM {
-    let mut mem = [0; MEM_SIZE];
-    for (i, s) in input.split(',').enumerate() {
-        mem[i] = s.parse().unwrap();
-    }
-    VM { mem, ip: 0 }
-}
-
 #[derive(PartialEq, Debug)]
 pub enum State {
     Input,
@@ -22,7 +14,15 @@ pub enum State {
 }
 
 impl VM {
-    pub fn run(&mut self) -> State {
+    pub fn new(prog: &str) -> Self {
+        let mut mem = [0; MEM_SIZE];
+        for (i, s) in prog.split(',').enumerate() {
+            mem[i] = s.parse().unwrap();
+        }
+        Self { mem, ip: 0 }
+    }
+
+    fn run(&mut self) -> State {
         loop {
             match self.mem[self.ip] % 100 {
                 1 => {
@@ -72,27 +72,30 @@ impl VM {
     }
 
     pub fn input(&mut self, input: i32) {
-        match self.mem[self.ip] % 100 {
-            3 => {
+        match self.run() {
+            State::Input => {
                 *self.arg(1) = input;
                 self.ip += 2;
             }
-            op => {
-                panic!("can't input when opcode is: {op}");
-            }
+            state => panic!("can't input when state is {state:?}"),
         }
     }
 
     pub fn output(&mut self) -> i32 {
-        match self.mem[self.ip] % 100 {
-            4 => {
+        match self.run() {
+            State::Output => {
                 let output = *self.arg(1);
                 self.ip += 2;
                 output
             }
-            op => {
-                panic!("can't output when opcode is: {op}");
-            }
+            state => panic!("can't output when state is {state:?}"),
+        }
+    }
+
+    pub fn halt(&mut self) {
+        match self.run() {
+            State::Halt => {}
+            state => panic!("can't halt when state is {state:?}"),
         }
     }
 

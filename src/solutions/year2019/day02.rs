@@ -1,18 +1,18 @@
-use crate::intcode::{self, State, VM};
+use crate::intcode::VM;
 
 fn run(mut vm: VM, noun: i32, verb: i32) -> i32 {
     vm.mem[1] = noun;
     vm.mem[2] = verb;
-    assert_eq!(vm.run(), State::Halt);
+    vm.halt();
     vm.mem[0]
 }
 
 pub fn part1(input: &str) -> i32 {
-    run(intcode::parse(input), 12, 2)
+    run(VM::new(input), 12, 2)
 }
 
 pub fn part2(input: &str) -> i32 {
-    let vm = intcode::parse(input);
+    let vm = VM::new(input);
     for noun in 0..100 {
         for verb in 0..100 {
             if run(vm.clone(), noun, verb) == 19_690_720 {
@@ -25,8 +25,8 @@ pub fn part2(input: &str) -> i32 {
 
 pub fn tests() {
     fn assert_mem(input: &str, expected: &[i32]) {
-        let mut vm = intcode::parse(input);
-        assert_eq!(vm.run(), State::Halt);
+        let mut vm = VM::new(input);
+        vm.halt();
         assert_eq!(&vm.mem[..expected.len()], expected);
     }
 
