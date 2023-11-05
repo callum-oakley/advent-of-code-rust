@@ -1,4 +1,4 @@
-const MEM_SIZE: usize = 1024;
+const MEM_SIZE: usize = 1000;
 
 #[derive(Clone)]
 pub struct VM {
@@ -22,7 +22,7 @@ impl VM {
         Self { mem, ip: 0 }
     }
 
-    fn run(&mut self) -> State {
+    pub fn state(&mut self) -> State {
         loop {
             match self.mem[self.ip] % 100 {
                 1 => {
@@ -72,7 +72,7 @@ impl VM {
     }
 
     pub fn input(&mut self, input: i32) {
-        match self.run() {
+        match self.state() {
             State::Input => {
                 *self.arg(1) = input;
                 self.ip += 2;
@@ -82,7 +82,7 @@ impl VM {
     }
 
     pub fn output(&mut self) -> i32 {
-        match self.run() {
+        match self.state() {
             State::Output => {
                 let output = *self.arg(1);
                 self.ip += 2;
@@ -93,7 +93,7 @@ impl VM {
     }
 
     pub fn halt(&mut self) {
-        match self.run() {
+        match self.state() {
             State::Halt => {}
             state => panic!("can't halt when state is {state:?}"),
         }
