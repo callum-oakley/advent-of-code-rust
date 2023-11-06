@@ -31,6 +31,15 @@ const FBHKLEAG: &str = "
     #.......#####...#....#..#....#..######..######..#....#...###.#
 ";
 
+const PHPEU: &str = "
+    ###..#..#.###..####.#..#.
+    #..#.#..#.#..#.#....#..#.
+    #..#.####.#..#.###..#..#.
+    ###..#..#.###..#....#..#.
+    #....#..#.#....#....#..#.
+    #....#..#.#....####..##..
+";
+
 pub fn parse(s: &str) -> &'static str {
     let s = s.trim();
     if s == CFLELOYFCS.trim().replace(' ', "") {
@@ -39,6 +48,8 @@ pub fn parse(s: &str) -> &'static str {
         "HI"
     } else if s == FBHKLEAG.trim().replace(' ', "") {
         "FBHKLEAG"
+    } else if s == PHPEU.trim().replace(' ', "") {
+        "PHPEU"
     } else {
         panic!("failed to parse:\n{s}")
     }
