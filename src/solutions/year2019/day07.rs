@@ -3,7 +3,7 @@ use crate::{
     intcode::{State, VM},
 };
 
-fn amplify1(vm: &VM, phases: &[i32]) -> i32 {
+fn amplify1(vm: &VM, phases: &[i64]) -> i64 {
     let mut signal = 0;
     for &phase in phases {
         let mut amp = vm.clone();
@@ -15,7 +15,7 @@ fn amplify1(vm: &VM, phases: &[i32]) -> i32 {
     signal
 }
 
-fn amplify2(vm: &VM, phases: &[i32]) -> i32 {
+fn amplify2(vm: &VM, phases: &[i64]) -> i64 {
     let mut amps = [vm.clone(), vm.clone(), vm.clone(), vm.clone(), vm.clone()];
     for i in 0..5 {
         amps[i].input(phases[i]);
@@ -45,7 +45,7 @@ fn amplify2(vm: &VM, phases: &[i32]) -> i32 {
     }
 }
 
-pub fn part1(input: &str) -> i32 {
+pub fn part1(input: &str) -> i64 {
     let vm = VM::new(input);
     let mut phases = [0, 1, 2, 3, 4];
     let mut max_signal = amplify1(&vm, &phases);
@@ -55,7 +55,7 @@ pub fn part1(input: &str) -> i32 {
     max_signal
 }
 
-pub fn part2(input: &str) -> i32 {
+pub fn part2(input: &str) -> i64 {
     let vm = VM::new(input);
     let mut phases = [5, 6, 7, 8, 9];
     let mut max_signal = amplify2(&vm, &phases);
