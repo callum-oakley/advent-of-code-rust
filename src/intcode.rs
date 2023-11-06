@@ -1,5 +1,8 @@
 const MEM_SIZE: usize = 2000;
 
+/// A virtual machine that runs Intcode. Memory is an array of 64 bit signed integers. If you know
+/// what state a VM is in then call `input`, `output`, or `halt`, otherwise call `state` and match
+/// on the result.
 #[derive(Clone)]
 pub struct VM {
     pub mem: [i64; MEM_SIZE],
@@ -7,14 +10,19 @@ pub struct VM {
     base: i64,
 }
 
+/// The three states that a VM can be in once it pauses.
 #[derive(PartialEq, Debug)]
 pub enum State {
+    /// Waiting for a call to `input`.
     Input,
+    /// Waiting for a call to `output`.
     Output,
+    /// Waiting for a call to `halt`.
     Halt,
 }
 
 impl VM {
+    /// Construct a VM which will run the given Intcode program.
     pub fn new(prog: &str) -> Self {
         let mut mem = [0; MEM_SIZE];
         for (i, s) in prog.split(',').enumerate() {
@@ -27,6 +35,7 @@ impl VM {
         }
     }
 
+    /// Drive the VM forward until it reaches an input, output, or halt instruction.
     pub fn state(&mut self) -> State {
         loop {
             match self.mem[self.ip] % 100 {
@@ -80,6 +89,7 @@ impl VM {
         }
     }
 
+    /// Input a value. Panics if the VM is not in `Input` state.
     pub fn input(&mut self, input: i64) {
         match self.state() {
             State::Input => {
@@ -90,6 +100,7 @@ impl VM {
         }
     }
 
+    /// Output a value. Panics if the VM is not in `Output` state.
     pub fn output(&mut self) -> i64 {
         match self.state() {
             State::Output => {
@@ -101,6 +112,8 @@ impl VM {
         }
     }
 
+    /// Halt. Panics if the VM is not in `Halt` state. Good practice to call this when done to
+    /// ensure no outputs are missed.
     pub fn halt(&mut self) {
         match self.state() {
             State::Halt => {}
@@ -108,6 +121,8 @@ impl VM {
         }
     }
 
+    /// Gets the value of the argument at offset `n` from the instruction pointer according to the
+    /// specified mode.
     fn arg(&mut self, n: usize) -> &mut i64 {
         match self.mem[self.ip] / 10_i64.pow(1 + u32::try_from(n).unwrap()) % 10 {
             0 => &mut self.mem[usize::try_from(self.mem[self.ip + n]).unwrap()],

@@ -1080,7 +1080,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         Solution {
             part1: Some(|input| year2019::day05::part1(input).to_string()),
             part2: Some(|input| year2019::day05::part2(input).to_string()),
-            tests: None,
+            tests: Some(year2019::day05::tests),
         },
     );
 
@@ -1116,7 +1116,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         Solution {
             part1: Some(|input| year2019::day09::part1(input).to_string()),
             part2: Some(|input| year2019::day09::part2(input).to_string()),
-            tests: None,
+            tests: Some(year2019::day09::tests),
         },
     );
 
