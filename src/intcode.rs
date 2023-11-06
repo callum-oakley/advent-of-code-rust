@@ -1,5 +1,3 @@
-use std::iter;
-
 const MEM_SIZE: usize = 2000;
 
 #[derive(Clone)]
@@ -108,26 +106,6 @@ impl VM {
             State::Halt => {}
             state => panic!("can't halt when state is {state:?}"),
         }
-    }
-
-    pub fn pipe<'a>(
-        &'a mut self,
-        inputs: impl IntoIterator<Item = i64> + 'a,
-    ) -> impl Iterator<Item = i64> + 'a {
-        let mut inputs = inputs.into_iter();
-        iter::from_fn(move || loop {
-            match self.state() {
-                State::Input => {
-                    self.input(inputs.next().expect("ran out of inputs"));
-                }
-                State::Output => {
-                    return Some(self.output());
-                }
-                State::Halt => {
-                    return None;
-                }
-            }
-        })
     }
 
     fn arg(&mut self, n: usize) -> &mut i64 {
