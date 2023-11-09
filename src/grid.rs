@@ -42,6 +42,16 @@ impl From<&str> for Turn {
     }
 }
 
+impl From<i64> for Turn {
+    fn from(s: i64) -> Self {
+        match s {
+            0 => Turn::Left,
+            1 => Turn::Right,
+            _ => unreachable!(),
+        }
+    }
+}
+
 impl Point {
     pub fn adjacent4(self) -> [Self; 4] {
         [N, W, E, S].map(|dir| dir + self)

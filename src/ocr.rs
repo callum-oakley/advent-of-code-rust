@@ -40,6 +40,15 @@ const PHPEU: &str = "
     #....#..#.#....####..##..
 ";
 
+const RJLFBUCU: &str = "
+    ###....##.#....####.###..#..#..##..#..#
+    #..#....#.#....#....#..#.#..#.#..#.#..#
+    #..#....#.#....###..###..#..#.#....#..#
+    ###.....#.#....#....#..#.#..#.#....#..#
+    #.#..#..#.#....#....#..#.#..#.#..#.#..#
+    #..#..##..####.#....###...##...##...##.
+";
+
 pub fn parse(s: &str) -> &'static str {
     let s = s.trim();
     if s == CFLELOYFCS.trim().replace(' ', "") {
@@ -50,6 +59,8 @@ pub fn parse(s: &str) -> &'static str {
         "FBHKLEAG"
     } else if s == PHPEU.trim().replace(' ', "") {
         "PHPEU"
+    } else if s == RJLFBUCU.trim().replace(' ', "") {
+        "RJLFBUCU"
     } else {
         panic!("failed to parse:\n{s}")
     }
