@@ -89,7 +89,7 @@ impl VM {
         }
     }
 
-    /// Input a value. Panics if the VM is not in `Input` state.
+    /// Input a value. Panic if the VM is not in `Input` state.
     pub fn input(&mut self, input: i64) {
         match self.state() {
             State::Input => {
@@ -100,7 +100,7 @@ impl VM {
         }
     }
 
-    /// Output a value. Panics if the VM is not in `Output` state.
+    /// Output a value. Panic if the VM is not in `Output` state.
     pub fn output(&mut self) -> i64 {
         match self.state() {
             State::Output => {
@@ -112,8 +112,8 @@ impl VM {
         }
     }
 
-    /// Halt. Panics if the VM is not in `Halt` state. Good practice to call this when done to
-    /// ensure no outputs are missed.
+    /// Halt. Panic if the VM is not in `Halt` state. Good practice to call this when done to ensure
+    /// no outputs are missed.
     pub fn halt(&mut self) {
         match self.state() {
             State::Halt => {}
@@ -121,7 +121,7 @@ impl VM {
         }
     }
 
-    /// Gets the value of the argument at offset `n` from the instruction pointer according to the
+    /// Get the value of the argument at offset `n` from the instruction pointer according to the
     /// specified mode.
     fn arg(&mut self, n: usize) -> &mut i64 {
         match self.mem[self.ip] / 10_i64.pow(1 + u32::try_from(n).unwrap()) % 10 {
