@@ -1,8 +1,8 @@
 use regex::Regex;
 
-use crate::chinese_remainder;
+use crate::number_theory;
 
-fn parse(input: &str) -> Vec<chinese_remainder::Congruence> {
+fn parse(input: &str) -> Vec<number_theory::Congruence> {
     Regex::new(r"Disc #(\d+) has (\d+) positions; at time=0, it is at position (\d+)\.")
         .unwrap()
         .captures_iter(input)
@@ -12,7 +12,7 @@ fn parse(input: &str) -> Vec<chinese_remainder::Congruence> {
             let start: i64 = captures[3].parse().unwrap();
             // Want time so that start + disc + time = 0 (mod positions)
             // => time = 0 - disc - start (mod positions)
-            chinese_remainder::Congruence {
+            number_theory::Congruence {
                 a: 0 - disc - start,
                 n: positions,
             }
@@ -21,13 +21,13 @@ fn parse(input: &str) -> Vec<chinese_remainder::Congruence> {
 }
 
 pub fn part1(input: &str) -> i64 {
-    chinese_remainder::solve(parse(input))
+    number_theory::chinese_remainder(parse(input))
 }
 
 pub fn part2(input: &str) -> i64 {
     let mut system = parse(input);
-    system.push(chinese_remainder::Congruence { a: -7, n: 11 });
-    chinese_remainder::solve(system)
+    system.push(number_theory::Congruence { a: -7, n: 11 });
+    number_theory::chinese_remainder(system)
 }
 
 pub fn tests() {

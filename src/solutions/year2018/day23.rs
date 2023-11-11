@@ -1,7 +1,7 @@
 use regex::Regex;
 
 use crate::{
-    grid_3d::{Bounds, Point},
+    grid_3d::{Axis, Bounds, Point},
     search,
 };
 
@@ -31,15 +31,11 @@ impl Cube {
     // Does the given cube intersect with the given bot's range?
     fn intersects(self, bot: Bot) -> bool {
         let mut dist = 0;
-        for (a, low, high) in [
-            (bot.pos.x, self.pos.x, self.pos.x + self.w - 1),
-            (bot.pos.y, self.pos.y, self.pos.y + self.w - 1),
-            (bot.pos.z, self.pos.z, self.pos.z + self.w - 1),
-        ] {
-            if a < low {
-                dist += low - a;
-            } else if a > high {
-                dist += a - high;
+        for axis in [Axis::X, Axis::Y, Axis::Z] {
+            if bot.pos[axis] < self.pos[axis] {
+                dist += self.pos[axis] - bot.pos[axis];
+            } else if bot.pos[axis] > self.pos[axis] + self.w - 1 {
+                dist += bot.pos[axis] - (self.pos[axis] + self.w - 1);
             }
         }
         dist <= bot.r

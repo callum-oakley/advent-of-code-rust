@@ -1,6 +1,6 @@
 use std::{
     iter::Sum,
-    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign},
+    ops::{Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Sub, SubAssign},
 };
 
 use lazy_static::lazy_static;
@@ -110,6 +110,35 @@ impl DivAssign<i32> for Point {
 impl Sum for Point {
     fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
         iter.fold(Z, |a, b| a + b)
+    }
+}
+
+#[derive(Clone, Copy)]
+pub enum Axis {
+    X,
+    Y,
+    Z,
+}
+
+impl Index<Axis> for Point {
+    type Output = i32;
+
+    fn index(&self, axis: Axis) -> &i32 {
+        match axis {
+            Axis::X => &self.x,
+            Axis::Y => &self.y,
+            Axis::Z => &self.z,
+        }
+    }
+}
+
+impl IndexMut<Axis> for Point {
+    fn index_mut(&mut self, axis: Axis) -> &mut i32 {
+        match axis {
+            Axis::X => &mut self.x,
+            Axis::Y => &mut self.y,
+            Axis::Z => &mut self.z,
+        }
     }
 }
 
