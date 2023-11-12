@@ -18,3 +18,6 @@ init year day:
     touch "${path}"
     cargo build
     code "${path}"
+
+play year day:
+    cargo run --bin play_year{{year}}_day$(printf %02s {{day}})

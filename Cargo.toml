@@ -1,8 +1,9 @@
 [package]
-name = "advent-of-code-rust"
+name = "advent-of-code"
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
+default-run = "advent-of-code"
 
 [features]
 allow_dead_code = []

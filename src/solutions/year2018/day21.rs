@@ -1,6 +1,6 @@
-use std::{collections::HashSet, fs, iter};
+use std::{collections::HashSet, iter};
 
-use crate::vm_2018;
+use crate::{get_input, vm_2018};
 
 // The program halts after the test on line 28 if r0 is equal to r5. r0 doesn't otherwise feature in
 // the calculation, so by running the program and noting r5 each time we reach line 28, we produce a
@@ -69,7 +69,7 @@ pub fn part2(input: &str) -> usize {
 }
 
 pub fn tests() {
-    let input = fs::read_to_string("input/2018/21").unwrap();
+    let input = get_input(2018, 21);
     assert!(valid_fast(&input).take(10).eq(valid(&input).take(10)));
 }
 

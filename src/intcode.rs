@@ -1,4 +1,4 @@
-const MEM_SIZE: usize = 2000;
+const MEM_SIZE: usize = 3000;
 
 /// A virtual machine that runs Intcode. Memory is an array of 64 bit signed integers. If you know
 /// what state a VM is in then call `input`, `output`, or `halt`, otherwise call `state` and match
