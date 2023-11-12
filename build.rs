@@ -15,7 +15,7 @@ struct Solution {
 fn insert_day(solutions: &mut BTreeMap<u16, BTreeMap<u8, Solution>>, year: u16, day: u8) {
     let content =
         fs::read_to_string(format!("src/solutions/year{}/day{:02}.rs", year, day)).unwrap();
-    solutions.entry(year).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(year).or_default().insert(
         day,
         Solution {
             part1: content.contains("pub fn part1"),
@@ -101,7 +101,7 @@ fn main() {
             writeln!(
                 f,
                 "
-                solutions.entry({}).or_insert_with(BTreeMap::new).insert(
+                solutions.entry({}).or_default().insert(
                     {},
                     Solution {{
                 ",

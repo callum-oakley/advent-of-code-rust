@@ -126,6 +126,7 @@ pub mod year2019 {
     pub mod day11;
     pub mod day12;
     pub mod day13;
+    pub mod day14;
 }
 
 use std::collections::BTreeMap;
@@ -143,7 +144,7 @@ pub struct Solution {
 pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
     let mut solutions: BTreeMap<u16, BTreeMap<u8, Solution>> = BTreeMap::new();
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         1,
         Solution {
             part1: Some(|input| year2015::day01::part1(input).to_string()),
@@ -152,7 +153,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         2,
         Solution {
             part1: Some(|input| year2015::day02::part1(input).to_string()),
@@ -161,7 +162,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         3,
         Solution {
             part1: Some(|input| year2015::day03::part1(input).to_string()),
@@ -170,7 +171,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         4,
         Solution {
             part1: Some(|input| year2015::day04::part1(input).to_string()),
@@ -179,7 +180,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         5,
         Solution {
             part1: Some(|input| year2015::day05::part1(input).to_string()),
@@ -188,7 +189,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         6,
         Solution {
             part1: Some(|input| year2015::day06::part1(input).to_string()),
@@ -197,7 +198,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         7,
         Solution {
             part1: Some(|input| year2015::day07::part1(input).to_string()),
@@ -206,7 +207,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         8,
         Solution {
             part1: Some(|input| year2015::day08::part1(input).to_string()),
@@ -215,7 +216,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         9,
         Solution {
             part1: Some(|input| year2015::day09::part1(input).to_string()),
@@ -224,7 +225,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         10,
         Solution {
             part1: Some(|input| year2015::day10::part1(input).to_string()),
@@ -233,7 +234,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         11,
         Solution {
             part1: Some(|input| year2015::day11::part1(input).to_string()),
@@ -242,7 +243,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         12,
         Solution {
             part1: Some(|input| year2015::day12::part1(input).to_string()),
@@ -251,7 +252,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         13,
         Solution {
             part1: Some(|input| year2015::day13::part1(input).to_string()),
@@ -260,7 +261,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         14,
         Solution {
             part1: Some(|input| year2015::day14::part1(input).to_string()),
@@ -269,7 +270,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         15,
         Solution {
             part1: Some(|input| year2015::day15::part1(input).to_string()),
@@ -278,7 +279,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         16,
         Solution {
             part1: Some(|input| year2015::day16::part1(input).to_string()),
@@ -287,7 +288,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         17,
         Solution {
             part1: Some(|input| year2015::day17::part1(input).to_string()),
@@ -296,7 +297,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         18,
         Solution {
             part1: Some(|input| year2015::day18::part1(input).to_string()),
@@ -305,7 +306,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         19,
         Solution {
             part1: Some(|input| year2015::day19::part1(input).to_string()),
@@ -314,7 +315,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         20,
         Solution {
             part1: Some(|input| year2015::day20::part1(input).to_string()),
@@ -323,7 +324,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         21,
         Solution {
             part1: Some(|input| year2015::day21::part1(input).to_string()),
@@ -332,7 +333,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         22,
         Solution {
             part1: Some(|input| year2015::day22::part1(input).to_string()),
@@ -341,7 +342,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         23,
         Solution {
             part1: Some(|input| year2015::day23::part1(input).to_string()),
@@ -350,7 +351,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         24,
         Solution {
             part1: Some(|input| year2015::day24::part1(input).to_string()),
@@ -359,7 +360,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2015).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2015).or_default().insert(
         25,
         Solution {
             part1: Some(|input| year2015::day25::part1(input).to_string()),
@@ -368,7 +369,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         1,
         Solution {
             part1: Some(|input| year2016::day01::part1(input).to_string()),
@@ -377,7 +378,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         2,
         Solution {
             part1: Some(|input| year2016::day02::part1(input).to_string()),
@@ -386,7 +387,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         3,
         Solution {
             part1: Some(|input| year2016::day03::part1(input).to_string()),
@@ -395,7 +396,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         4,
         Solution {
             part1: Some(|input| year2016::day04::part1(input).to_string()),
@@ -404,7 +405,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         5,
         Solution {
             part1: Some(|input| year2016::day05::part1(input).to_string()),
@@ -413,7 +414,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         6,
         Solution {
             part1: Some(|input| year2016::day06::part1(input).to_string()),
@@ -422,7 +423,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         7,
         Solution {
             part1: Some(|input| year2016::day07::part1(input).to_string()),
@@ -431,7 +432,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         8,
         Solution {
             part1: Some(|input| year2016::day08::part1(input).to_string()),
@@ -440,7 +441,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         9,
         Solution {
             part1: Some(|input| year2016::day09::part1(input).to_string()),
@@ -449,7 +450,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         10,
         Solution {
             part1: Some(|input| year2016::day10::part1(input).to_string()),
@@ -458,7 +459,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         11,
         Solution {
             part1: Some(|input| year2016::day11::part1(input).to_string()),
@@ -467,7 +468,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         12,
         Solution {
             part1: Some(|input| year2016::day12::part1(input).to_string()),
@@ -476,7 +477,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         13,
         Solution {
             part1: Some(|input| year2016::day13::part1(input).to_string()),
@@ -485,7 +486,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         14,
         Solution {
             part1: Some(|input| year2016::day14::part1(input).to_string()),
@@ -494,7 +495,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         15,
         Solution {
             part1: Some(|input| year2016::day15::part1(input).to_string()),
@@ -503,7 +504,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         16,
         Solution {
             part1: Some(|input| year2016::day16::part1(input).to_string()),
@@ -512,7 +513,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         17,
         Solution {
             part1: Some(|input| year2016::day17::part1(input).to_string()),
@@ -521,7 +522,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         18,
         Solution {
             part1: Some(|input| year2016::day18::part1(input).to_string()),
@@ -530,7 +531,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         19,
         Solution {
             part1: Some(|input| year2016::day19::part1(input).to_string()),
@@ -539,7 +540,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         20,
         Solution {
             part1: Some(|input| year2016::day20::part1(input).to_string()),
@@ -548,7 +549,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         21,
         Solution {
             part1: Some(|input| year2016::day21::part1(input).to_string()),
@@ -557,7 +558,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         22,
         Solution {
             part1: Some(|input| year2016::day22::part1(input).to_string()),
@@ -566,7 +567,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         23,
         Solution {
             part1: Some(|input| year2016::day23::part1(input).to_string()),
@@ -575,7 +576,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         24,
         Solution {
             part1: Some(|input| year2016::day24::part1(input).to_string()),
@@ -584,7 +585,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2016).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2016).or_default().insert(
         25,
         Solution {
             part1: Some(|input| year2016::day25::part1(input).to_string()),
@@ -593,7 +594,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         1,
         Solution {
             part1: Some(|input| year2017::day01::part1(input).to_string()),
@@ -602,7 +603,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         2,
         Solution {
             part1: Some(|input| year2017::day02::part1(input).to_string()),
@@ -611,7 +612,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         3,
         Solution {
             part1: Some(|input| year2017::day03::part1(input).to_string()),
@@ -620,7 +621,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         4,
         Solution {
             part1: Some(|input| year2017::day04::part1(input).to_string()),
@@ -629,7 +630,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         5,
         Solution {
             part1: Some(|input| year2017::day05::part1(input).to_string()),
@@ -638,7 +639,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         6,
         Solution {
             part1: Some(|input| year2017::day06::part1(input).to_string()),
@@ -647,7 +648,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         7,
         Solution {
             part1: Some(|input| year2017::day07::part1(input).to_string()),
@@ -656,7 +657,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         8,
         Solution {
             part1: Some(|input| year2017::day08::part1(input).to_string()),
@@ -665,7 +666,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         9,
         Solution {
             part1: Some(|input| year2017::day09::part1(input).to_string()),
@@ -674,7 +675,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         10,
         Solution {
             part1: Some(|input| year2017::day10::part1(input).to_string()),
@@ -683,7 +684,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         11,
         Solution {
             part1: Some(|input| year2017::day11::part1(input).to_string()),
@@ -692,7 +693,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         12,
         Solution {
             part1: Some(|input| year2017::day12::part1(input).to_string()),
@@ -701,7 +702,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         13,
         Solution {
             part1: Some(|input| year2017::day13::part1(input).to_string()),
@@ -710,7 +711,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         14,
         Solution {
             part1: Some(|input| year2017::day14::part1(input).to_string()),
@@ -719,7 +720,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         15,
         Solution {
             part1: Some(|input| year2017::day15::part1(input).to_string()),
@@ -728,7 +729,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         16,
         Solution {
             part1: Some(|input| year2017::day16::part1(input).to_string()),
@@ -737,7 +738,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         17,
         Solution {
             part1: Some(|input| year2017::day17::part1(input).to_string()),
@@ -746,7 +747,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         18,
         Solution {
             part1: Some(|input| year2017::day18::part1(input).to_string()),
@@ -755,7 +756,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         19,
         Solution {
             part1: Some(|input| year2017::day19::part1(input).to_string()),
@@ -764,7 +765,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         20,
         Solution {
             part1: Some(|input| year2017::day20::part1(input).to_string()),
@@ -773,7 +774,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         21,
         Solution {
             part1: Some(|input| year2017::day21::part1(input).to_string()),
@@ -782,7 +783,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         22,
         Solution {
             part1: Some(|input| year2017::day22::part1(input).to_string()),
@@ -791,7 +792,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         23,
         Solution {
             part1: Some(|input| year2017::day23::part1(input).to_string()),
@@ -800,7 +801,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         24,
         Solution {
             part1: Some(|input| year2017::day24::part1(input).to_string()),
@@ -809,7 +810,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2017).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2017).or_default().insert(
         25,
         Solution {
             part1: Some(|input| year2017::day25::part1(input).to_string()),
@@ -818,7 +819,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         1,
         Solution {
             part1: Some(|input| year2018::day01::part1(input).to_string()),
@@ -827,7 +828,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         2,
         Solution {
             part1: Some(|input| year2018::day02::part1(input).to_string()),
@@ -836,7 +837,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         3,
         Solution {
             part1: Some(|input| year2018::day03::part1(input).to_string()),
@@ -845,7 +846,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         4,
         Solution {
             part1: Some(|input| year2018::day04::part1(input).to_string()),
@@ -854,7 +855,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         5,
         Solution {
             part1: Some(|input| year2018::day05::part1(input).to_string()),
@@ -863,7 +864,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         6,
         Solution {
             part1: Some(|input| year2018::day06::part1(input).to_string()),
@@ -872,7 +873,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         7,
         Solution {
             part1: Some(|input| year2018::day07::part1(input).to_string()),
@@ -881,7 +882,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         8,
         Solution {
             part1: Some(|input| year2018::day08::part1(input).to_string()),
@@ -890,7 +891,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         9,
         Solution {
             part1: Some(|input| year2018::day09::part1(input).to_string()),
@@ -899,7 +900,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         10,
         Solution {
             part1: Some(|input| year2018::day10::part1(input).to_string()),
@@ -908,7 +909,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         11,
         Solution {
             part1: Some(|input| year2018::day11::part1(input).to_string()),
@@ -917,7 +918,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         12,
         Solution {
             part1: Some(|input| year2018::day12::part1(input).to_string()),
@@ -926,7 +927,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         13,
         Solution {
             part1: Some(|input| year2018::day13::part1(input).to_string()),
@@ -935,7 +936,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         14,
         Solution {
             part1: Some(|input| year2018::day14::part1(input).to_string()),
@@ -944,7 +945,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         15,
         Solution {
             part1: Some(|input| year2018::day15::part1(input).to_string()),
@@ -953,7 +954,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         16,
         Solution {
             part1: Some(|input| year2018::day16::part1(input).to_string()),
@@ -962,7 +963,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         17,
         Solution {
             part1: Some(|input| year2018::day17::part1(input).to_string()),
@@ -971,7 +972,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         18,
         Solution {
             part1: Some(|input| year2018::day18::part1(input).to_string()),
@@ -980,7 +981,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         19,
         Solution {
             part1: Some(|input| year2018::day19::part1(input).to_string()),
@@ -989,7 +990,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         20,
         Solution {
             part1: Some(|input| year2018::day20::part1(input).to_string()),
@@ -998,7 +999,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         21,
         Solution {
             part1: Some(|input| year2018::day21::part1(input).to_string()),
@@ -1007,7 +1008,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         22,
         Solution {
             part1: Some(|input| year2018::day22::part1(input).to_string()),
@@ -1016,7 +1017,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         23,
         Solution {
             part1: Some(|input| year2018::day23::part1(input).to_string()),
@@ -1025,7 +1026,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         24,
         Solution {
             part1: Some(|input| year2018::day24::part1(input).to_string()),
@@ -1034,7 +1035,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2018).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2018).or_default().insert(
         25,
         Solution {
             part1: Some(|input| year2018::day25::part1(input).to_string()),
@@ -1043,7 +1044,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         1,
         Solution {
             part1: Some(|input| year2019::day01::part1(input).to_string()),
@@ -1052,7 +1053,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         2,
         Solution {
             part1: Some(|input| year2019::day02::part1(input).to_string()),
@@ -1061,7 +1062,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         3,
         Solution {
             part1: Some(|input| year2019::day03::part1(input).to_string()),
@@ -1070,7 +1071,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         4,
         Solution {
             part1: Some(|input| year2019::day04::part1(input).to_string()),
@@ -1079,7 +1080,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         5,
         Solution {
             part1: Some(|input| year2019::day05::part1(input).to_string()),
@@ -1088,7 +1089,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         6,
         Solution {
             part1: Some(|input| year2019::day06::part1(input).to_string()),
@@ -1097,7 +1098,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         7,
         Solution {
             part1: Some(|input| year2019::day07::part1(input).to_string()),
@@ -1106,7 +1107,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         8,
         Solution {
             part1: Some(|input| year2019::day08::part1(input).to_string()),
@@ -1115,7 +1116,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         9,
         Solution {
             part1: Some(|input| year2019::day09::part1(input).to_string()),
@@ -1124,7 +1125,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         10,
         Solution {
             part1: Some(|input| year2019::day10::part1(input).to_string()),
@@ -1133,7 +1134,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         11,
         Solution {
             part1: Some(|input| year2019::day11::part1(input).to_string()),
@@ -1142,7 +1143,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         12,
         Solution {
             part1: Some(|input| year2019::day12::part1(input).to_string()),
@@ -1151,12 +1152,21 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         },
     );
 
-    solutions.entry(2019).or_insert_with(BTreeMap::new).insert(
+    solutions.entry(2019).or_default().insert(
         13,
         Solution {
             part1: Some(|input| year2019::day13::part1(input).to_string()),
             part2: Some(|input| year2019::day13::part2(input).to_string()),
             tests: None,
+        },
+    );
+
+    solutions.entry(2019).or_default().insert(
+        14,
+        Solution {
+            part1: Some(|input| year2019::day14::part1(input).to_string()),
+            part2: Some(|input| year2019::day14::part2(input).to_string()),
+            tests: Some(year2019::day14::tests),
         },
     );
 

@@ -138,12 +138,13 @@ fn in_range(cave: &Rect<Square>, pos: Point, target_kind: Kind) -> Option<Point>
 }
 
 fn turn(part: Part, cave: &mut Rect<Square>, mut pos: Point, target_kind: Kind) -> Result<()> {
-    let Some(state) = search::min_first(State{
+    let Some(state) = search::min_first(State {
         dist: 0,
         pos,
         first_step: None,
         cave,
-    }).find(|state| in_range(cave, state.pos, target_kind).is_some()) else {
+    })
+    .find(|state| in_range(cave, state.pos, target_kind).is_some()) else {
         return Ok(());
     };
 
