@@ -128,6 +128,7 @@ pub mod year2019 {
     pub mod day13;
     pub mod day14;
     pub mod day15;
+    pub mod day16;
 }
 
 use std::collections::BTreeMap;
@@ -1177,6 +1178,15 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
             part1: Some(|input| year2019::day15::part1(input).to_string()),
             part2: Some(|input| year2019::day15::part2(input).to_string()),
             tests: None,
+        },
+    );
+
+    solutions.entry(2019).or_default().insert(
+        16,
+        Solution {
+            part1: Some(|input| year2019::day16::part1(input).to_string()),
+            part2: Some(|input| year2019::day16::part2(input).to_string()),
+            tests: Some(year2019::day16::tests),
         },
     );
 
