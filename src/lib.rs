@@ -2,10 +2,12 @@
 #![warn(clippy::pedantic)]
 #![allow(clippy::must_use_candidate)]
 #![allow(clippy::missing_panics_doc)]
+#![allow(clippy::missing_errors_doc)]
 
 use regex::Regex;
 use std::{fs, path::Path};
 
+pub mod intcode;
 pub mod solutions;
 
 mod combinatorics;
@@ -14,7 +16,6 @@ mod grid_3d;
 mod grid_4d;
 mod grid_hex;
 mod hash;
-mod intcode;
 mod number_theory;
 mod ocr;
 mod part;

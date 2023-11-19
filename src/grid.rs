@@ -26,7 +26,7 @@ pub const SW: Point = Point { x: -1, y: 1 };
 pub const S: Point = Point { x: 0, y: 1 };
 pub const SE: Point = Point { x: 1, y: 1 };
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum Turn {
     Left,
     Right,
@@ -292,19 +292,29 @@ impl<T: Clone> Rect<T> {
     }
 }
 
+pub fn scan_rect<F: FnMut(Point, char)>(s: &str, mut f: F) {
+    for (y, line) in s.lines().enumerate() {
+        for (x, c) in line.chars().enumerate() {
+            f(
+                Point {
+                    y: y.try_into().unwrap(),
+                    x: x.try_into().unwrap(),
+                },
+                c,
+            );
+        }
+    }
+}
+
 impl<T> Rect<T> {
     pub fn parse<F: FnMut(Point, char) -> T>(s: &str, mut f: F) -> Self {
         let mut inner = Vec::new();
-        for line in s.lines() {
-            inner.push(Vec::new());
-            for c in line.chars() {
-                let pos = Point {
-                    x: i32::try_from(inner.last().unwrap().len()).unwrap(),
-                    y: i32::try_from(inner.len() - 1).unwrap(),
-                };
-                inner.last_mut().unwrap().push(f(pos, c));
+        scan_rect(s, |pos, c| {
+            while inner.len() <= usize::try_from(pos.y).unwrap() {
+                inner.push(Vec::new());
             }
-        }
+            inner[usize::try_from(pos.y).unwrap()].push(f(pos, c));
+        });
         let size = if inner.is_empty() {
             Point { x: 0, y: 0 }
         } else {
