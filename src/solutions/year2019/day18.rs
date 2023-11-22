@@ -23,7 +23,7 @@ fn key(door: char) -> char {
 
 struct Path {
     dest: char,
-    steps: u32,
+    steps: usize,
     keys: BTreeSet<char>,
 }
 
@@ -31,7 +31,7 @@ fn reachable(map: &Rect<char>, pos: Point) -> Vec<Path> {
     #[derive(Clone)]
     struct State {
         pos: Point,
-        steps: u32,
+        steps: usize,
         keys: BTreeSet<char>,
         found_key: bool,
     }
@@ -85,20 +85,28 @@ fn key_graph(map: &Rect<char>) -> HashMap<char, Vec<Path>> {
         .collect()
 }
 
-fn part_(map: &Rect<char>, robots: Vec<char>) -> u32 {
+fn part_(map: &Rect<char>, robots: Vec<char>) -> usize {
     #[derive(Clone, PartialOrd, Ord, PartialEq, Eq)]
     struct State {
         robots: Vec<char>,
-        steps: u32,
+        steps: usize,
         keys: BTreeSet<char>,
     }
 
     let key_graph = key_graph(map);
+
     let mut initial_keys = BTreeSet::new();
     initial_keys.extend(&robots);
-    let final_key_count = map.values().filter(|&&tile| is_key(tile)).count();
 
-    let mut q = search2::dijkstra(
+    let final_key_count = map.values().filter(|&&tile| is_key(tile)).count();
+    let min_path_steps = key_graph
+        .values()
+        .flatten()
+        .map(|path| path.steps)
+        .min()
+        .unwrap();
+
+    let mut q = search2::a_star(
         State {
             robots,
             steps: 0,
@@ -106,6 +114,8 @@ fn part_(map: &Rect<char>, robots: Vec<char>) -> u32 {
         },
         |state| (state.robots.clone(), state.keys.clone()),
         |state| state.steps,
+        // For each key left to collect, we'll have to move at least min_path_steps.
+        |state| (final_key_count - state.keys.len()) * min_path_steps,
     );
 
     while let Some(state) = q.pop() {
@@ -128,11 +138,11 @@ fn part_(map: &Rect<char>, robots: Vec<char>) -> u32 {
     unreachable!()
 }
 
-pub fn part1(input: &str) -> u32 {
+pub fn part1(input: &str) -> usize {
     part_(&Rect::parse(input, |_, tile| tile), vec!['@'])
 }
 
-pub fn part2(input: &str) -> u32 {
+pub fn part2(input: &str) -> usize {
     let mut map = Rect::parse(input, |_, tile| tile);
     let (start, _) = map.iter().find(|(_, &tile)| tile == '@').unwrap();
     for dir in [Z, N, E, S, W] {

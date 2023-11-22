@@ -2,6 +2,7 @@ use std::{
     cmp::Reverse,
     collections::{BinaryHeap, HashSet, VecDeque},
     hash::Hash,
+    ops::Add,
 };
 
 pub trait Queue {
@@ -150,20 +151,20 @@ where
     )
 }
 
-// pub fn a_star<S, H, K, C, D, O>(
-//     start: S,
-//     hash_key: H,
-//     mut cost: C,
-//     mut heuristic: D,
-// ) -> impl Queue<Item = S>
-// where
-//     H: FnMut(&S) -> K,
-//     K: PartialEq + Eq + Hash,
-//     S: PartialOrd + Ord + PartialEq + Eq,
-//     C: FnMut(&S) -> O,
-//     D: FnMut(&S) -> O,
-//     O: PartialOrd + Ord + PartialEq + Eq + Add,
-//     O::Output: Ord,
-// {
-//     dijkstra(start, hash_key, move |state| cost(state) + heuristic(state))
-// }
+pub fn a_star<S, H, K, C, D, O>(
+    start: S,
+    hash_key: H,
+    mut cost: C,
+    mut heuristic: D,
+) -> impl Queue<Item = S>
+where
+    H: FnMut(&S) -> K,
+    K: PartialEq + Eq + Hash,
+    S: PartialOrd + Ord + PartialEq + Eq,
+    C: FnMut(&S) -> O,
+    D: FnMut(&S) -> O,
+    O: PartialOrd + Ord + PartialEq + Eq + Add,
+    O::Output: Ord,
+{
+    dijkstra(start, hash_key, move |state| cost(state) + heuristic(state))
+}
