@@ -20,6 +20,7 @@ mod number_theory;
 mod ocr;
 mod part;
 mod search;
+mod search2;
 mod uniq;
 mod vm_2018;
 
