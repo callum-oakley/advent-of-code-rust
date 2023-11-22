@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::search;
+use crate::search2::{self, Queue};
 
 fn parse(input: &str) -> HashMap<u32, Vec<u32>> {
     let mut res = HashMap::new();
@@ -14,33 +14,17 @@ fn parse(input: &str) -> HashMap<u32, Vec<u32>> {
     res
 }
 
-#[derive(Clone)]
-struct State<'a> {
-    graph: &'a HashMap<u32, Vec<u32>>,
-    pos: u32,
-}
-
-impl<'a> search::State for State<'a> {
-    type HashKey = u32;
-
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        Box::new(self.graph[&self.pos].iter().map(|&pos| State {
-            pos,
-            graph: self.graph,
-        }))
-    }
-
-    fn hash_key(&self) -> Self::HashKey {
-        self.pos
-    }
-}
-
 pub fn part1(input: &str) -> usize {
-    search::depth_first(State {
-        graph: &parse(input),
-        pos: 0,
-    })
-    .count()
+    let graph = parse(input);
+    let mut q = search2::depth_first(0, |&pos| pos);
+    let mut count = 0;
+    while let Some(pos) = q.pop() {
+        count += 1;
+        for &p in &graph[&pos] {
+            q.push(p);
+        }
+    }
+    count
 }
 
 pub fn part2(input: &str) -> usize {
@@ -51,11 +35,12 @@ pub fn part2(input: &str) -> usize {
 
     while !unexplored.is_empty() {
         components += 1;
-        for State { pos, .. } in search::depth_first(State {
-            pos: *unexplored.iter().next().unwrap(),
-            graph: &graph,
-        }) {
+        let mut q = search2::depth_first(*unexplored.iter().next().unwrap(), |&pos| pos);
+        while let Some(pos) = q.pop() {
             unexplored.remove(&pos);
+            for &p in &graph[&pos] {
+                q.push(p);
+            }
         }
     }
 
