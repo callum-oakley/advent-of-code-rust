@@ -2,35 +2,9 @@ use std::collections::HashSet;
 
 use crate::{
     grid::{Point, Rect},
-    hash, search,
+    hash,
+    search2::{self, Queue},
 };
-
-#[derive(Clone)]
-struct State<'a> {
-    disk: &'a Rect<bool>,
-    pos: Point,
-}
-
-impl<'a> search::State for State<'a> {
-    type HashKey = Point;
-
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        Box::new(
-            self.pos
-                .adjacent4()
-                .into_iter()
-                .filter(|&pos| *self.disk.get(pos).unwrap_or(&false))
-                .map(|pos| State {
-                    disk: self.disk,
-                    pos,
-                }),
-        )
-    }
-
-    fn hash_key(&self) -> Self::HashKey {
-        self.pos
-    }
-}
 
 fn disk(input: &str) -> Rect<bool> {
     let mut res = Rect::new(false, Point { x: 128, y: 128 });
@@ -57,11 +31,14 @@ pub fn part2(input: &str) -> usize {
 
     while !unexplored.is_empty() {
         regions += 1;
-        for State { pos, .. } in search::depth_first(State {
-            disk: &disk,
-            pos: *unexplored.iter().next().unwrap(),
-        }) {
+        let mut q = search2::depth_first(*unexplored.iter().next().unwrap(), |&pos| pos);
+        while let Some(pos) = q.pop() {
             unexplored.remove(&pos);
+            for p in pos.adjacent4() {
+                if *disk.get(p).unwrap_or(&false) {
+                    q.push(p);
+                }
+            }
         }
     }
 

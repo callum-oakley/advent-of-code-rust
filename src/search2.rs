@@ -132,13 +132,13 @@ where
 
 /// Traverse a state space depth first. It's the caller's responsibility to push adjacent states
 /// after each pop.
-// pub fn depth_first<S, H, K>(start: S, hash_key: H) -> impl Queue<Item = S>
-// where
-//     H: FnMut(&S) -> K,
-//     K: PartialEq + Eq + Hash,
-// {
-//     traverse(Vec::new(), start, hash_key)
-// }
+pub fn depth_first<S, H, K>(start: S, hash_key: H) -> impl Queue<Item = S>
+where
+    H: FnMut(&S) -> K,
+    K: PartialEq + Eq + Hash,
+{
+    traverse(Vec::new(), start, hash_key)
+}
 
 /// Traverse a state space min-cost first. It's the caller's responsibility to push adjacent
 /// states after each pop.
