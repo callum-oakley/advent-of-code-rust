@@ -21,6 +21,7 @@ fn key(door: char) -> char {
     door.to_ascii_lowercase()
 }
 
+// Path represents a walk to another key, the steps and keys required.
 struct Path {
     dest: char,
     steps: usize,
@@ -93,6 +94,8 @@ fn part_(map: &Rect<char>, robots: Vec<char>) -> usize {
         keys: BTreeSet<char>,
     }
 
+    // First precompute the paths between keys (the number of steps and the keys required to
+    // traverse them).
     let key_graph = key_graph(map);
 
     let mut initial_keys = BTreeSet::new();
@@ -106,6 +109,7 @@ fn part_(map: &Rect<char>, robots: Vec<char>) -> usize {
         .min()
         .unwrap();
 
+    // Then A* on this higher level graph is fast enough.
     let mut q = search2::a_star(
         State {
             robots,

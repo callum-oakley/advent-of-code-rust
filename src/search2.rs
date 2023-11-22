@@ -12,7 +12,7 @@ pub trait Queue {
     fn pop(&mut self) -> Option<Self::Item>;
 }
 
-// Common or garden first-in-first-out queue.
+/// Common or garden first-in-first-out queue.
 impl<T> Queue for VecDeque<T> {
     type Item = T;
 
@@ -25,7 +25,7 @@ impl<T> Queue for VecDeque<T> {
     }
 }
 
-// Last-in-first-out "queue"... in other words a stack.
+/// Last-in-first-out "queue"... in other words a stack.
 impl<T> Queue for Vec<T> {
     type Item = T;
 
@@ -49,7 +49,7 @@ pub struct CostHeap<V, C, O> {
     binary_heap: BinaryHeap<Reverse<CostValue<V, O>>>,
 }
 
-// Priority queue which pops the lowest cost item first.
+/// Priority queue which pops the lowest cost item first.
 impl<V, C, O> Queue for CostHeap<V, C, O>
 where
     V: PartialOrd + Ord + PartialEq + Eq,
@@ -70,6 +70,9 @@ where
     }
 }
 
+/// Traversal represents a graph traversal. The graph structure is implicit, it's up to the caller
+/// to push adjacent states after each pop, but we'll remember states we've visited so that each
+/// distinct state is popped at most once.
 pub struct Traversal<Q, H, K> {
     queue: Q,
     hash_key: H,
@@ -117,6 +120,8 @@ where
     q
 }
 
+/// Traverse a state space breadth first. It's the caller's responsibility to push adjacent states
+/// after each pop.
 pub fn breadth_first<S, H, K>(start: S, hash_key: H) -> impl Queue<Item = S>
 where
     H: FnMut(&S) -> K,
@@ -125,6 +130,8 @@ where
     traverse(VecDeque::new(), start, hash_key)
 }
 
+/// Traverse a state space depth first. It's the caller's responsibility to push adjacent states
+/// after each pop.
 // pub fn depth_first<S, H, K>(start: S, hash_key: H) -> impl Queue<Item = S>
 // where
 //     H: FnMut(&S) -> K,
@@ -133,6 +140,8 @@ where
 //     traverse(Vec::new(), start, hash_key)
 // }
 
+/// Traverse a state space min-cost first. It's the caller's responsibility to push adjacent
+/// states after each pop.
 pub fn dijkstra<S, H, K, C, O>(start: S, hash_key: H, cost: C) -> impl Queue<Item = S>
 where
     H: FnMut(&S) -> K,
@@ -151,6 +160,8 @@ where
     )
 }
 
+/// Traverse a state space min-cost-plus-heuristic first. It's the caller's responsibility to push
+/// adjacent states after each pop.
 pub fn a_star<S, H, K, C, D, O>(
     start: S,
     hash_key: H,
