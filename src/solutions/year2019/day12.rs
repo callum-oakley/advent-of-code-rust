@@ -1,7 +1,6 @@
-use crate::{
-    grid_3d::{Axis, Point, Z},
-    number_theory::lcm,
-};
+use num::Integer;
+
+use crate::grid_3d::{Axis, Point, Z};
 
 #[derive(Clone)]
 struct Moon {
@@ -81,7 +80,7 @@ pub fn part2(input: &str) -> usize {
     [Axis::X, Axis::Y, Axis::Z]
         .iter()
         .map(|&axis| period(axis, system.clone()))
-        .reduce(lcm)
+        .reduce(|a, b| Integer::lcm(&a, &b))
         .unwrap()
 }
 

@@ -1,7 +1,4 @@
-use std::{
-    cmp,
-    ops::{Div, Mul, Rem},
-};
+use std::cmp;
 
 /// Congruence of the form x = a (mod n)
 pub struct Congruence {
@@ -26,23 +23,4 @@ pub fn chinese_remainder(mut system: Vec<Congruence>) -> i64 {
         step *= n;
     }
     x
-}
-
-pub fn gcd<T>(mut a: T, mut b: T) -> T
-where
-    T: PartialEq + Copy + Default + Rem<Output = T>,
-{
-    // Assume T::default() is 0. Definitely an abuse of the trait but true for all the types we care
-    // about.
-    while b != T::default() {
-        (a, b) = (b, a % b);
-    }
-    a
-}
-
-pub fn lcm<T>(a: T, b: T) -> T
-where
-    T: PartialEq + Copy + Default + Rem<Output = T> + Mul<Output = T> + Div<Output = T>,
-{
-    a * (b / gcd(a, b))
 }
