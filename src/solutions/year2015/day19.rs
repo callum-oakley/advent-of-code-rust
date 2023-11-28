@@ -1,6 +1,9 @@
 use std::mem;
 
-use crate::{search, uniq::Uniq};
+use crate::{
+    search2::{self, Queue},
+    uniq::Uniq,
+};
 
 fn parse(input: &str) -> (Vec<(&str, &str)>, &str) {
     let (reactions, molecule) = input.split_once("\n\n").unwrap();
@@ -33,37 +36,10 @@ pub fn part1(input: &str) -> usize {
     Uniq::new(step(&reactions, molecule)).count()
 }
 
-#[derive(Clone)]
-struct State<'a> {
+#[derive(Clone, PartialOrd, Ord, PartialEq, Eq)]
+struct State {
     molecule: String,
     steps: usize,
-    reactions: &'a [(&'a str, &'a str)],
-}
-
-impl<'a> search::State for State<'a> {
-    type HashKey = String;
-
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        Box::new(step(self.reactions, &self.molecule).map(|molecule| State {
-            molecule,
-            steps: self.steps + 1,
-            reactions: self.reactions,
-        }))
-    }
-
-    fn hash_key(&self) -> Self::HashKey {
-        self.molecule.clone()
-    }
-}
-
-impl<'a> search::OrdKey for State<'a> {
-    type OrdKey = usize;
-
-    fn ord_key(&self) -> Self::OrdKey {
-        // The molecule length is NOT an admissible heuristic, but the
-        // relaxation returns the correct answer in this case.
-        self.steps + self.molecule.len()
-    }
 }
 
 pub fn part2(input: &str) -> usize {
@@ -71,14 +47,31 @@ pub fn part2(input: &str) -> usize {
     for (a, b) in &mut reactions {
         mem::swap(a, b);
     }
-    search::min_first(State {
-        molecule: molecule.to_owned(),
-        steps: 0,
-        reactions: &reactions,
-    })
-    .find(|state| state.molecule == "e")
-    .unwrap()
-    .steps
+
+    let mut q = search2::a_star(
+        State {
+            molecule: molecule.to_owned(),
+            steps: 0,
+        },
+        |state| state.molecule.clone(),
+        |state| state.steps,
+        // The molecule length is NOT an admissible heuristic, but the relaxation returns the
+        // correct answer in this case.
+        |state| state.molecule.len(),
+    );
+
+    while let Some(state) = q.pop() {
+        if state.molecule == "e" {
+            return state.steps;
+        }
+        for molecule in step(&reactions, &state.molecule) {
+            q.push(State {
+                molecule,
+                steps: state.steps + 1,
+            });
+        }
+    }
+    unreachable!()
 }
 
 pub fn tests() {
@@ -87,6 +80,6 @@ pub fn tests() {
     assert_eq!(part2("e => H\ne => O\nH => HO\nH => OH\nO => HH\n\nHOH"), 3);
     assert_eq!(
         part2("e => H\ne => O\nH => HO\nH => OH\nO => HH\n\nHOHOHO"),
-        6
+        6,
     );
 }
