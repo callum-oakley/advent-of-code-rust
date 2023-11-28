@@ -162,16 +162,6 @@ pub fn breadth_first<S: State>(start: S) -> BreadthFirstTraversal<S> {
     }
 }
 
-pub type DepthFirstTraversal<S> = Traversal<S, Vec<StateWrapper<S>>>;
-
-/// Traverse the state space depth first.
-pub fn depth_first<S: State>(start: S) -> DepthFirstTraversal<S> {
-    Traversal {
-        queue: Vec::from([StateWrapper(start)]),
-        visited: HashSet::new(),
-    }
-}
-
 pub type MinFirstTraversal<S> = Traversal<S, BinaryHeap<Reverse<StateWrapper<S>>>>;
 
 /// Traverse the state space in increasing order of `ord_key`. If `ord_key`
