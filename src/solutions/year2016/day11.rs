@@ -1,6 +1,9 @@
 use regex::Regex;
 
-use crate::{combinatorics, search};
+use crate::{
+    combinatorics,
+    search2::{self, Queue},
+};
 
 #[derive(Clone, Copy)]
 enum ItemKind {
@@ -29,9 +32,9 @@ fn parse(input: &str) -> Vec<Item> {
         }
     }
 
-    // It doesn't matter if we swap all instances of element A with element B,
-    // so we can characterise each element's microchip-generator pair only by
-    // their locations. This vastly reduces the search space.
+    // It doesn't matter if we swap all instances of element A with element B, so we can
+    // characterise each element's microchip-generator pair only by their locations. This vastly
+    // reduces the search space.
     let mut res = Vec::new();
     for (microchip_element, microchip) in microchips {
         for &(generator_element, generator) in &generators {
@@ -50,7 +53,7 @@ fn parse(input: &str) -> Vec<Item> {
     res
 }
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
 struct State {
     lift: u8,
     items: Vec<Item>,
@@ -94,9 +97,8 @@ impl State {
         }
     }
 
-    // The best we can hope for is to move two items up and one down each step.
-    // Annoyingly, the heuristic alone gives the correct answer for both parts
-    // (but fails on the example).
+    // The best we can hope for is to move two items up and one down each step. Annoyingly, the
+    // heuristic alone gives the correct answer for both parts (but fails on the example).
     fn heuristic(&self) -> u8 {
         let mut res = 0;
         let mut count = 0;
@@ -109,9 +111,9 @@ impl State {
                     count += 1;
                 }
             }
-            // At this point count covers all items on this floor, plus all
-            // items from lower floors that we've brought up with us. Add to res
-            // the number of steps to take them all to the next floor.
+            // At this point count covers all items on this floor, plus all items from lower floors
+            // that we've brought up with us. Add to res the number of steps to take them all to the
+            // next floor.
             match count {
                 0 => {}
                 1 => res += 1,
@@ -120,13 +122,8 @@ impl State {
         }
         res
     }
-}
 
-impl search::State for State {
-    type HashKey = (u8, Vec<Item>);
-
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        let mut res = Vec::new();
+    fn push_adjacent(&self, q: &mut impl Queue<Item = State>) {
         for lift in self.adjacent_floors() {
             let items_on_floor = self.items_on_floor();
 
@@ -147,42 +144,38 @@ impl search::State for State {
                 if state.is_safe() {
                     state.items.sort_unstable();
                     state.steps += 1;
-                    res.push(state);
+                    q.push(state);
                 }
             }
         }
-        Box::new(res.into_iter())
-    }
-
-    fn hash_key(&self) -> Self::HashKey {
-        (self.lift, self.items.clone())
-    }
-}
-
-impl search::OrdKey for State {
-    type OrdKey = u8;
-
-    fn ord_key(&self) -> Self::OrdKey {
-        self.steps + self.heuristic()
     }
 }
 
 fn part_(items: Vec<Item>) -> u8 {
-    search::min_first(State {
-        lift: 0,
-        items,
-        steps: 0,
-    })
-    .find(|state| {
-        state.items.iter().all(
+    let mut q = search2::a_star(
+        State {
+            lift: 0,
+            items,
+            steps: 0,
+        },
+        |state| (state.lift, state.items.clone()),
+        |state| state.steps,
+        State::heuristic,
+    );
+
+    while let Some(state) = q.pop() {
+        if state.items.iter().all(
             |Item {
                  microchip,
                  generator,
              }| *microchip == 3 && *generator == 3,
-        )
-    })
-    .unwrap()
-    .steps
+        ) {
+            return state.steps;
+        }
+
+        state.push_adjacent(&mut q);
+    }
+    unreachable!()
 }
 
 pub fn part1(input: &str) -> u8 {
