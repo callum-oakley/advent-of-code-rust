@@ -1,10 +1,10 @@
-use std::{cmp, collections::BTreeMap, iter};
+use std::{cmp, collections::BTreeMap};
 
 use regex::Regex;
 
-use crate::search;
+use crate::search2::{self, Queue};
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
 struct Character {
     hp: i32,
     damage: i32,
@@ -29,20 +29,20 @@ impl Character {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
+#[derive(Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Hash)]
 enum Effect {
     Shield,
     Poison,
     Recharge,
 }
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
 enum Turn {
     Player,
     Boss,
 }
 
-#[derive(Clone, PartialEq, Eq, Hash)]
+#[derive(Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
 struct State {
     player: Character,
     boss: Character,
@@ -137,66 +137,61 @@ impl State {
     }
 }
 
-impl search::State for State {
-    type HashKey = Self;
+fn part_(hard_mode: bool, input: &str) -> i32 {
+    let mut q = search2::dijkstra(
+        State {
+            player: Character::PLAYER,
+            boss: Character::boss(input),
+            effects: BTreeMap::new(),
+            turn: Turn::Player,
+            hard_mode,
+            mana_spent: 0,
+        },
+        std::clone::Clone::clone,
+        |state| state.mana_spent,
+    );
 
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        let mut state = self.clone();
+    while let Some(state) = q.pop() {
+        if state.boss.hp <= 0 {
+            return state.mana_spent;
+        }
+
+        let mut state = state.clone();
         if state.hard_mode && state.turn == Turn::Player {
             state.player.hp -= 1;
             if state.player.hp <= 0 {
-                return Box::new(iter::empty());
+                continue;
             }
         }
 
         state.apply_effects();
         if state.player.hp <= 0 {
-            return Box::new(iter::empty());
-        } else if state.boss.hp <= 0 {
-            return Box::new(iter::once(state));
+            continue;
+        }
+
+        if state.boss.hp <= 0 {
+            q.push(state);
+            continue;
         }
 
         match state.turn {
-            Turn::Player => Box::new(SPELLS.iter().filter_map(move |spell| {
-                if spell.cost <= state.player.mana
-                    && spell
-                        .effect
-                        .map_or(true, |(effect, _)| !state.effects.contains_key(&effect))
-                {
-                    Some(state.player_attack(spell))
-                } else {
-                    None
+            Turn::Player => {
+                for spell in &SPELLS {
+                    if spell.cost <= state.player.mana
+                        && spell
+                            .effect
+                            .map_or(true, |(effect, _)| !state.effects.contains_key(&effect))
+                    {
+                        q.push(state.player_attack(spell));
+                    }
                 }
-            })),
-            Turn::Boss => Box::new(iter::once(state.boss_attack())),
+            }
+            Turn::Boss => {
+                q.push(state.boss_attack());
+            }
         }
     }
-
-    fn hash_key(&self) -> Self::HashKey {
-        self.clone()
-    }
-}
-
-impl search::OrdKey for State {
-    type OrdKey = i32;
-
-    fn ord_key(&self) -> Self::OrdKey {
-        self.mana_spent
-    }
-}
-
-fn part_(hard_mode: bool, input: &str) -> i32 {
-    search::min_first(State {
-        player: Character::PLAYER,
-        boss: Character::boss(input),
-        effects: BTreeMap::new(),
-        turn: Turn::Player,
-        hard_mode,
-        mana_spent: 0,
-    })
-    .find(|state| state.boss.hp <= 0)
-    .unwrap()
-    .mana_spent
+    unreachable!()
 }
 
 pub fn part1(input: &str) -> i32 {
