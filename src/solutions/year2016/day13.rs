@@ -1,4 +1,9 @@
-use crate::{grid::Point, search};
+use std::iter;
+
+use crate::{
+    grid::Point,
+    search2::{self, Queue},
+};
 
 fn is_open(seed: u32, Point { x, y }: Point) -> bool {
     (u32::try_from(x * x + 3 * x + 2 * x * y + y + y * y).unwrap() + seed).count_ones() % 2 == 0
@@ -8,36 +13,29 @@ fn is_open(seed: u32, Point { x, y }: Point) -> bool {
 struct State {
     pos: Point,
     steps: u32,
-    seed: u32,
 }
 
-impl search::State for State {
-    type HashKey = Point;
-
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        Box::new(
-            self.pos
-                .adjacent4()
-                .into_iter()
-                .filter(|pos| pos.x >= 0 && pos.y >= 0 && is_open(self.seed, *pos))
-                .map(|pos| State {
-                    pos,
-                    steps: self.steps + 1,
-                    seed: self.seed,
-                }),
-        )
-    }
-
-    fn hash_key(&self) -> Self::HashKey {
-        self.pos
-    }
-}
-
-fn traversal(input: &str) -> search::BreadthFirstTraversal<State> {
-    search::breadth_first(State {
-        pos: Point { x: 1, y: 1 },
-        steps: 0,
-        seed: input.parse().unwrap(),
+fn traversal(input: &str) -> impl Iterator<Item = State> {
+    let seed = input.parse().unwrap();
+    let mut q = search2::breadth_first(
+        State {
+            pos: Point { x: 1, y: 1 },
+            steps: 0,
+        },
+        |state| state.pos,
+    );
+    iter::from_fn(move || {
+        q.pop().map(|state| {
+            for pos in state.pos.adjacent4() {
+                if pos.x >= 0 && pos.y >= 0 && is_open(seed, pos) {
+                    q.push(State {
+                        pos,
+                        steps: state.steps + 1,
+                    });
+                }
+            }
+            state
+        })
     })
 }
 
