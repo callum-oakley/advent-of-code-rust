@@ -4,7 +4,7 @@ use regex::Regex;
 
 use crate::{
     grid::{Point, Rect, Z},
-    search,
+    search2::{self, Queue},
 };
 
 #[derive(Copy, Clone)]
@@ -41,50 +41,11 @@ pub fn part1(input: &str) -> usize {
     res
 }
 
-#[derive(Clone)]
-struct State<'a> {
-    viable: &'a HashSet<Point>,
+#[derive(Clone, PartialOrd, Ord, PartialEq, Eq)]
+struct State {
     hole: Point,
     goal: Point,
     steps: usize,
-}
-
-impl<'a> search::State for State<'a> {
-    type HashKey = (Point, Point);
-
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        Box::new(
-            self.hole
-                .adjacent4()
-                .into_iter()
-                .filter(|p| self.viable.contains(p))
-                .map(|p| {
-                    let mut state = self.clone();
-                    if state.goal == p {
-                        state.goal = state.hole;
-                    }
-                    state.hole = p;
-                    state.steps += 1;
-                    state
-                }),
-        )
-    }
-
-    fn hash_key(&self) -> Self::HashKey {
-        (self.hole, self.goal)
-    }
-}
-
-impl<'a> search::OrdKey for State<'a> {
-    type OrdKey = usize;
-
-    fn ord_key(&self) -> Self::OrdKey {
-        self.steps
-            // First we have to move the hole next to the goal.
-            + usize::try_from((self.goal - self.hole).manhattan()).unwrap()
-            // Then it takes 5 steps to shuffle the goal along one space.
-            + 5 * usize::try_from(self.goal.manhattan()).unwrap()
-    }
 }
 
 fn part2_(size: Point, input: &str) -> usize {
@@ -106,18 +67,42 @@ fn part2_(size: Point, input: &str) -> usize {
         }
     }
 
-    search::min_first(State {
-        viable: &viable,
-        hole: hole.unwrap(),
-        goal: Point {
-            x: size.x - 1,
-            y: 0,
+    let mut q = search2::a_star(
+        State {
+            hole: hole.unwrap(),
+            goal: Point {
+                y: 0,
+                x: size.x - 1,
+            },
+            steps: 0,
         },
-        steps: 0,
-    })
-    .find(|state| state.goal == Z)
-    .unwrap()
-    .steps
+        |state| (state.hole, state.goal),
+        |state| state.steps,
+        // First we have to move the hole next to the goal. Then it takes 5 steps to shuffle the
+        // goal along one space.
+        |state| {
+            usize::try_from((state.goal - state.hole).manhattan()).unwrap()
+                + 5 * usize::try_from(state.goal.manhattan()).unwrap()
+        },
+    );
+
+    while let Some(state) = q.pop() {
+        if state.goal == Z {
+            return state.steps;
+        }
+        for pos in state.hole.adjacent4() {
+            if viable.contains(&pos) {
+                let mut state = state.clone();
+                if state.goal == pos {
+                    state.goal = state.hole;
+                }
+                state.hole = pos;
+                state.steps += 1;
+                q.push(state);
+            }
+        }
+    }
+    unreachable!()
 }
 
 pub fn part2(input: &str) -> usize {

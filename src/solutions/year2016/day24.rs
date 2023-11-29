@@ -6,47 +6,29 @@ use std::{
 use crate::{
     combinatorics::permute,
     grid::{Point, Rect},
-    search,
+    search2::{self, Queue},
 };
 
-#[derive(Clone)]
-struct State<'a> {
-    ducts: &'a HashSet<Point>,
-    p: Point,
-    steps: u32,
-}
-
-impl<'a> search::State for State<'a> {
-    type HashKey = Point;
-
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        Box::new(
-            self.p
-                .adjacent4()
-                .into_iter()
-                .filter(|p| self.ducts.contains(p))
-                .map(|p| State {
-                    p,
-                    steps: self.steps + 1,
-                    ..self.clone()
-                }),
-        )
+fn distance(ducts: &HashSet<Point>, a: Point, b: Point) -> u32 {
+    struct State {
+        pos: Point,
+        steps: u32,
     }
-
-    fn hash_key(&self) -> Self::HashKey {
-        self.p
+    let mut q = search2::breadth_first(State { pos: a, steps: 0 }, |state| state.pos);
+    while let Some(state) = q.pop() {
+        if state.pos == b {
+            return state.steps;
+        }
+        for pos in state.pos.adjacent4() {
+            if ducts.contains(&pos) {
+                q.push(State {
+                    pos,
+                    steps: state.steps + 1,
+                });
+            }
+        }
     }
-}
-
-fn distance(ducts: &HashSet<Point>, a_p: Point, b_p: Point) -> u32 {
-    search::breadth_first(State {
-        ducts,
-        p: a_p,
-        steps: 0,
-    })
-    .find(|state| state.p == b_p)
-    .unwrap()
-    .steps
+    unreachable!()
 }
 
 fn total_dist(dists: &HashMap<(char, char), u32>, route: &[char]) -> u32 {
