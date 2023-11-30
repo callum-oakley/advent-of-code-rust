@@ -19,7 +19,7 @@ mod hash;
 mod number_theory;
 mod ocr;
 mod part;
-mod search2;
+mod search;
 mod uniq;
 mod vm_2018;
 

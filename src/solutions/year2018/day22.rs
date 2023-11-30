@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap};
 
 use crate::{
     grid::{Point, N, W, Z},
-    search2::{self, Queue},
+    search::{self, Queue},
 };
 
 #[derive(Clone, Copy, PartialEq)]
@@ -125,7 +125,7 @@ pub fn part1(input: &str) -> i32 {
 
 pub fn part2(input: &str) -> i32 {
     let cave = parse(input);
-    let mut q = search2::a_star(
+    let mut q = search::a_star(
         State {
             pos: Z,
             tool: Tool::Torch,

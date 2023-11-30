@@ -6,7 +6,7 @@ use std::{
 use crate::{
     combinatorics::permute,
     grid::{Point, Rect},
-    search2::{self, Queue},
+    search::{self, Queue},
 };
 
 fn distance(ducts: &HashSet<Point>, a: Point, b: Point) -> u32 {
@@ -14,7 +14,7 @@ fn distance(ducts: &HashSet<Point>, a: Point, b: Point) -> u32 {
         pos: Point,
         steps: u32,
     }
-    let mut q = search2::breadth_first(State { pos: a, steps: 0 }, |state| state.pos);
+    let mut q = search::breadth_first(State { pos: a, steps: 0 }, |state| state.pos);
     while let Some(state) = q.pop() {
         if state.pos == b {
             return state.steps;

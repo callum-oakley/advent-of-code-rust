@@ -2,7 +2,7 @@ use md5::{Digest, Md5};
 
 use crate::{
     grid::{Point, Z},
-    search2::{self, Queue},
+    search::{self, Queue},
 };
 
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -46,7 +46,7 @@ impl State {
 }
 
 pub fn part1(input: &str) -> String {
-    let mut q = search2::breadth_first(
+    let mut q = search::breadth_first(
         State {
             path: String::new(),
             pos: Z,
@@ -63,7 +63,7 @@ pub fn part1(input: &str) -> String {
 }
 
 pub fn part2(input: &str) -> usize {
-    let mut q = search2::breadth_first(
+    let mut q = search::breadth_first(
         State {
             path: String::new(),
             pos: Z,

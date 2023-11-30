@@ -2,7 +2,7 @@ use regex::Regex;
 
 use crate::{
     grid_3d::{Axis, Bounds, Point},
-    search2::{self, Queue},
+    search::{self, Queue},
 };
 
 #[derive(Copy, Clone)]
@@ -69,7 +69,7 @@ pub fn part1(input: &str) -> usize {
 pub fn part2(input: &str) -> i32 {
     let bots = parse(input);
     let bounds = Bounds::new(bots.iter().map(|bot| bot.pos));
-    let mut q = search2::dijkstra(
+    let mut q = search::dijkstra(
         Cube {
             pos: Point {
                 z: bounds.min_z,

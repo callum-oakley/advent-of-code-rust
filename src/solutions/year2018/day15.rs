@@ -1,7 +1,7 @@
 use crate::{
     grid::{Point, Rect},
     part::Part,
-    search2::{self, Queue},
+    search::{self, Queue},
 };
 
 #[derive(Debug)]
@@ -97,7 +97,7 @@ fn first_step(cave: &mut Rect<Square>, pos: Point, target_kind: Kind) -> Option<
         first_step: Option<Point>,
     }
 
-    let mut q = search2::dijkstra(
+    let mut q = search::dijkstra(
         State {
             dist: 0,
             pos,

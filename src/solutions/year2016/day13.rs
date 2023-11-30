@@ -2,7 +2,7 @@ use std::iter;
 
 use crate::{
     grid::Point,
-    search2::{self, Queue},
+    search::{self, Queue},
 };
 
 fn is_open(seed: u32, Point { x, y }: Point) -> bool {
@@ -17,7 +17,7 @@ struct State {
 
 fn traversal(input: &str) -> impl Iterator<Item = State> {
     let seed = input.parse().unwrap();
-    let mut q = search2::breadth_first(
+    let mut q = search::breadth_first(
         State {
             pos: Point { x: 1, y: 1 },
             steps: 0,

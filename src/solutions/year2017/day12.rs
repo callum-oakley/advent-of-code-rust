@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::search2::{self, Queue};
+use crate::search::{self, Queue};
 
 fn parse(input: &str) -> HashMap<u32, Vec<u32>> {
     let mut res = HashMap::new();
@@ -16,7 +16,7 @@ fn parse(input: &str) -> HashMap<u32, Vec<u32>> {
 
 pub fn part1(input: &str) -> usize {
     let graph = parse(input);
-    let mut q = search2::depth_first(0, |&pos| pos);
+    let mut q = search::depth_first(0, |&pos| pos);
     let mut count = 0;
     while let Some(pos) = q.pop() {
         count += 1;
@@ -35,7 +35,7 @@ pub fn part2(input: &str) -> usize {
 
     while !unexplored.is_empty() {
         components += 1;
-        let mut q = search2::depth_first(*unexplored.iter().next().unwrap(), |&pos| pos);
+        let mut q = search::depth_first(*unexplored.iter().next().unwrap(), |&pos| pos);
         while let Some(pos) = q.pop() {
             unexplored.remove(&pos);
             for &p in &graph[&pos] {

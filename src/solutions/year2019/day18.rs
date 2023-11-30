@@ -2,7 +2,7 @@ use std::collections::{BTreeSet, HashMap};
 
 use crate::{
     grid::{Point, Rect, E, N, NE, NW, S, SE, SW, W, Z},
-    search2::{self, Queue},
+    search::{self, Queue},
 };
 
 fn is_open(tile: char) -> bool {
@@ -39,7 +39,7 @@ fn reachable(map: &Rect<char>, pos: Point) -> Vec<Path> {
 
     let mut res = Vec::new();
 
-    let mut q = search2::breadth_first(
+    let mut q = search::breadth_first(
         State {
             pos,
             steps: 0,
@@ -110,7 +110,7 @@ fn part_(map: &Rect<char>, robots: Vec<char>) -> usize {
         .unwrap();
 
     // Then A* on this higher level graph is fast enough.
-    let mut q = search2::a_star(
+    let mut q = search::a_star(
         State {
             robots,
             steps: 0,

@@ -2,7 +2,7 @@ use regex::Regex;
 
 use crate::{
     combinatorics,
-    search2::{self, Queue},
+    search::{self, Queue},
 };
 
 #[derive(Clone, Copy)]
@@ -152,7 +152,7 @@ impl State {
 }
 
 fn part_(items: Vec<Item>) -> u8 {
-    let mut q = search2::a_star(
+    let mut q = search::a_star(
         State {
             lift: 0,
             items,

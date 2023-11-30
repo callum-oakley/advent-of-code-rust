@@ -5,7 +5,7 @@ use std::{
 
 use crate::{
     grid::{Point, Z},
-    search2::{self, Queue},
+    search::{self, Queue},
 };
 
 // Construct a map of the base as a graph by stepping through the regex keeping track of all the
@@ -59,7 +59,7 @@ struct State {
 
 fn search(input: &str) -> impl Iterator<Item = State> {
     let graph = expand(input);
-    let mut q = search2::breadth_first(State { pos: Z, dist: 0 }, |state| state.pos);
+    let mut q = search::breadth_first(State { pos: Z, dist: 0 }, |state| state.pos);
     iter::from_fn(move || {
         q.pop().map(|state| {
             for &pos in &graph[&state.pos] {

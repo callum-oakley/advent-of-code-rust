@@ -1,7 +1,7 @@
 use std::mem;
 
 use crate::{
-    search2::{self, Queue},
+    search::{self, Queue},
     uniq::Uniq,
 };
 
@@ -48,7 +48,7 @@ pub fn part2(input: &str) -> usize {
         mem::swap(a, b);
     }
 
-    let mut q = search2::a_star(
+    let mut q = search::a_star(
         State {
             molecule: molecule.to_owned(),
             steps: 0,

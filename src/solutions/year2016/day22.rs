@@ -4,7 +4,7 @@ use regex::Regex;
 
 use crate::{
     grid::{Point, Rect, Z},
-    search2::{self, Queue},
+    search::{self, Queue},
 };
 
 #[derive(Copy, Clone)]
@@ -67,7 +67,7 @@ fn part2_(size: Point, input: &str) -> usize {
         }
     }
 
-    let mut q = search2::a_star(
+    let mut q = search::a_star(
         State {
             hole: hole.unwrap(),
             goal: Point {
