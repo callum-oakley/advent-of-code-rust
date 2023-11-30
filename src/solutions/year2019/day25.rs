@@ -22,6 +22,7 @@ pub fn play(prog: &str, r: impl Read, mut w: impl Write) -> Result<()> {
         }
     }
 }
+
 pub fn part1(prog: &str) -> u32 {
     let mut input = [
         "west",
