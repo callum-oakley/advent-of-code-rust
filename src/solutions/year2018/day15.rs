@@ -1,7 +1,7 @@
 use crate::{
     grid::{Point, Rect},
     part::Part,
-    search,
+    search2::{self, Queue},
 };
 
 #[derive(Debug)]
@@ -80,54 +80,6 @@ fn parse(elf_ap: i32, input: &str) -> Rect<Square> {
     })
 }
 
-#[derive(Clone)]
-struct State<'a> {
-    dist: u32,
-    pos: Point,
-    first_step: Option<Point>,
-    cave: &'a Rect<Square>,
-}
-
-impl<'a> search::State for State<'a> {
-    type HashKey = Point;
-
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        Box::new(self.pos.adjacent4().into_iter().filter_map(|step| {
-            if let Some(Square::Empty) = self.cave.get(step) {
-                Some(Self {
-                    dist: self.dist + 1,
-                    pos: step,
-                    first_step: self.first_step.or(Some(step)),
-                    ..*self
-                })
-            } else {
-                None
-            }
-        }))
-    }
-
-    fn hash_key(&self) -> Self::HashKey {
-        self.pos
-    }
-}
-
-// The cost function is fiddly, here's everything it needs to cover:
-// - To move, the unit first considers the squares that are in range and determines which of those
-//   squares it could reach in the fewest steps.
-// - If multiple squares are in range and tied for being reachable in the fewest steps, the square
-//   which is first in reading order is chosen.
-// - If multiple steps would put the unit equally closer to its destination, the unit chooses the
-//   step which is first in reading order.
-// Missing either of the last two steps produces correct results for all the examples, but fails on
-// the puzzle proper...
-impl<'a> search::OrdKey for State<'a> {
-    type OrdKey = (u32, Point, Option<Point>);
-
-    fn ord_key(&self) -> Self::OrdKey {
-        (self.dist, self.pos, self.first_step)
-    }
-}
-
 fn in_range(cave: &Rect<Square>, pos: Point, target_kind: Kind) -> Option<Point> {
     pos.adjacent4()
         .into_iter()
@@ -137,20 +89,56 @@ fn in_range(cave: &Rect<Square>, pos: Point, target_kind: Kind) -> Option<Point>
         .min_by_key(|pos| cave[pos].unit().hp)
 }
 
-fn turn(part: Part, cave: &mut Rect<Square>, mut pos: Point, target_kind: Kind) -> Result<()> {
-    let Some(state) = search::min_first(State {
-        dist: 0,
-        pos,
-        first_step: None,
-        cave,
-    })
-    .find(|state| in_range(cave, state.pos, target_kind).is_some()) else {
-        return Ok(());
-    };
+fn first_step(cave: &mut Rect<Square>, pos: Point, target_kind: Kind) -> Option<Point> {
+    #[derive(Clone, PartialOrd, Ord, PartialEq, Eq)]
+    struct State {
+        dist: u32,
+        pos: Point,
+        first_step: Option<Point>,
+    }
 
+    let mut q = search2::dijkstra(
+        State {
+            dist: 0,
+            pos,
+            first_step: None,
+        },
+        |state| state.pos,
+        // The cost function is fiddly, here's everything it needs to cover:
+        // - To move, the unit first considers the squares that are in range and determines which of
+        //   those squares it could reach in the fewest steps.
+        // - If multiple squares are in range and tied for being reachable in the fewest steps, the
+        //   square which is first in reading order is chosen.
+        // - If multiple steps would put the unit equally closer to its destination, the unit
+        //   chooses the step which is first in reading order.
+        // Missing either of the last two steps produces correct results for all the examples, but
+        // fails on the puzzle proper...
+        |state| (state.dist, state.pos, state.first_step),
+    );
+
+    while let Some(state) = q.pop() {
+        if in_range(cave, state.pos, target_kind).is_some() {
+            return state.first_step;
+        }
+
+        for pos in state.pos.adjacent4() {
+            if let Some(Square::Empty) = cave.get(pos) {
+                q.push(State {
+                    dist: state.dist + 1,
+                    pos,
+                    first_step: state.first_step.or(Some(pos)),
+                });
+            }
+        }
+    }
+
+    None
+}
+
+fn turn(part: Part, cave: &mut Rect<Square>, mut pos: Point, target_kind: Kind) -> Result<()> {
     let unit = *cave[pos].unit();
 
-    if let Some(step) = state.first_step {
+    if let Some(step) = first_step(cave, pos, target_kind) {
         cave[pos] = Square::Empty;
         pos = step;
         assert_eq!(cave[pos], Square::Empty);
