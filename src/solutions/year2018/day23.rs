@@ -2,7 +2,7 @@ use regex::Regex;
 
 use crate::{
     grid_3d::{Axis, Bounds, Point},
-    search,
+    search2::{self, Queue},
 };
 
 #[derive(Copy, Clone)]
@@ -21,7 +21,7 @@ fn parse(input: &str) -> Vec<Bot> {
         .collect()
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
 struct Cube {
     pos: Point,
     w: i32,
@@ -40,47 +40,16 @@ impl Cube {
         }
         dist <= bot.r
     }
-}
 
-#[derive(Clone)]
-struct State<'a> {
-    cube: Cube,
-    bots: &'a [Bot],
-}
-
-impl<'a> search::State for State<'a> {
-    type HashKey = Cube;
-
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        Box::new([0, self.cube.w / 2].into_iter().flat_map(move |z| {
-            [0, self.cube.w / 2].into_iter().flat_map(move |y| {
-                [0, self.cube.w / 2].into_iter().map(move |x| {
-                    let mut state = self.clone();
-                    state.cube.pos += Point { z, y, x };
-                    state.cube.w /= 2;
-                    state
+    fn subcubes(&self) -> impl Iterator<Item = Self> + '_ {
+        [0, self.w / 2].into_iter().flat_map(move |z| {
+            [0, self.w / 2].into_iter().flat_map(move |y| {
+                [0, self.w / 2].into_iter().map(move |x| Self {
+                    pos: self.pos + Point { z, y, x },
+                    w: self.w / 2,
                 })
             })
-        }))
-    }
-
-    fn hash_key(&self) -> Self::HashKey {
-        self.cube
-    }
-}
-
-impl<'a> search::OrdKey for State<'a> {
-    type OrdKey = (usize, i32);
-
-    fn ord_key(&self) -> Self::OrdKey {
-        (
-            self.bots
-                .iter()
-                .filter(|&&bot| !self.cube.intersects(bot))
-                .count(),
-            // tie break with manhattan distance
-            self.cube.pos.manhattan(),
-        )
+        })
     }
 }
 
@@ -100,8 +69,8 @@ pub fn part1(input: &str) -> usize {
 pub fn part2(input: &str) -> i32 {
     let bots = parse(input);
     let bounds = Bounds::new(bots.iter().map(|bot| bot.pos));
-    search::min_first(State {
-        cube: Cube {
+    let mut q = search2::dijkstra(
+        Cube {
             pos: Point {
                 z: bounds.min_z,
                 y: bounds.min_y,
@@ -111,13 +80,24 @@ pub fn part2(input: &str) -> i32 {
                 .max(bounds.max_y - bounds.min_y)
                 .max(bounds.max_z - bounds.min_z),
         },
-        bots: &bots,
-    })
-    .find(|state| state.cube.w == 1)
-    .unwrap()
-    .cube
-    .pos
-    .manhattan()
+        Clone::clone,
+        |cube| {
+            (
+                bots.iter().filter(|&&bot| !cube.intersects(bot)).count(),
+                // tie break with manhattan distance
+                cube.pos.manhattan(),
+            )
+        },
+    );
+    while let Some(cube) = q.pop() {
+        if cube.w == 1 {
+            return cube.pos.manhattan();
+        }
+        for subcube in cube.subcubes() {
+            q.push(subcube);
+        }
+    }
+    unreachable!()
 }
 
 pub fn tests() {
