@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap};
 
 use crate::{
     grid::{Point, N, W, Z},
-    search,
+    search2::{self, Queue},
 };
 
 #[derive(Clone, Copy, PartialEq)]
@@ -12,7 +12,7 @@ enum Tile {
     Narrow,
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialOrd, Ord, PartialEq, Eq, Hash)]
 enum Tool {
     Torch,
     ClimbingGear,
@@ -75,60 +75,40 @@ fn parse(input: &str) -> Cave {
     }
 }
 
-#[derive(Clone)]
-struct State<'a> {
+#[derive(Clone, PartialOrd, Ord, PartialEq, Eq)]
+struct State {
     pos: Point,
     tool: Tool,
     mins: i32,
-    cave: &'a Cave,
 }
 
-impl<'a> search::State for State<'a> {
-    type HashKey = (Point, Tool);
-
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        Box::new(
-            self.pos
-                .adjacent4()
-                .into_iter()
-                .filter_map(|pos| {
-                    if pos.x >= 0
-                        && pos.y >= 0
-                        && compatible(self.cave.erosion(pos).into(), self.tool)
-                    {
-                        Some(State {
-                            pos,
-                            mins: self.mins + 1,
-                            ..self.clone()
-                        })
-                    } else {
-                        None
-                    }
-                })
-                .chain(TOOLS.iter().filter_map(|&tool| {
-                    if tool != self.tool && compatible(self.cave.erosion(self.pos).into(), tool) {
-                        Some(State {
-                            tool,
-                            mins: self.mins + 7,
-                            ..self.clone()
-                        })
-                    } else {
-                        None
-                    }
-                })),
-        )
-    }
-
-    fn hash_key(&self) -> Self::HashKey {
-        (self.pos, self.tool)
-    }
-}
-
-impl<'a> search::OrdKey for State<'a> {
-    type OrdKey = i32;
-
-    fn ord_key(&self) -> Self::OrdKey {
-        self.mins + (self.cave.target - self.pos).manhattan()
+impl State {
+    fn adjacent<'a>(&'a self, cave: &'a Cave) -> impl Iterator<Item = Self> + 'a {
+        self.pos
+            .adjacent4()
+            .into_iter()
+            .filter_map(|pos| {
+                if pos.x >= 0 && pos.y >= 0 && compatible(cave.erosion(pos).into(), self.tool) {
+                    Some(State {
+                        pos,
+                        mins: self.mins + 1,
+                        ..self.clone()
+                    })
+                } else {
+                    None
+                }
+            })
+            .chain(TOOLS.iter().filter_map(|&tool| {
+                if tool != self.tool && compatible(cave.erosion(self.pos).into(), tool) {
+                    Some(State {
+                        tool,
+                        mins: self.mins + 7,
+                        ..self.clone()
+                    })
+                } else {
+                    None
+                }
+            }))
     }
 }
 
@@ -145,15 +125,25 @@ pub fn part1(input: &str) -> i32 {
 
 pub fn part2(input: &str) -> i32 {
     let cave = parse(input);
-    search::min_first(State {
-        pos: Z,
-        tool: Tool::Torch,
-        mins: 0,
-        cave: &cave,
-    })
-    .find(|state| state.pos == cave.target && state.tool == Tool::Torch)
-    .unwrap()
-    .mins
+    let mut q = search2::a_star(
+        State {
+            pos: Z,
+            tool: Tool::Torch,
+            mins: 0,
+        },
+        |state| (state.pos, state.tool),
+        |state| state.mins,
+        |state| (cave.target - state.pos).manhattan(),
+    );
+    while let Some(state) = q.pop() {
+        if state.pos == cave.target && state.tool == Tool::Torch {
+            return state.mins;
+        }
+        for s in state.adjacent(&cave) {
+            q.push(s);
+        }
+    }
+    unreachable!()
 }
 
 pub fn tests() {
