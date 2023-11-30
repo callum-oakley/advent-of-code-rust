@@ -27,13 +27,13 @@ fn run_part(year: u16, day: u8, part: u8, f: fn(&str) -> String, input: &str) ->
     }
 
     println!(
-        "{} {:0>2} {}   {: >5?}   {}   {}",
+        "{} {:0>2} {}   {: >5?}   {}{}",
         year,
         day,
         part,
         sig_figs(2, elapsed),
         answer,
-        if stars == 0 { "?" } else { "" },
+        if stars == 0 { "   ?" } else { "" },
     );
 
     (elapsed, stars)
