@@ -152,16 +152,6 @@ where
     }
 }
 
-pub type BreadthFirstTraversal<S> = Traversal<S, VecDeque<StateWrapper<S>>>;
-
-/// Traverse the state space breadth first.
-pub fn breadth_first<S: State>(start: S) -> BreadthFirstTraversal<S> {
-    Traversal {
-        queue: VecDeque::from([StateWrapper(start)]),
-        visited: HashSet::new(),
-    }
-}
-
 pub type MinFirstTraversal<S> = Traversal<S, BinaryHeap<Reverse<StateWrapper<S>>>>;
 
 /// Traverse the state space in increasing order of `ord_key`. If `ord_key`

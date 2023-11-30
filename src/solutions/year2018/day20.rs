@@ -1,8 +1,11 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    collections::{HashMap, HashSet},
+    iter,
+};
 
 use crate::{
     grid::{Point, Z},
-    search,
+    search2::{self, Queue},
 };
 
 // Construct a map of the base as a graph by stepping through the regex keeping track of all the
@@ -49,49 +52,33 @@ fn expand(input: &str) -> HashMap<Point, HashSet<Point>> {
 }
 
 #[derive(Clone)]
-struct State<'a> {
-    graph: &'a HashMap<Point, HashSet<Point>>,
+struct State {
     pos: Point,
     dist: usize,
 }
 
-impl<'a> search::State for State<'a> {
-    type HashKey = Point;
-
-    fn adjacent(&self) -> Box<dyn Iterator<Item = Self> + '_> {
-        Box::new(self.graph[&self.pos].iter().map(|&pos| State {
-            graph: self.graph,
-            pos,
-            dist: self.dist + 1,
-        }))
-    }
-
-    fn hash_key(&self) -> Self::HashKey {
-        self.pos
-    }
+fn search(input: &str) -> impl Iterator<Item = State> {
+    let graph = expand(input);
+    let mut q = search2::breadth_first(State { pos: Z, dist: 0 }, |state| state.pos);
+    iter::from_fn(move || {
+        q.pop().map(|state| {
+            for &pos in &graph[&state.pos] {
+                q.push(State {
+                    pos,
+                    dist: state.dist + 1,
+                });
+            }
+            state
+        })
+    })
 }
 
 pub fn part1(input: &str) -> usize {
-    let graph = expand(input);
-    search::breadth_first(State {
-        graph: &graph,
-        pos: Z,
-        dist: 0,
-    })
-    .last()
-    .unwrap()
-    .dist
+    search(input).last().unwrap().dist
 }
 
 pub fn part2(input: &str) -> usize {
-    let graph = expand(input);
-    search::breadth_first(State {
-        graph: &graph,
-        pos: Z,
-        dist: 0,
-    })
-    .filter(|s| s.dist >= 1000)
-    .count()
+    search(input).filter(|s| s.dist >= 1000).count()
 }
 
 pub fn tests() {
