@@ -1,5 +1,5 @@
 use std::{
-    fmt::{self, Write},
+    fmt::{self, Debug, Write},
     iter::{self, Sum},
     ops::{
         Add, AddAssign, Div, DivAssign, Index, IndexMut, Mul, MulAssign, Rem, RemAssign, Sub,
@@ -53,6 +53,17 @@ impl From<i64> for Turn {
 }
 
 impl Point {
+    pub fn new<T>(y: T, x: T) -> Self
+    where
+        T: TryInto<i32>,
+        T::Error: Debug,
+    {
+        Self {
+            y: y.try_into().unwrap(),
+            x: x.try_into().unwrap(),
+        }
+    }
+
     pub fn adjacent4(self) -> [Self; 4] {
         [N, W, E, S].map(|dir| dir + self)
     }
