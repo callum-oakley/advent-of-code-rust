@@ -1,8 +1,10 @@
 #![cfg_attr(feature = "allow_dead_code", allow(dead_code))]
 #![warn(clippy::pedantic)]
-#![allow(clippy::must_use_candidate)]
-#![allow(clippy::missing_panics_doc)]
-#![allow(clippy::missing_errors_doc)]
+#![allow(
+    clippy::must_use_candidate,
+    clippy::missing_panics_doc,
+    clippy::missing_errors_doc
+)]
 
 use regex::Regex;
 use std::{fs, path::Path};
