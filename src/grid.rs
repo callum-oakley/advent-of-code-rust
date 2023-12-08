@@ -32,6 +32,16 @@ pub enum Turn {
     Right,
 }
 
+impl From<char> for Turn {
+    fn from(c: char) -> Self {
+        match c {
+            'L' => Turn::Left,
+            'R' => Turn::Right,
+            _ => unreachable!(),
+        }
+    }
+}
+
 impl From<&str> for Turn {
     fn from(s: &str) -> Self {
         match s {
