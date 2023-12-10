@@ -31,7 +31,7 @@ pub fn part2(input: &str) -> usize {
 
     while !unexplored.is_empty() {
         regions += 1;
-        let mut q = search::depth_first(*unexplored.iter().next().unwrap(), |&pos| pos);
+        let mut q = search::breadth_first(*unexplored.iter().next().unwrap(), |&pos| pos);
         while let Some(pos) = q.pop() {
             unexplored.remove(&pos);
             for p in pos.adjacent4() {

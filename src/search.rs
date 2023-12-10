@@ -25,19 +25,6 @@ impl<T> Queue for VecDeque<T> {
     }
 }
 
-/// Last-in-first-out "queue"... in other words a stack.
-impl<T> Queue for Vec<T> {
-    type Item = T;
-
-    fn push(&mut self, value: Self::Item) {
-        Vec::push(self, value);
-    }
-
-    fn pop(&mut self) -> Option<Self::Item> {
-        Vec::pop(self)
-    }
-}
-
 #[derive(PartialOrd, Ord, PartialEq, Eq)]
 struct CostValue<V, O> {
     cost: O,
@@ -128,16 +115,6 @@ where
     K: PartialEq + Eq + Hash,
 {
     traverse(VecDeque::new(), start, hash_key)
-}
-
-/// Traverse a state space depth first. It's the caller's responsibility to push adjacent states
-/// after each pop.
-pub fn depth_first<S, H, K>(start: S, hash_key: H) -> impl Queue<Item = S>
-where
-    H: FnMut(&S) -> K,
-    K: PartialEq + Eq + Hash,
-{
-    traverse(Vec::new(), start, hash_key)
 }
 
 /// Traverse a state space min-cost first. It's the caller's responsibility to push adjacent
