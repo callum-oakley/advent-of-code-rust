@@ -259,6 +259,32 @@ impl Sum for Point {
     }
 }
 
+#[derive(Clone, Copy)]
+pub enum Axis {
+    X,
+    Y,
+}
+
+impl Index<Axis> for Point {
+    type Output = i32;
+
+    fn index(&self, axis: Axis) -> &i32 {
+        match axis {
+            Axis::X => &self.x,
+            Axis::Y => &self.y,
+        }
+    }
+}
+
+impl IndexMut<Axis> for Point {
+    fn index_mut(&mut self, axis: Axis) -> &mut i32 {
+        match axis {
+            Axis::X => &mut self.x,
+            Axis::Y => &mut self.y,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub struct Bounds {
     pub min_y: i32,
@@ -301,18 +327,6 @@ pub struct Rect<T> {
     pub size: Point,
 }
 
-impl<T: Clone> Rect<T> {
-    pub fn new(init: T, size: Point) -> Self {
-        Self {
-            inner: vec![
-                vec![init; usize::try_from(size.x).unwrap()];
-                usize::try_from(size.y).unwrap()
-            ],
-            size,
-        }
-    }
-}
-
 pub fn scan_rect<F: FnMut(Point, char)>(s: &str, mut f: F) {
     for (y, line) in s.lines().enumerate() {
         for (x, c) in line.chars().enumerate() {
@@ -328,6 +342,19 @@ pub fn scan_rect<F: FnMut(Point, char)>(s: &str, mut f: F) {
 }
 
 impl<T> Rect<T> {
+    pub fn new(init: T, size: Point) -> Self
+    where
+        T: Clone,
+    {
+        Self {
+            inner: vec![
+                vec![init; usize::try_from(size.x).unwrap()];
+                usize::try_from(size.y).unwrap()
+            ],
+            size,
+        }
+    }
+
     pub fn parse<F: FnMut(Point, char) -> T>(s: &str, mut f: F) -> Self {
         let mut inner = Vec::new();
         scan_rect(s, |pos, c| {
