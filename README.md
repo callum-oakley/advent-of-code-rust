@@ -2,28 +2,28 @@
 
 Solutions to the puzzles at [adventofcode.com][] in Rust.
 
-Run using [just][].
+Run using [cook][].
 
 One day:
 
 ```sh
-just run 2019 23
+cook run 2019 23
 ```
 
 A whole year:
 
 ```sh
-just run 2019
+cook run 2019
 ```
 
 Everything:
 
 ```sh
-just run
+cook run
 ```
 
 Looks for a token in a `.session` file in the root of this directory to download inputs and check
 answers.
 
 [adventofcode.com]: https://adventofcode.com/
-[just]: https://github.com/casey/just
+[cook]: https://github.com/callum-oakley/cook

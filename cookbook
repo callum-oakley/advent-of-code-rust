@@ -1,0 +1,30 @@
+run
+    cook run '' ''
+
+run year
+    cook run "${year}" ''
+
+run year day
+    YEAR="${year}" DAY="${day}" cargo run -F allow_dead_code -r
+    cook lint
+
+debug year day
+    RUST_BACKTRACE=1 YEAR="${year}" DAY="${day}" cargo run -F allow_dead_code
+    cargo build
+
+play year day
+    cargo run --bin "play_year${year}_day$(printf %02d "${day}")"
+
+lint
+    cargo clippy
+
+log
+    cook run | tee results.log
+
+init year day
+    dir="src/solutions/year${year}"
+    mkdir -p "${dir}"
+    file="${dir}/day$(printf %02d "${day}").rs"
+    touch "${file}"
+    cargo build
+    code "${file}"
