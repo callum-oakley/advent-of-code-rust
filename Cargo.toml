@@ -12,6 +12,7 @@ allow_dead_code = []
 anyhow = "1"
 lazy_static = "1"
 md-5 = "0.10"
+nalgebra = "0.33.0"
 num = "0.4"
 ordered-float = "4"
 regex = "1"

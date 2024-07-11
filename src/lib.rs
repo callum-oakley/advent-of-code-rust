@@ -14,6 +14,7 @@ pub mod solutions;
 
 mod combinatorics;
 mod grid;
+mod grid2;
 mod grid_3d;
 mod grid_4d;
 mod grid_hex;

@@ -1,7 +1,8 @@
 use lazy_static::lazy_static;
+use nalgebra::Vector2;
 use regex::Regex;
 
-use crate::grid::Point;
+use crate::grid2::IntoVector2;
 
 enum Op {
     On,
@@ -11,8 +12,8 @@ enum Op {
 
 struct Instruction {
     op: Op,
-    from: Point,
-    to: Point,
+    from: Vector2<i32>,
+    to: Vector2<i32>,
 }
 
 fn parse(s: &str) -> impl Iterator<Item = Instruction> + '_ {
@@ -27,8 +28,8 @@ fn parse(s: &str) -> impl Iterator<Item = Instruction> + '_ {
             "toggle" => Op::Toggle,
             _ => unreachable!(),
         },
-        from: captures[2].into(),
-        to: captures[3].into(),
+        from: captures[2].into_vector2(),
+        to: captures[3].into_vector2(),
     })
 }
 
