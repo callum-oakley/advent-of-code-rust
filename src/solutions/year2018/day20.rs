@@ -14,7 +14,7 @@ fn expand(input: &str) -> HashMap<Point, HashSet<Point>> {
     let mut graph: HashMap<_, HashSet<_>> = HashMap::new();
     let mut active = HashSet::from([Z]);
     let mut forks = Vec::new();
-    let mut alts = Vec::new();
+    let mut alts: Vec<Vec<Point>> = Vec::new();
     for c in input.chars() {
         match c {
             '^' | '$' => (),
@@ -26,9 +26,9 @@ fn expand(input: &str) -> HashMap<Point, HashSet<Point>> {
             }
             '|' => {
                 // Amend the possible ending active positions for this group
-                alts.last_mut().unwrap().extend(active);
+                alts.last_mut().unwrap().extend(&active);
                 // Reset active back to what it was at the last '('
-                active = forks.last().unwrap().clone();
+                active.clone_from(forks.last().unwrap());
             }
             ')' => {
                 // Add all alternative positions we could have reached by the end of this group

@@ -25,12 +25,7 @@ fn parse(input: &str) -> (Point, Rect<Vec<Point>>) {
     pipes[start] = start
         .adjacent4()
         .into_iter()
-        .filter(|&pos| {
-            pipes
-                .get(pos)
-                .map(|adj| adj.contains(&start))
-                .unwrap_or_default()
-        })
+        .filter(|&pos| pipes.get(pos).is_some_and(|adj| adj.contains(&start)))
         .collect();
     assert_eq!(pipes[start].len(), 2);
     (start, pipes)

@@ -22,16 +22,16 @@ pub fn part2(input: &str) -> i64 {
 }
 
 pub fn tests() {
-    assert_eq!(part1(r#"[1,2,3]"#), 6);
+    assert_eq!(part1(r"[1,2,3]"), 6);
     assert_eq!(part1(r#"{"a":2,"b":4}"#), 6);
-    assert_eq!(part1(r#"[[[3]]]"#), 3);
+    assert_eq!(part1(r"[[[3]]]"), 3);
     assert_eq!(part1(r#"{"a":{"b":4},"c":-1}"#), 3);
     assert_eq!(part1(r#"{"a":[-1,1]}"#), 0);
     assert_eq!(part1(r#"[-1,{"a":1}]"#), 0);
-    assert_eq!(part1(r#"[]"#), 0);
-    assert_eq!(part1(r#"{}"#), 0);
+    assert_eq!(part1(r"[]"), 0);
+    assert_eq!(part1(r"{}"), 0);
 
-    assert_eq!(part2(r#"[1,2,3]"#), 6);
+    assert_eq!(part2(r"[1,2,3]"), 6);
     assert_eq!(part2(r#"[1,{"c":"red","b":2},3]"#), 4);
     assert_eq!(part2(r#"{"d":"red","e":[1,2,3,4],"f":5}"#), 0);
     assert_eq!(part2(r#"[1,"red",5]"#), 6);
