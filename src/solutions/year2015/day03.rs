@@ -2,13 +2,13 @@ use std::{collections::HashSet, iter::once};
 
 use nalgebra::Vector2;
 
-use crate::grid2::{IntoVector2, Z};
+use crate::grid2::{IntoVector, Z};
 
 fn deliver(dirs: impl Iterator<Item = char>) -> HashSet<Vector2<i32>> {
     let mut santa = Z;
     once(santa)
         .chain(dirs.map(|c| {
-            santa += c.into_vector2();
+            santa += c.into_vector();
             santa
         }))
         .collect()

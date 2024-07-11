@@ -1,12 +1,16 @@
 use std::collections::HashMap;
 
-use crate::grid::{Point, E, N, NE, NW, S, SE, SW, W, Z};
+use nalgebra::Vector2;
 
-fn parse(input: &str) -> impl Iterator<Item = impl Iterator<Item = Point> + '_> + '_ {
-    input.split_whitespace().map(|s| s.chars().map(Point::from))
+use crate::grid2::{IntoVector, E, N, NE, NW, S, SE, SW, W, Z};
+
+fn parse(input: &str) -> impl Iterator<Item = impl Iterator<Item = Vector2<i32>> + '_> + '_ {
+    input
+        .split_whitespace()
+        .map(|s| s.chars().map(IntoVector::into_vector))
 }
 
-fn part_(keypad: &HashMap<Point, char>, input: &str) -> String {
+fn part_(keypad: &HashMap<Vector2<i32>, char>, input: &str) -> String {
     let mut res = String::new();
     let mut pos = Z;
     for instruction in parse(input) {
@@ -41,19 +45,19 @@ pub fn part1(input: &str) -> String {
 pub fn part2(input: &str) -> String {
     part_(
         &[
-            (Point { x: 2, y: -2 }, '1'),
-            (Point { x: 1, y: -1 }, '2'),
-            (Point { x: 2, y: -1 }, '3'),
-            (Point { x: 3, y: -1 }, '4'),
-            (Point { x: 0, y: 0 }, '5'),
-            (Point { x: 1, y: 0 }, '6'),
-            (Point { x: 2, y: 0 }, '7'),
-            (Point { x: 3, y: 0 }, '8'),
-            (Point { x: 4, y: 0 }, '9'),
-            (Point { x: 1, y: 1 }, 'A'),
-            (Point { x: 2, y: 1 }, 'B'),
-            (Point { x: 3, y: 1 }, 'C'),
-            (Point { x: 2, y: 2 }, 'D'),
+            (Vector2::new(2, -2), '1'),
+            (Vector2::new(1, -1), '2'),
+            (Vector2::new(2, -1), '3'),
+            (Vector2::new(3, -1), '4'),
+            (Vector2::new(0, 0), '5'),
+            (Vector2::new(1, 0), '6'),
+            (Vector2::new(2, 0), '7'),
+            (Vector2::new(3, 0), '8'),
+            (Vector2::new(4, 0), '9'),
+            (Vector2::new(1, 1), 'A'),
+            (Vector2::new(2, 1), 'B'),
+            (Vector2::new(3, 1), 'C'),
+            (Vector2::new(2, 2), 'D'),
         ]
         .into(),
         input,

@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 use nalgebra::Vector2;
 use regex::Regex;
 
-use crate::grid2::IntoVector2;
+use crate::grid2::IntoVector;
 
 enum Op {
     On,
@@ -28,8 +28,8 @@ fn parse(s: &str) -> impl Iterator<Item = Instruction> + '_ {
             "toggle" => Op::Toggle,
             _ => unreachable!(),
         },
-        from: captures[2].into_vector2(),
-        to: captures[3].into_vector2(),
+        from: captures[2].into_vector(),
+        to: captures[3].into_vector(),
     })
 }
 

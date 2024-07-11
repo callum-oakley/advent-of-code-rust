@@ -1,21 +1,27 @@
 use std::collections::HashSet;
 
-use crate::grid::{Turn, N, Z};
+use nalgebra::Matrix2;
 
-fn parse(input: &str) -> impl Iterator<Item = (Turn, i32)> + '_ {
-    input
-        .split(", ")
-        .map(|instruction| (instruction[0..1].into(), instruction[1..].parse().unwrap()))
+use crate::grid2::{IntoTurn, N, Z};
+
+fn parse(input: &str) -> impl Iterator<Item = (Matrix2<i32>, i32)> + '_ {
+    input.split(", ").map(|instruction| {
+        (
+            instruction[0..1].into_turn(),
+            instruction[1..].parse().unwrap(),
+        )
+    })
 }
 
 pub fn part1(input: &str) -> i32 {
     parse(input)
         .fold((Z, N), |(pos, dir), (turn, dist)| {
-            let dir = dir.turn(turn);
+            let dir = turn * dir;
             (pos + dir * dist, dir)
         })
         .0
-        .manhattan()
+        .abs()
+        .sum()
 }
 
 pub fn part2(input: &str) -> i32 {
@@ -23,11 +29,11 @@ pub fn part2(input: &str) -> i32 {
     let mut dir = N;
     let mut visited = HashSet::from([Z]);
     for (turn, dist) in parse(input) {
-        dir = dir.turn(turn);
+        dir = turn * dir;
         for _ in 0..dist {
             pos += dir;
             if visited.contains(&pos) {
-                return pos.manhattan();
+                return pos.abs().sum();
             }
             visited.insert(pos);
         }
