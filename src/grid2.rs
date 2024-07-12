@@ -99,6 +99,7 @@ impl IntoTurn for i64 {
     }
 }
 
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Grid<T> {
     data: Vec<T>,
     pub size: Vector,
@@ -184,11 +185,19 @@ impl<T> Grid<T> {
         self.keys().map(|k| (k, &self[k]))
     }
 
-    pub fn adjacent4(&self, v: Vector) -> impl Iterator<Item = &T> {
+    pub fn adjacent4(&self, v: Vector) -> impl Iterator<Item = (Vector, &T)> {
+        adjacent4(v).filter_map(|u| self.get(u).map(|t| (u, t)))
+    }
+
+    pub fn adjacent8(&self, v: Vector) -> impl Iterator<Item = (Vector, &T)> {
+        adjacent8(v).filter_map(|u| self.get(u).map(|t| (u, t)))
+    }
+
+    pub fn adjacent4_values(&self, v: Vector) -> impl Iterator<Item = &T> {
         adjacent4(v).filter_map(|u| self.get(u))
     }
 
-    pub fn adjacent8(&self, v: Vector) -> impl Iterator<Item = &T> {
+    pub fn adjacent8_values(&self, v: Vector) -> impl Iterator<Item = &T> {
         adjacent8(v).filter_map(|u| self.get(u))
     }
 

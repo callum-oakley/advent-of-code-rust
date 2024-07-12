@@ -1,30 +1,27 @@
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    ops::{Div, Mul, Rem},
+};
 
-use crate::grid::{Point, Rect, Z};
+use crate::grid2::{Grid, Vector, Z};
 
-fn rotate(pattern: &Rect<bool>) -> Rect<bool> {
+fn rotate(pattern: &Grid<bool>) -> Grid<bool> {
     let mut res = pattern.clone();
-    for (Point { x, y }, &pixel) in pattern {
-        res[Point {
-            x: pattern.size.x - 1 - y,
-            y: x,
-        }] = pixel;
+    for (v, &pixel) in pattern {
+        res[[pattern.size.x - 1 - v.y, v.x]] = pixel;
     }
     res
 }
 
-fn reflect(pattern: &Rect<bool>) -> Rect<bool> {
+fn reflect(pattern: &Grid<bool>) -> Grid<bool> {
     let mut res = pattern.clone();
-    for (Point { x, y }, &pixel) in pattern {
-        res[Point {
-            x: pattern.size.x - 1 - x,
-            y,
-        }] = pixel;
+    for (v, &pixel) in pattern {
+        res[[pattern.size.x - 1 - v.x, v.y]] = pixel;
     }
     res
 }
 
-fn symmetries(pattern: &Rect<bool>) -> [Rect<bool>; 8] {
+fn symmetries(pattern: &Grid<bool>) -> [Grid<bool>; 8] {
     [
         pattern.clone(),
         rotate(pattern),
@@ -37,11 +34,11 @@ fn symmetries(pattern: &Rect<bool>) -> [Rect<bool>; 8] {
     ]
 }
 
-fn parse_pattern(s: &str) -> Rect<bool> {
-    Rect::parse(&s.replace('/', "\n"), |_, c| c == '#')
+fn parse_pattern(s: &str) -> Grid<bool> {
+    Grid::parse(&s.replace('/', "\n"), |_, c| c == '#')
 }
 
-fn parse_rules(input: &str) -> HashMap<Rect<bool>, Rect<bool>> {
+fn parse_rules(input: &str) -> HashMap<Grid<bool>, Grid<bool>> {
     let mut res = HashMap::new();
     for line in input.lines() {
         let (from, to) = line.split_once(" => ").unwrap();
@@ -54,23 +51,26 @@ fn parse_rules(input: &str) -> HashMap<Rect<bool>, Rect<bool>> {
     res
 }
 
-fn partition(pattern: &Rect<bool>) -> Rect<Rect<bool>> {
+fn partition(pattern: &Grid<bool>) -> Grid<Grid<bool>> {
     let inner_size = if pattern.size.x % 2 == 0 {
-        Point { x: 2, y: 2 }
+        Vector::new(2, 2)
     } else {
-        Point { x: 3, y: 3 }
+        Vector::new(3, 3)
     };
 
-    let mut res = Rect::new(Rect::new(false, inner_size), pattern.size / inner_size);
+    let mut res = Grid::new(
+        Grid::new(false, inner_size),
+        pattern.size.zip_map(&inner_size, Div::div),
+    );
 
     for (pos, &pixel) in pattern {
-        res[pos / inner_size][pos % inner_size] = pixel;
+        res[pos.zip_map(&inner_size, Div::div)][pos.zip_map(&inner_size, Rem::rem)] = pixel;
     }
 
     res
 }
 
-fn enhance(rules: &HashMap<Rect<bool>, Rect<bool>>, blocks: &Rect<Rect<bool>>) -> Rect<Rect<bool>> {
+fn enhance(rules: &HashMap<Grid<bool>, Grid<bool>>, blocks: &Grid<Grid<bool>>) -> Grid<Grid<bool>> {
     let mut res = blocks.clone();
     for pos in blocks.keys() {
         res[pos] = rules[&blocks[pos]].clone();
@@ -78,13 +78,13 @@ fn enhance(rules: &HashMap<Rect<bool>, Rect<bool>>, blocks: &Rect<Rect<bool>>) -
     res
 }
 
-fn collapse(blocks: &Rect<Rect<bool>>) -> Rect<bool> {
+fn collapse(blocks: &Grid<Grid<bool>>) -> Grid<bool> {
     let inner_size = blocks[Z].size;
-    let mut res = Rect::new(false, inner_size * blocks.size);
+    let mut res = Grid::new(false, inner_size.zip_map(&blocks.size, Mul::mul));
 
     for (outer_pos, block) in blocks {
         for (inner_pos, &pixel) in block {
-            res[outer_pos * inner_size + inner_pos] = pixel;
+            res[outer_pos.zip_map(&inner_size, Mul::mul) + inner_pos] = pixel;
         }
     }
 

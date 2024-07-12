@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 
-use crate::grid::{Point, Rect, Turn, N};
+use crate::grid2::{Grid, Vector, LEFT, N, RIGHT};
 
 trait State {
-    fn tick(&mut self, dir: &mut Point, infected_count: &mut usize);
+    fn tick(&mut self, dir: &mut Vector, infected_count: &mut usize);
 }
 
 #[derive(Clone, Default)]
@@ -14,15 +14,15 @@ enum State1 {
 }
 
 impl State for State1 {
-    fn tick(&mut self, dir: &mut Point, infected_count: &mut usize) {
+    fn tick(&mut self, dir: &mut Vector, infected_count: &mut usize) {
         match self {
             State1::Clean => {
-                *dir = dir.turn(Turn::Left);
+                *dir = LEFT * *dir;
                 *self = State1::Infected;
                 *infected_count += 1;
             }
             State1::Infected => {
-                *dir = dir.turn(Turn::Right);
+                *dir = RIGHT * *dir;
                 *self = State1::Clean;
             }
         }
@@ -49,10 +49,10 @@ enum State2 {
 }
 
 impl State for State2 {
-    fn tick(&mut self, dir: &mut Point, infected_count: &mut usize) {
+    fn tick(&mut self, dir: &mut Vector, infected_count: &mut usize) {
         match self {
             State2::Clean => {
-                *dir = dir.turn(Turn::Left);
+                *dir = LEFT * *dir;
                 *self = State2::Weakened;
             }
             State2::Weakened => {
@@ -60,7 +60,7 @@ impl State for State2 {
                 *infected_count += 1;
             }
             State2::Infected => {
-                *dir = dir.turn(Turn::Right);
+                *dir = RIGHT * *dir;
                 *self = State2::Flagged;
             }
             State2::Flagged => {
@@ -85,13 +85,10 @@ fn part_<T>(bursts: usize, input: &str) -> usize
 where
     T: State + From<char> + Clone + Default,
 {
-    let nodes = Rect::parse(input, |_, c| T::from(c));
-    let mut pos = Point {
-        x: nodes.size.x / 2,
-        y: nodes.size.y / 2,
-    };
+    let nodes = Grid::parse(input, |_, c| T::from(c));
+    let mut pos = nodes.size / 2;
     let mut dir = N;
-    let mut nodes: HashMap<Point, T> = nodes.iter().map(|(p, s)| (p, s.clone())).collect();
+    let mut nodes: HashMap<Vector, T> = nodes.iter().map(|(p, s)| (p, s.clone())).collect();
     let mut infected_count = 0;
     for _ in 0..bursts {
         nodes

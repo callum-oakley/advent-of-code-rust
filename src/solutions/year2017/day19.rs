@@ -1,12 +1,10 @@
-use crate::grid::{Point, Rect, Turn, S};
+use crate::grid2::{Grid, Vector, LEFT, RIGHT, S};
 
 fn part_(input: &str) -> (String, usize) {
-    let grid = Rect::parse(input, |_, c| c);
+    let grid = Grid::parse(input, |_, c| c);
 
-    let start_x = (0..grid.size.x)
-        .find(|&x| grid[Point { x, y: 0 }] == '|')
-        .unwrap();
-    let mut pos = Point { x: start_x, y: 0 };
+    let start_x = (0..grid.size.x).find(|&x| grid[[x, 0]] == '|').unwrap();
+    let mut pos = Vector::new(start_x, 0);
     let mut dir = S;
 
     let mut res = (String::new(), 0);
@@ -15,10 +13,10 @@ fn part_(input: &str) -> (String, usize) {
         if grid[pos].is_alphabetic() {
             res.0.push(grid[pos]);
         } else if grid[pos] == '+' {
-            if grid[pos + dir.turn(Turn::Left)] != ' ' {
-                dir = dir.turn(Turn::Left);
-            } else if grid[pos + dir.turn(Turn::Right)] != ' ' {
-                dir = dir.turn(Turn::Right);
+            if grid[pos + LEFT * dir] != ' ' {
+                dir = LEFT * dir;
+            } else if grid[pos + RIGHT * dir] != ' ' {
+                dir = RIGHT * dir;
             } else {
                 unreachable!();
             }

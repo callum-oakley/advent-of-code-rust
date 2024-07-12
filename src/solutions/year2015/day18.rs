@@ -2,7 +2,7 @@ use crate::{grid2::Grid, part::Part};
 
 fn step(lights: &mut Grid<bool>, scrap: &mut Grid<bool>) {
     for (pos, light) in &*lights {
-        let neighbors_on = lights.adjacent8(pos).filter(|p| **p).count();
+        let neighbors_on = lights.adjacent8_values(pos).filter(|p| **p).count();
         scrap[pos] = neighbors_on == 3 || *light && neighbors_on == 2;
     }
     std::mem::swap(lights, scrap);
