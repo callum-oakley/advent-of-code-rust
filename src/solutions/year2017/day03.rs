@@ -1,38 +1,34 @@
 use std::{collections::HashMap, iter};
 
-use crate::grid::{Point, E, N, S, W, Z};
+use nalgebra::Vector2;
 
-fn spiral() -> impl Iterator<Item = Point> {
-    let mut p = W;
+use crate::grid2::{self, E, N, S, W, Z};
+
+fn spiral() -> impl Iterator<Item = Vector2<i32>> {
+    let mut v = W;
     let mut ring = 0;
     let mut dir = E;
     let mut steps = 2;
     iter::from_fn(move || {
-        p += dir;
+        v += dir;
         steps -= 1;
         if steps == 0 {
-            match dir {
-                N => {
-                    dir = W;
-                    steps = 2 * ring;
-                }
-                W => {
-                    dir = S;
-                    steps = 2 * ring;
-                }
-                S => {
-                    dir = E;
-                    steps = 2 * ring + 1;
-                }
-                E => {
-                    ring += 1;
-                    dir = N;
-                    steps = 2 * ring - 1;
-                }
-                _ => unreachable!(),
+            if dir == N {
+                dir = W;
+                steps = 2 * ring;
+            } else if dir == W {
+                dir = S;
+                steps = 2 * ring;
+            } else if dir == S {
+                dir = E;
+                steps = 2 * ring + 1;
+            } else if dir == E {
+                ring += 1;
+                dir = N;
+                steps = 2 * ring - 1;
             }
         }
-        Some(p)
+        Some(v)
     })
 }
 
@@ -40,7 +36,8 @@ pub fn part1(input: &str) -> i32 {
     spiral()
         .nth(input.parse::<usize>().unwrap() - 1)
         .unwrap()
-        .manhattan()
+        .abs()
+        .sum()
 }
 
 pub fn part2(input: &str) -> i32 {
@@ -50,7 +47,7 @@ pub fn part2(input: &str) -> i32 {
     mem.insert(Z, 1);
 
     for square in spiral().skip(1) {
-        let value = square.adjacent8().iter().filter_map(|p| mem.get(p)).sum();
+        let value = grid2::adjacent8(square).filter_map(|v| mem.get(&v)).sum();
         if value > input {
             return value;
         }

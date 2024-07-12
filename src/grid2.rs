@@ -15,6 +15,14 @@ pub const SE: Vector2<i32> = Vector2::new(1, 1);
 pub const LEFT: Matrix2<i32> = Matrix2::new(0, 1, -1, 0);
 pub const RIGHT: Matrix2<i32> = Matrix2::new(0, -1, 1, 0);
 
+pub fn adjacent4(v: Vector2<i32>) -> impl Iterator<Item = Vector2<i32>> {
+    [N, W, E, S].map(|dir| dir + v).into_iter()
+}
+
+pub fn adjacent8(v: Vector2<i32>) -> impl Iterator<Item = Vector2<i32>> {
+    [NW, N, NE, W, E, SW, S, SE].map(|dir| dir + v).into_iter()
+}
+
 pub trait IntoVector {
     fn into_vector(self) -> Vector2<i32>;
 }
