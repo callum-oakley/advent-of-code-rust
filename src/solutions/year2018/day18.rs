@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::grid::Rect;
+use crate::grid2::Grid;
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 enum Tile {
@@ -9,8 +9,8 @@ enum Tile {
     Lumberyard,
 }
 
-fn parse(input: &str) -> Rect<Tile> {
-    Rect::parse(input, |_, c| match c {
+fn parse(input: &str) -> Grid<Tile> {
+    Grid::parse(input, |_, c| match c {
         '.' => Tile::Open,
         '|' => Tile::Trees,
         '#' => Tile::Lumberyard,
@@ -18,16 +18,10 @@ fn parse(input: &str) -> Rect<Tile> {
     })
 }
 
-fn tick(state: &Rect<Tile>) -> Rect<Tile> {
+fn tick(state: &Grid<Tile>) -> Grid<Tile> {
     let mut res = state.clone();
     for pos in state.keys() {
-        let count_adj = |tile| {
-            pos.adjacent8()
-                .into_iter()
-                .filter_map(|p| state.get(p).copied())
-                .filter(|&t| t == tile)
-                .count()
-        };
+        let count_adj = |tile| state.adjacent8_values(pos).filter(|&&t| t == tile).count();
         match state[pos] {
             Tile::Open => {
                 if count_adj(Tile::Trees) >= 3 {
@@ -49,7 +43,7 @@ fn tick(state: &Rect<Tile>) -> Rect<Tile> {
     res
 }
 
-fn find_cycle(mut state: Rect<Tile>) -> (usize, usize) {
+fn find_cycle(mut state: Grid<Tile>) -> (usize, usize) {
     let mut seen = HashMap::new();
     let mut min = 0;
     while !seen.contains_key(&state) {
@@ -61,7 +55,7 @@ fn find_cycle(mut state: Rect<Tile>) -> (usize, usize) {
     (seen[&state], min)
 }
 
-fn part_(mins: usize, mut state: Rect<Tile>) -> usize {
+fn part_(mins: usize, mut state: Grid<Tile>) -> usize {
     for _ in 0..mins {
         state = tick(&state);
     }

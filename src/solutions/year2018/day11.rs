@@ -1,61 +1,59 @@
 use crate::{
-    grid::{Point, Rect, NW},
+    grid2::{Grid, Vector, NW},
     part::Part,
 };
 
-fn cell(serial: i32, pos: Point) -> i32 {
+fn cell(serial: i32, pos: Vector) -> i32 {
     ((pos.x + 10) * pos.y + serial) * (pos.x + 10) / 100 % 10 - 5
 }
 
 // https://en.wikipedia.org/wiki/Summed-area_table
-fn summed_area_table(serial: i32) -> Rect<i32> {
-    let mut res = Rect::new(0, Point { x: 301, y: 301 });
+fn summed_area_table(serial: i32) -> Grid<i32> {
+    let mut res = Grid::new(0, [301, 301]);
     for x in 1..=300 {
         for y in 1..=300 {
-            res[Point { y, x }] = cell(serial, Point { y, x })
-                + res[Point { x: x - 1, y }]
-                + res[Point { x, y: y - 1 }]
-                - res[Point { x: x - 1, y: y - 1 }];
+            res[[x, y]] = cell(serial, Vector::new(x, y)) + res[[x - 1, y]] + res[[x, y - 1]]
+                - res[[x - 1, y - 1]];
         }
     }
     res
 }
 
-fn square(sat: &Rect<i32>, pos: Point, size: i32) -> i32 {
+fn square(sat: &Grid<i32>, pos: Vector, size: i32) -> i32 {
     let base = pos + NW;
-    sat[base] + sat[base + Point { x: size, y: size }]
-        - sat[base + Point { x: size, y: 0 }]
-        - sat[base + Point { x: 0, y: size }]
+    sat[base] + sat[base + Vector::new(size, size)]
+        - sat[base + Vector::new(size, 0)]
+        - sat[base + Vector::new(0, size)]
 }
 
-fn part_(part: Part, input: &str) -> (Point, i32) {
+fn part_(part: Part, input: &str) -> (Vector, i32) {
     let sat = summed_area_table(input.parse().unwrap());
     (match part {
         Part::One => 3..=3,
         Part::Two => 1..=300,
     })
     .flat_map(|size| {
-        (1..=301 - size).flat_map(move |x| (1..=301 - size).map(move |y| (Point { y, x }, size)))
+        (1..=301 - size).flat_map(move |x| (1..=301 - size).map(move |y| (Vector::new(x, y), size)))
     })
     .max_by_key(|&(pos, size)| square(&sat, pos, size))
     .unwrap()
 }
 
 pub fn part1(input: &str) -> String {
-    let (Point { x, y }, _) = part_(Part::One, input);
-    format!("{x},{y}")
+    let (v, _) = part_(Part::One, input);
+    format!("{},{}", v.x, v.y)
 }
 
 pub fn part2(input: &str) -> String {
-    let (Point { x, y }, size) = part_(Part::Two, input);
-    format!("{x},{y},{size}")
+    let (v, size) = part_(Part::Two, input);
+    format!("{},{},{}", v.x, v.y, size)
 }
 
 pub fn tests() {
-    assert_eq!(cell(8, Point { x: 3, y: 5 }), 4);
-    assert_eq!(cell(57, Point { x: 122, y: 79 }), -5);
-    assert_eq!(cell(39, Point { x: 217, y: 196 }), 0);
-    assert_eq!(cell(71, Point { x: 101, y: 153 }), 4);
+    assert_eq!(cell(8, Vector::new(3, 5)), 4);
+    assert_eq!(cell(57, Vector::new(122, 79)), -5);
+    assert_eq!(cell(39, Vector::new(217, 196)), 0);
+    assert_eq!(cell(71, Vector::new(101, 153)), 4);
 
     assert_eq!(part1("18"), "33,45");
     assert_eq!(part1("42"), "21,61");

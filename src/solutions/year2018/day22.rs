@@ -1,7 +1,7 @@
 use std::{cell::RefCell, collections::HashMap};
 
 use crate::{
-    grid::{Point, N, W, Z},
+    grid2::{self, IntoVector, Vector, N, W, Z},
     search::{self, Queue},
 };
 
@@ -42,12 +42,12 @@ impl From<i32> for Tile {
 
 struct Cave {
     depth: i32,
-    target: Point,
-    erosion_cache: RefCell<HashMap<Point, i32>>,
+    target: Vector,
+    erosion_cache: RefCell<HashMap<Vector, i32>>,
 }
 
 impl Cave {
-    fn erosion(&self, pos: Point) -> i32 {
+    fn erosion(&self, pos: Vector) -> i32 {
         if let Some(&res) = self.erosion_cache.borrow().get(&pos) {
             return res;
         }
@@ -70,23 +70,21 @@ fn parse(input: &str) -> Cave {
     let (depth, target) = input.split_once('\n').unwrap();
     Cave {
         depth: depth.strip_prefix("depth: ").unwrap().parse().unwrap(),
-        target: target.strip_prefix("target: ").unwrap().into(),
+        target: target.strip_prefix("target: ").unwrap().into_vector(),
         erosion_cache: RefCell::new(HashMap::new()),
     }
 }
 
-#[derive(Clone, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Clone)]
 struct State {
-    pos: Point,
+    pos: Vector,
     tool: Tool,
     mins: i32,
 }
 
 impl State {
     fn adjacent<'a>(&'a self, cave: &'a Cave) -> impl Iterator<Item = Self> + 'a {
-        self.pos
-            .adjacent4()
-            .into_iter()
+        grid2::adjacent4(self.pos)
             .filter_map(|pos| {
                 if pos.x >= 0 && pos.y >= 0 && compatible(cave.erosion(pos).into(), self.tool) {
                     Some(State {
@@ -117,7 +115,7 @@ pub fn part1(input: &str) -> i32 {
     let mut res = 0;
     for y in 0..=cave.target.y {
         for x in 0..=cave.target.x {
-            res += cave.erosion(Point { y, x }) % 3;
+            res += cave.erosion(Vector::new(x, y)) % 3;
         }
     }
     res
@@ -133,7 +131,7 @@ pub fn part2(input: &str) -> i32 {
         },
         |state| (state.pos, state.tool),
         |state| state.mins,
-        |state| (cave.target - state.pos).manhattan(),
+        |state| (cave.target - state.pos).abs().sum(),
     );
     while let Some(state) = q.pop() {
         if state.pos == cave.target && state.tool == Tool::Torch {
@@ -148,7 +146,7 @@ pub fn part2(input: &str) -> i32 {
 
 pub fn tests() {
     let example = "depth: 510\ntarget: 10,10";
-    assert_eq!(parse(example).erosion(Point { y: 1, x: 1 }), 1805);
+    assert_eq!(parse(example).erosion(Vector::new(1, 1)), 1805);
     assert_eq!(part1(example), 114);
     assert_eq!(part2(example), 45);
 }

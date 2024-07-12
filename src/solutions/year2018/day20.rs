@@ -4,17 +4,17 @@ use std::{
 };
 
 use crate::{
-    grid::{Point, Z},
+    grid2::{IntoVector, Vector, Z},
     search::{self, Queue},
 };
 
 // Construct a map of the base as a graph by stepping through the regex keeping track of all the
 // possible positions we could be in while matching the regex up to this point
-fn expand(input: &str) -> HashMap<Point, HashSet<Point>> {
+fn expand(input: &str) -> HashMap<Vector, HashSet<Vector>> {
     let mut graph: HashMap<_, HashSet<_>> = HashMap::new();
     let mut active = HashSet::from([Z]);
     let mut forks = Vec::new();
-    let mut alts: Vec<Vec<Point>> = Vec::new();
+    let mut alts: Vec<Vec<Vector>> = Vec::new();
     for c in input.chars() {
         match c {
             '^' | '$' => (),
@@ -36,7 +36,7 @@ fn expand(input: &str) -> HashMap<Point, HashSet<Point>> {
                 forks.pop().unwrap();
             }
             _ => {
-                let dir = c.into();
+                let dir = c.into_vector();
                 // Insert all the doors that must exist to move in this direction from the active
                 // positions
                 for &pos in &active {
@@ -53,7 +53,7 @@ fn expand(input: &str) -> HashMap<Point, HashSet<Point>> {
 
 #[derive(Clone)]
 struct State {
-    pos: Point,
+    pos: Vector,
     dist: usize,
 }
 

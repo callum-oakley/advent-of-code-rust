@@ -34,6 +34,10 @@ pub fn adjacent8(v: Vector) -> impl Iterator<Item = Vector> {
         .map(move |dir| dir + v)
 }
 
+pub fn reading_ord_key(v: Vector) -> [i32; 2] {
+    [v.y, v.x]
+}
+
 pub trait IntoVector {
     fn into_vector(self) -> Vector;
 }
@@ -255,5 +259,51 @@ impl fmt::Display for Grid<bool> {
 impl fmt::Display for Grid<char> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.fmt_with(f, |t| *t)
+    }
+}
+
+pub struct Bounds {
+    pub min_x: i32,
+    pub max_x: i32,
+    pub min_y: i32,
+    pub max_y: i32,
+}
+
+impl Bounds {
+    pub fn new(mut points: impl Iterator<Item = Vector>) -> Self {
+        let point = points.next().unwrap();
+        let mut res = Self {
+            min_x: point.x,
+            max_x: point.x,
+            min_y: point.y,
+            max_y: point.y,
+        };
+
+        for point in points {
+            res.min_x = res.min_x.min(point.x);
+            res.max_x = res.max_x.max(point.x);
+            res.min_y = res.min_y.min(point.y);
+            res.max_y = res.max_y.max(point.y);
+        }
+
+        res
+    }
+
+    pub fn size(&self) -> Vector {
+        Vector::new(self.max_x - self.min_x + 1, self.max_y - self.min_y + 1)
+    }
+}
+
+impl<I> From<I> for Grid<bool>
+where
+    I: IntoIterator<Item = Vector> + Clone,
+{
+    fn from(points: I) -> Self {
+        let bounds = Bounds::new(points.clone().into_iter());
+        let mut res = Self::new(false, bounds.size());
+        for point in points {
+            res[point - Vector::new(bounds.min_x, bounds.min_y)] = true;
+        }
+        res
     }
 }

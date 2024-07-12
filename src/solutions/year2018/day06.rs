@@ -1,12 +1,12 @@
 use std::collections::HashMap;
 
-use crate::grid::{Bounds, Point};
+use crate::grid2::{Bounds, IntoVector, Vector};
 
-fn unique_closest(pos: Point, coordinates: &[Point]) -> Option<Point> {
-    let mut min_dist = (pos - coordinates[0]).manhattan();
+fn unique_closest(pos: Vector, coordinates: &[Vector]) -> Option<Vector> {
+    let mut min_dist = (pos - coordinates[0]).abs().sum();
     let mut res = Some(coordinates[0]);
     for &c in &coordinates[1..] {
-        let dist = (pos - c).manhattan();
+        let dist = (pos - c).abs().sum();
         match dist.cmp(&min_dist) {
             std::cmp::Ordering::Less => {
                 min_dist = dist;
@@ -22,7 +22,10 @@ fn unique_closest(pos: Point, coordinates: &[Point]) -> Option<Point> {
 }
 
 pub fn part1(input: &str) -> u32 {
-    let coordinates = input.lines().map(Point::from).collect::<Vec<_>>();
+    let coordinates = input
+        .lines()
+        .map(IntoVector::into_vector)
+        .collect::<Vec<_>>();
 
     let mut areas = coordinates
         .iter()
@@ -32,7 +35,7 @@ pub fn part1(input: &str) -> u32 {
     let bounds = Bounds::new(coordinates.iter().copied());
     for x in bounds.min_x..=bounds.max_x {
         for y in bounds.min_y..=bounds.max_y {
-            if let Some(c) = unique_closest(Point { y, x }, &coordinates) {
+            if let Some(c) = unique_closest(Vector::new(x, y), &coordinates) {
                 if x == bounds.min_x || x == bounds.max_x || y == bounds.min_y || y == bounds.max_y
                 {
                     // This area is inifinite, so we don't care about it.
@@ -48,17 +51,20 @@ pub fn part1(input: &str) -> u32 {
 }
 
 fn part2_(tolerance: i32, input: &str) -> u32 {
-    let coordinates = input.lines().map(Point::from).collect::<Vec<_>>();
+    let coordinates = input
+        .lines()
+        .map(IntoVector::into_vector)
+        .collect::<Vec<_>>();
 
     let mut res = 0;
 
     let bounds = Bounds::new(coordinates.iter().copied());
     for x in bounds.min_x..=bounds.max_x {
         for y in bounds.min_y..=bounds.max_y {
-            let pos = Point { y, x };
+            let pos = Vector::new(x, y);
             if coordinates
                 .iter()
-                .map(|&c| (pos - c).manhattan())
+                .map(|&c| (pos - c).abs().sum())
                 .sum::<i32>()
                 < tolerance
             {

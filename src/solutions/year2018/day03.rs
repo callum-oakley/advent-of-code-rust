@@ -3,12 +3,12 @@ use std::collections::HashSet;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::grid::{Point, Rect};
+use crate::grid2::{Grid, IntoVector, Vector};
 
 struct Claim {
     id: u32,
-    pos: Point,
-    size: Point,
+    pos: Vector,
+    size: Vector,
 }
 
 impl From<&str> for Claim {
@@ -19,21 +19,20 @@ impl From<&str> for Claim {
         let captures = RE.captures(s).unwrap();
         Claim {
             id: captures[1].parse().unwrap(),
-            pos: captures[2].into(),
-            size: captures[3].into(),
+            pos: captures[2].into_vector(),
+            size: captures[3].into_vector(),
         }
     }
 }
 
 pub fn part1(input: &str) -> u32 {
     let mut res = 0;
-    let mut fabric = Rect::new(0, Point { x: 1000, y: 1000 });
+    let mut fabric = Grid::new(0, [1000, 1000]);
     for claim in input.lines().map(Claim::from) {
         for x in claim.pos.x..claim.pos.x + claim.size.x {
             for y in claim.pos.y..claim.pos.y + claim.size.y {
-                let p = Point { y, x };
-                fabric[p] += 1;
-                if fabric[p] == 2 {
+                fabric[[x, y]] += 1;
+                if fabric[[x, y]] == 2 {
                     res += 1;
                 }
             }
@@ -44,17 +43,16 @@ pub fn part1(input: &str) -> u32 {
 
 pub fn part2(input: &str) -> u32 {
     let mut disjoint = HashSet::new();
-    let mut fabric = Rect::new(None, Point { x: 1000, y: 1000 });
+    let mut fabric = Grid::new(None, [1000, 1000]);
     for claim in input.lines().map(Claim::from) {
         disjoint.insert(claim.id);
         for x in claim.pos.x..claim.pos.x + claim.size.x {
             for y in claim.pos.y..claim.pos.y + claim.size.y {
-                let p = Point { y, x };
-                if let Some(id) = fabric[p] {
+                if let Some(id) = fabric[[x, y]] {
                     disjoint.remove(&id);
                     disjoint.remove(&claim.id);
                 }
-                fabric[p] = Some(claim.id);
+                fabric[[x, y]] = Some(claim.id);
             }
         }
     }

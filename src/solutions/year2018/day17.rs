@@ -2,9 +2,9 @@ use std::collections::{HashSet, VecDeque};
 
 use regex::Regex;
 
-use crate::grid::{Bounds, Point, E, N, S, W};
+use crate::grid2::{Bounds, Vector, E, N, S, W};
 
-fn parse(input: &str) -> HashSet<Point> {
+fn parse(input: &str) -> HashSet<Vector> {
     let re = Regex::new(r"(x|y)=(\d+), (x|y)=(\d+)\.\.(\d+)").unwrap();
     re.captures_iter(input)
         .flat_map(|captures| {
@@ -12,8 +12,8 @@ fn parse(input: &str) -> HashSet<Point> {
             let start: i32 = captures[4].parse().unwrap();
             let end: i32 = captures[5].parse().unwrap();
             (start..=end).map(move |v| match (&captures[1], &captures[3]) {
-                ("x", "y") => Point { y: v, x: fixed },
-                ("y", "x") => Point { y: fixed, x: v },
+                ("x", "y") => Vector::new(fixed, v),
+                ("y", "x") => Vector::new(v, fixed),
                 _ => unreachable!(),
             })
         })
@@ -21,11 +21,11 @@ fn parse(input: &str) -> HashSet<Point> {
 }
 
 fn flow(
-    clay: &HashSet<Point>,
-    flowing: &HashSet<Point>,
-    settled: &HashSet<Point>,
-    block: Point,
-) -> Vec<Point> {
+    clay: &HashSet<Vector>,
+    flowing: &HashSet<Vector>,
+    settled: &HashSet<Vector>,
+    block: Vector,
+) -> Vec<Vector> {
     [block + W, block + E]
         .into_iter()
         .filter(|p| !clay.contains(p) && !flowing.contains(p) && !settled.contains(p))
@@ -33,11 +33,11 @@ fn flow(
 }
 
 fn settle(
-    clay: &HashSet<Point>,
-    flowing: &HashSet<Point>,
-    settled: &HashSet<Point>,
-    block: Point,
-) -> Vec<Point> {
+    clay: &HashSet<Vector>,
+    flowing: &HashSet<Vector>,
+    settled: &HashSet<Vector>,
+    block: Vector,
+) -> Vec<Vector> {
     let settle_dir = |dir| {
         let mut res = Vec::new();
         let mut block = block;
@@ -66,9 +66,9 @@ fn part_(input: &str) -> (usize, usize) {
     let clay = parse(input);
     let bounds = Bounds::new(clay.iter().copied());
 
-    let mut flowing = HashSet::from([Point { y: 0, x: 500 }]);
+    let mut flowing = HashSet::from([Vector::new(500, 0)]);
     let mut settled = HashSet::new();
-    let mut queue = VecDeque::from([Point { y: 0, x: 500 }]);
+    let mut queue = VecDeque::from([Vector::new(500, 0)]);
 
     while let Some(block) = queue.pop_front() {
         let down = block + S;

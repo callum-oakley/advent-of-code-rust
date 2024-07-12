@@ -1,5 +1,5 @@
 use crate::{
-    grid::{Point, Rect},
+    grid2::{self, Grid, Vector},
     part::Part,
     search::{self, Queue},
 };
@@ -60,8 +60,8 @@ impl Square {
     }
 }
 
-fn parse(elf_ap: i32, input: &str) -> Rect<Square> {
-    Rect::parse(input, |_, c| match c {
+fn parse(elf_ap: i32, input: &str) -> Grid<Square> {
+    Grid::parse(input, |_, c| match c {
         '#' => Square::Wall,
         '.' => Square::Empty,
         'E' => Square::Occupied(Unit {
@@ -80,21 +80,18 @@ fn parse(elf_ap: i32, input: &str) -> Rect<Square> {
     })
 }
 
-fn in_range(cave: &Rect<Square>, pos: Point, target_kind: Kind) -> Option<Point> {
-    pos.adjacent4()
-        .into_iter()
-        .filter(|&pos| {
-            cave.get(pos).map_or(false, Square::is_occupied) && cave[pos].unit().kind == target_kind
-        })
-        .min_by_key(|pos| cave[pos].unit().hp)
+fn in_range(cave: &Grid<Square>, pos: Vector, target_kind: Kind) -> Option<Vector> {
+    cave.adjacent4(pos)
+        .filter(|(_, square)| square.is_occupied() && square.unit().kind == target_kind)
+        .min_by_key(|(_, square)| square.unit().hp)
+        .map(|(pos, _)| pos)
 }
 
-fn first_step(cave: &mut Rect<Square>, pos: Point, target_kind: Kind) -> Option<Point> {
-    #[derive(Clone, PartialOrd, Ord, PartialEq, Eq)]
+fn first_step(cave: &mut Grid<Square>, pos: Vector, target_kind: Kind) -> Option<Vector> {
     struct State {
         dist: u32,
-        pos: Point,
-        first_step: Option<Point>,
+        pos: Vector,
+        first_step: Option<Vector>,
     }
 
     let mut q = search::dijkstra(
@@ -113,7 +110,13 @@ fn first_step(cave: &mut Rect<Square>, pos: Point, target_kind: Kind) -> Option<
         //   chooses the step which is first in reading order.
         // Missing either of the last two steps produces correct results for all the examples, but
         // fails on the puzzle proper...
-        |state| (state.dist, state.pos, state.first_step),
+        |state| {
+            (
+                state.dist,
+                grid2::reading_ord_key(state.pos),
+                state.first_step.map(grid2::reading_ord_key),
+            )
+        },
     );
 
     while let Some(state) = q.pop() {
@@ -121,8 +124,8 @@ fn first_step(cave: &mut Rect<Square>, pos: Point, target_kind: Kind) -> Option<
             return state.first_step;
         }
 
-        for pos in state.pos.adjacent4() {
-            if let Some(Square::Empty) = cave.get(pos) {
+        for (pos, square) in cave.adjacent4(state.pos) {
+            if let Square::Empty = square {
                 q.push(State {
                     dist: state.dist + 1,
                     pos,
@@ -135,7 +138,7 @@ fn first_step(cave: &mut Rect<Square>, pos: Point, target_kind: Kind) -> Option<
     None
 }
 
-fn turn(part: Part, cave: &mut Rect<Square>, mut pos: Point, target_kind: Kind) -> Result<()> {
+fn turn(part: Part, cave: &mut Grid<Square>, mut pos: Vector, target_kind: Kind) -> Result<()> {
     let unit = *cave[pos].unit();
 
     if let Some(step) = first_step(cave, pos, target_kind) {

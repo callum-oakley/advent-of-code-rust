@@ -1,5 +1,5 @@
 use crate::{
-    grid::{Point, Rect, Turn},
+    grid2::{Grid, IntoVector, Vector, LEFT, RIGHT},
     part::Part,
 };
 
@@ -12,38 +12,38 @@ enum Tile {
 }
 
 struct Cart {
-    pos: Point,
-    dir: Point,
+    pos: Vector,
+    dir: Vector,
     turn_count: usize,
 }
 
 impl Cart {
-    fn tick(&mut self, track: &Rect<Tile>) {
+    fn tick(&mut self, track: &Grid<Tile>) {
         self.pos += self.dir;
         match track[self.pos] {
             Tile::Empty => unreachable!(),
             Tile::Straight => {}
             Tile::TurnFSlash => {
                 if self.dir.x == 0 {
-                    self.dir = self.dir.turn(Turn::Right);
+                    self.dir = RIGHT * self.dir;
                 } else {
-                    self.dir = self.dir.turn(Turn::Left);
+                    self.dir = LEFT * self.dir;
                 }
             }
             Tile::TurnBSlash => {
                 if self.dir.x == 0 {
-                    self.dir = self.dir.turn(Turn::Left);
+                    self.dir = LEFT * self.dir;
                 } else {
-                    self.dir = self.dir.turn(Turn::Right);
+                    self.dir = RIGHT * self.dir;
                 }
             }
             Tile::Intersection => {
                 match self.turn_count % 3 {
                     0 => {
-                        self.dir = self.dir.turn(Turn::Left);
+                        self.dir = LEFT * self.dir;
                     }
                     2 => {
-                        self.dir = self.dir.turn(Turn::Right);
+                        self.dir = RIGHT * self.dir;
                     }
                     _ => {}
                 }
@@ -53,9 +53,9 @@ impl Cart {
     }
 }
 
-fn parse(input: &str) -> (Rect<Tile>, Vec<Cart>) {
+fn parse(input: &str) -> (Grid<Tile>, Vec<Cart>) {
     let mut carts = Vec::new();
-    let track = Rect::parse(input, |pos, c| match c {
+    let track = Grid::parse(input, |pos, c| match c {
         ' ' => Tile::Empty,
         '/' => Tile::TurnFSlash,
         '\\' => Tile::TurnBSlash,
@@ -63,7 +63,7 @@ fn parse(input: &str) -> (Rect<Tile>, Vec<Cart>) {
         '^' | 'v' | '<' | '>' => {
             carts.push(Cart {
                 pos,
-                dir: c.into(),
+                dir: c.into_vector(),
                 turn_count: 0,
             });
             Tile::Straight
@@ -73,8 +73,8 @@ fn parse(input: &str) -> (Rect<Tile>, Vec<Cart>) {
     (track, carts)
 }
 
-fn tick(part: Part, track: &Rect<Tile>, carts: &mut Vec<Cart>) -> Option<Point> {
-    carts.sort_unstable_by_key(|c| c.pos);
+fn tick(part: Part, track: &Grid<Tile>, carts: &mut Vec<Cart>) -> Option<Vector> {
+    carts.sort_unstable_by_key(|c| [c.pos.y, c.pos.x]);
 
     let mut i = 0;
     while i < carts.len() {
@@ -106,7 +106,7 @@ pub fn part1(input: &str) -> String {
     let (track, mut carts) = parse(input);
     loop {
         if let Some(crash) = tick(Part::One, &track, &mut carts) {
-            return crash.to_string();
+            return format!("{},{}", crash.x, crash.y);
         }
     }
 }
@@ -116,7 +116,7 @@ pub fn part2(input: &str) -> String {
     while carts.len() >= 2 {
         tick(Part::Two, &track, &mut carts);
     }
-    carts[0].pos.to_string()
+    format!("{},{}", carts[0].pos.x, carts[0].pos.y)
 }
 
 pub fn tests() {

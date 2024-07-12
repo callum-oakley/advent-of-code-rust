@@ -1,13 +1,13 @@
 use regex::Regex;
 
 use crate::{
-    grid::{Bounds, Point, Rect},
+    grid2::{Bounds, Grid, IntoVector, Vector},
     ocr,
 };
 
 struct Light {
-    position: Point,
-    velocity: Point,
+    position: Vector,
+    velocity: Vector,
 }
 
 fn parse(input: &str) -> Vec<Light> {
@@ -15,8 +15,8 @@ fn parse(input: &str) -> Vec<Light> {
         .unwrap()
         .captures_iter(input)
         .map(|captures| Light {
-            position: captures[1].into(),
-            velocity: captures[2].into(),
+            position: captures[1].into_vector(),
+            velocity: captures[2].into_vector(),
         })
         .collect()
 }
@@ -49,7 +49,7 @@ fn part_(input: &str) -> (&str, usize) {
         } else {
             untick(&mut lights);
             return (
-                ocr::parse(&Rect::from(lights.iter().map(|light| light.position)).to_string()),
+                ocr::parse(&Grid::from(lights.iter().map(|light| light.position)).to_string()),
                 t,
             );
         }
