@@ -5,13 +5,13 @@ use std::{
 
 use crate::{
     combinatorics::permute,
-    grid::{Point, Rect},
+    grid2::{self, Grid, Vector},
     search::{self, Queue},
 };
 
-fn distance(ducts: &HashSet<Point>, a: Point, b: Point) -> u32 {
+fn distance(ducts: &HashSet<Vector>, a: Vector, b: Vector) -> u32 {
     struct State {
-        pos: Point,
+        pos: Vector,
         steps: u32,
     }
     let mut q = search::breadth_first(State { pos: a, steps: 0 }, |state| state.pos);
@@ -19,7 +19,7 @@ fn distance(ducts: &HashSet<Point>, a: Point, b: Point) -> u32 {
         if state.pos == b {
             return state.steps;
         }
-        for pos in state.pos.adjacent4() {
+        for pos in grid2::adjacent4(state.pos) {
             if ducts.contains(&pos) {
                 q.push(State {
                     pos,
@@ -39,15 +39,15 @@ fn total_dist(dists: &HashMap<(char, char), u32>, route: &[char]) -> u32 {
 }
 
 fn part_(return_to_start: bool, input: &str) -> u32 {
-    let map = Rect::parse(input, |_, c| c);
+    let map = Grid::parse(input, |_, c| c);
 
-    let nodes: Vec<(Point, char)> = map
+    let nodes: Vec<(Vector, char)> = map
         .iter()
         .filter(|(_, c)| c.is_ascii_digit())
         .map(|(p, c)| (p, *c))
         .collect();
 
-    let ducts: HashSet<Point> = map
+    let ducts: HashSet<Vector> = map
         .iter()
         .filter(|(_, c)| c.is_ascii_digit() || **c == '.')
         .map(|(p, _)| p)
