@@ -1,14 +1,14 @@
 use md5::{Digest, Md5};
 
 use crate::{
-    grid::{Point, Z},
+    grid2::{IntoVector, Vector, Z},
     search::{self, Queue},
 };
 
 #[derive(Clone, PartialEq, Eq, Hash)]
 struct State {
     path: String,
-    pos: Point,
+    pos: Vector,
 }
 
 impl State {
@@ -21,25 +21,25 @@ impl State {
         if self.pos.y > 0 && hash[0] >> 4 > 10 {
             let mut state = self.clone();
             state.path.push('U');
-            state.pos += 'U'.into();
+            state.pos += 'U'.into_vector();
             q.push(state);
         }
         if self.pos.y < 3 && hash[0] & 0xf > 10 {
             let mut state = self.clone();
             state.path.push('D');
-            state.pos += 'D'.into();
+            state.pos += 'D'.into_vector();
             q.push(state);
         }
         if self.pos.x > 0 && hash[1] >> 4 > 10 {
             let mut state = self.clone();
             state.path.push('L');
-            state.pos += 'L'.into();
+            state.pos += 'L'.into_vector();
             q.push(state);
         }
         if self.pos.x < 3 && hash[1] & 0xf > 10 {
             let mut state = self.clone();
             state.path.push('R');
-            state.pos += 'R'.into();
+            state.pos += 'R'.into_vector();
             q.push(state);
         }
     }
@@ -54,7 +54,7 @@ pub fn part1(input: &str) -> String {
         Clone::clone,
     );
     while let Some(state) = q.pop() {
-        if state.pos == (Point { x: 3, y: 3 }) {
+        if state.pos == Vector::new(3, 3) {
             return state.path;
         }
         state.push_adjacent(input, &mut q);
@@ -72,7 +72,7 @@ pub fn part2(input: &str) -> usize {
     );
     let mut res = 0;
     while let Some(state) = q.pop() {
-        if state.pos == (Point { x: 3, y: 3 }) {
+        if state.pos == Vector::new(3, 3) {
             res = res.max(state.path.len());
         } else {
             state.push_adjacent(input, &mut q);

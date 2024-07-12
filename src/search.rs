@@ -1,5 +1,5 @@
 use std::{
-    cmp::Reverse,
+    cmp::{Ordering, Reverse},
     collections::{BinaryHeap, HashSet, VecDeque},
     hash::Hash,
     ops::Add,
@@ -25,10 +25,29 @@ impl<T> Queue for VecDeque<T> {
     }
 }
 
-#[derive(PartialOrd, Ord, PartialEq, Eq)]
 struct CostValue<V, O> {
     cost: O,
     value: V,
+}
+
+impl<V, O: PartialEq> PartialEq for CostValue<V, O> {
+    fn eq(&self, other: &Self) -> bool {
+        self.cost.eq(&other.cost)
+    }
+}
+
+impl<V, O: Eq> Eq for CostValue<V, O> {}
+
+impl<V, O: PartialOrd> PartialOrd for CostValue<V, O> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.cost.partial_cmp(&other.cost)
+    }
+}
+
+impl<V, O: Ord> Ord for CostValue<V, O> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.cost.cmp(&other.cost)
+    }
 }
 
 pub struct CostHeap<V, C, O> {
@@ -39,9 +58,8 @@ pub struct CostHeap<V, C, O> {
 /// Priority queue which pops the lowest cost item first.
 impl<V, C, O> Queue for CostHeap<V, C, O>
 where
-    V: PartialOrd + Ord + PartialEq + Eq,
     C: FnMut(&V) -> O,
-    O: PartialOrd + Ord + PartialEq + Eq,
+    O: Ord,
 {
     type Item = V;
 
@@ -70,7 +88,7 @@ impl<Q, H, K> Queue for Traversal<Q, H, K>
 where
     Q: Queue,
     H: FnMut(&Q::Item) -> K,
-    K: PartialEq + Eq + Hash,
+    K: Eq + Hash,
 {
     type Item = Q::Item;
 
@@ -96,7 +114,7 @@ fn traverse<Q, S, H, K>(queue: Q, start: S, hash_key: H) -> impl Queue<Item = S>
 where
     Q: Queue<Item = S>,
     H: FnMut(&S) -> K,
-    K: PartialEq + Eq + Hash,
+    K: Eq + Hash,
 {
     let mut q = Traversal {
         queue,
@@ -112,7 +130,7 @@ where
 pub fn breadth_first<S, H, K>(start: S, hash_key: H) -> impl Queue<Item = S>
 where
     H: FnMut(&S) -> K,
-    K: PartialEq + Eq + Hash,
+    K: Eq + Hash,
 {
     traverse(VecDeque::new(), start, hash_key)
 }
@@ -122,10 +140,9 @@ where
 pub fn dijkstra<S, H, K, C, O>(start: S, hash_key: H, cost: C) -> impl Queue<Item = S>
 where
     H: FnMut(&S) -> K,
-    K: PartialEq + Eq + Hash,
-    S: PartialOrd + Ord + PartialEq + Eq,
+    K: Eq + Hash,
     C: FnMut(&S) -> O,
-    O: PartialOrd + Ord + PartialEq + Eq,
+    O: Ord,
 {
     traverse(
         CostHeap {
@@ -147,11 +164,10 @@ pub fn a_star<S, H, K, C, D, O>(
 ) -> impl Queue<Item = S>
 where
     H: FnMut(&S) -> K,
-    K: PartialEq + Eq + Hash,
-    S: PartialOrd + Ord + PartialEq + Eq,
+    K: Eq + Hash,
     C: FnMut(&S) -> O,
     D: FnMut(&S) -> O,
-    O: PartialOrd + Ord + PartialEq + Eq + Add,
+    O: Add,
     O::Output: Ord,
 {
     dijkstra(start, hash_key, move |state| cost(state) + heuristic(state))

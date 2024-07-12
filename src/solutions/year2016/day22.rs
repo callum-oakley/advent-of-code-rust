@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use regex::Regex;
 
 use crate::{
-    grid::{Point, Rect, Z},
+    grid2::{self, Grid, Vector, Z},
     search::{self, Queue},
 };
 
@@ -13,14 +13,11 @@ struct Node {
     used: u32,
 }
 
-fn parse(size: Point, input: &str) -> Rect<Node> {
-    let mut grid = Rect::new(Node { size: 0, used: 0 }, size);
+fn parse(size: Vector, input: &str) -> Grid<Node> {
+    let mut grid = Grid::new(Node { size: 0, used: 0 }, size);
     let re = Regex::new(r"/dev/grid/node-x(\d+)-y(\d+)\s+(\d+)T\s+(\d+)T").unwrap();
     for captures in re.captures_iter(input) {
-        grid[Point {
-            x: captures[1].parse().unwrap(),
-            y: captures[2].parse().unwrap(),
-        }] = Node {
+        grid[[captures[1].parse().unwrap(), captures[2].parse().unwrap()]] = Node {
             size: captures[3].parse().unwrap(),
             used: captures[4].parse().unwrap(),
         };
@@ -29,7 +26,7 @@ fn parse(size: Point, input: &str) -> Rect<Node> {
 }
 
 pub fn part1(input: &str) -> usize {
-    let grid = parse(Point { x: 30, y: 32 }, input);
+    let grid = parse(Vector::new(30, 32), input);
     let mut res = 0;
     for (i, a) in &grid {
         for (j, b) in &grid {
@@ -41,14 +38,14 @@ pub fn part1(input: &str) -> usize {
     res
 }
 
-#[derive(Clone, PartialOrd, Ord, PartialEq, Eq)]
+#[derive(Clone)]
 struct State {
-    hole: Point,
-    goal: Point,
+    hole: Vector,
+    goal: Vector,
     steps: usize,
 }
 
-fn part2_(size: Point, input: &str) -> usize {
+fn part2_(size: Vector, input: &str) -> usize {
     let grid = parse(size, input);
 
     let mut viable = HashSet::new();
@@ -70,10 +67,7 @@ fn part2_(size: Point, input: &str) -> usize {
     let mut q = search::a_star(
         State {
             hole: hole.unwrap(),
-            goal: Point {
-                y: 0,
-                x: size.x - 1,
-            },
+            goal: Vector::new(size.x - 1, 0),
             steps: 0,
         },
         |state| (state.hole, state.goal),
@@ -81,8 +75,8 @@ fn part2_(size: Point, input: &str) -> usize {
         // First we have to move the hole next to the goal. Then it takes 5 steps to shuffle the
         // goal along one space.
         |state| {
-            usize::try_from((state.goal - state.hole).manhattan()).unwrap()
-                + 5 * usize::try_from(state.goal.manhattan()).unwrap()
+            usize::try_from((state.goal - state.hole).abs().sum()).unwrap()
+                + 5 * usize::try_from(state.goal.abs().sum()).unwrap()
         },
     );
 
@@ -90,7 +84,7 @@ fn part2_(size: Point, input: &str) -> usize {
         if state.goal == Z {
             return state.steps;
         }
-        for pos in state.hole.adjacent4() {
+        for pos in grid2::adjacent4(state.hole) {
             if viable.contains(&pos) {
                 let mut state = state.clone();
                 if state.goal == pos {
@@ -106,7 +100,7 @@ fn part2_(size: Point, input: &str) -> usize {
 }
 
 pub fn part2(input: &str) -> usize {
-    part2_(Point { x: 30, y: 32 }, input)
+    part2_(Vector::new(30, 32), input)
 }
 
 pub fn tests() {
@@ -120,5 +114,5 @@ pub fn tests() {
                    /dev/grid/node-x2-y0   10T    6T     4T   60%
                    /dev/grid/node-x2-y1    9T    8T     1T   88%
                    /dev/grid/node-x2-y2    9T    6T     3T   66%";
-    assert_eq!(part2_(Point { x: 3, y: 3 }, example), 7);
+    assert_eq!(part2_(Vector::new(3, 3), example), 7);
 }
