@@ -1,16 +1,14 @@
 use std::collections::HashMap;
 
-use nalgebra::Vector2;
+use crate::grid2::{IntoVector, Vector, E, N, NE, NW, S, SE, SW, W, Z};
 
-use crate::grid2::{IntoVector, E, N, NE, NW, S, SE, SW, W, Z};
-
-fn parse(input: &str) -> impl Iterator<Item = impl Iterator<Item = Vector2<i32>> + '_> + '_ {
+fn parse(input: &str) -> impl Iterator<Item = impl Iterator<Item = Vector> + '_> + '_ {
     input
         .split_whitespace()
         .map(|s| s.chars().map(IntoVector::into_vector))
 }
 
-fn part_(keypad: &HashMap<Vector2<i32>, char>, input: &str) -> String {
+fn part_(keypad: &HashMap<Vector, char>, input: &str) -> String {
     let mut res = String::new();
     let mut pos = Z;
     for instruction in parse(input) {
@@ -45,19 +43,19 @@ pub fn part1(input: &str) -> String {
 pub fn part2(input: &str) -> String {
     part_(
         &[
-            (Vector2::new(2, -2), '1'),
-            (Vector2::new(1, -1), '2'),
-            (Vector2::new(2, -1), '3'),
-            (Vector2::new(3, -1), '4'),
-            (Vector2::new(0, 0), '5'),
-            (Vector2::new(1, 0), '6'),
-            (Vector2::new(2, 0), '7'),
-            (Vector2::new(3, 0), '8'),
-            (Vector2::new(4, 0), '9'),
-            (Vector2::new(1, 1), 'A'),
-            (Vector2::new(2, 1), 'B'),
-            (Vector2::new(3, 1), 'C'),
-            (Vector2::new(2, 2), 'D'),
+            (Vector::new(2, -2), '1'),
+            (Vector::new(1, -1), '2'),
+            (Vector::new(2, -1), '3'),
+            (Vector::new(3, -1), '4'),
+            (Vector::new(0, 0), '5'),
+            (Vector::new(1, 0), '6'),
+            (Vector::new(2, 0), '7'),
+            (Vector::new(3, 0), '8'),
+            (Vector::new(4, 0), '9'),
+            (Vector::new(1, 1), 'A'),
+            (Vector::new(2, 1), 'B'),
+            (Vector::new(3, 1), 'C'),
+            (Vector::new(2, 2), 'D'),
         ]
         .into(),
         input,

@@ -1,8 +1,7 @@
 use lazy_static::lazy_static;
-use nalgebra::Vector2;
 use regex::Regex;
 
-use crate::grid2::IntoVector;
+use crate::grid2::{IntoVector, Vector};
 
 enum Op {
     On,
@@ -12,8 +11,8 @@ enum Op {
 
 struct Instruction {
     op: Op,
-    from: Vector2<i32>,
-    to: Vector2<i32>,
+    from: Vector,
+    to: Vector,
 }
 
 fn parse(s: &str) -> impl Iterator<Item = Instruction> + '_ {

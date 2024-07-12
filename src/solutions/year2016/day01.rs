@@ -1,10 +1,8 @@
 use std::collections::HashSet;
 
-use nalgebra::Matrix2;
+use crate::grid2::{IntoTurn, Turn, N, Z};
 
-use crate::grid2::{IntoTurn, N, Z};
-
-fn parse(input: &str) -> impl Iterator<Item = (Matrix2<i32>, i32)> + '_ {
+fn parse(input: &str) -> impl Iterator<Item = (Turn, i32)> + '_ {
     input.split(", ").map(|instruction| {
         (
             instruction[0..1].into_turn(),

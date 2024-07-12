@@ -2,12 +2,12 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 use crate::{
-    grid::{Point, Rect, E, S},
+    grid2::{Grid, Vector, E, S},
     ocr,
 };
 
 enum Instruction {
-    Rect(Point),
+    Rect(Vector),
     RotRow { y: i32, by: i32 },
     RotCol { x: i32, by: i32 },
 }
@@ -30,17 +30,17 @@ fn parse(input: &str) -> impl Iterator<Item = Instruction> + '_ {
                 by: nums.next().unwrap().as_str().parse().unwrap(),
             }
         } else {
-            Instruction::Rect(Point {
-                x: nums.next().unwrap().as_str().parse().unwrap(),
-                y: nums.next().unwrap().as_str().parse().unwrap(),
-            })
+            Instruction::Rect(Vector::new(
+                nums.next().unwrap().as_str().parse().unwrap(),
+                nums.next().unwrap().as_str().parse().unwrap(),
+            ))
         }
     })
 }
 
-fn reverse(screen: &mut Rect<bool>, dir: Point, mut start: Point, mut end: Point) {
+fn reverse(screen: &mut Grid<bool>, dir: Vector, mut start: Vector, mut end: Vector) {
     end -= dir;
-    while start < end {
+    while start.y < end.y || start.y == end.y && start.x < end.x {
         let tmp = screen[start];
         screen[start] = screen[end];
         screen[end] = tmp;
@@ -50,36 +50,36 @@ fn reverse(screen: &mut Rect<bool>, dir: Point, mut start: Point, mut end: Point
     }
 }
 
-fn block_swap(screen: &mut Rect<bool>, dir: Point, start: Point, mid: Point, end: Point) {
+fn block_swap(screen: &mut Grid<bool>, dir: Vector, start: Vector, mid: Vector, end: Vector) {
     reverse(screen, dir, start, mid);
     reverse(screen, dir, mid, end);
     reverse(screen, dir, start, end);
 }
 
-fn part_(size: Point, input: &str) -> Rect<bool> {
-    let mut screen = Rect::new(false, size);
+fn part_(size: Vector, input: &str) -> Grid<bool> {
+    let mut screen = Grid::new(false, size);
     for instruction in parse(input) {
         match instruction {
             Instruction::Rect(p) => {
                 for x in 0..p.x {
                     for y in 0..p.y {
-                        screen[Point { y, x }] = true;
+                        screen[[x, y]] = true;
                     }
                 }
             }
             Instruction::RotRow { y, by } => block_swap(
                 &mut screen,
                 E,
-                Point { x: 0, y },
-                Point { x: size.x - by, y },
-                Point { x: size.x, y },
+                Vector::new(0, y),
+                Vector::new(size.x - by, y),
+                Vector::new(size.x, y),
             ),
             Instruction::RotCol { x, by } => block_swap(
                 &mut screen,
                 S,
-                Point { x, y: 0 },
-                Point { x, y: size.y - by },
-                Point { x, y: size.y },
+                Vector::new(x, 0),
+                Vector::new(x, size.y - by),
+                Vector::new(x, size.y),
             ),
         }
     }
@@ -87,14 +87,14 @@ fn part_(size: Point, input: &str) -> Rect<bool> {
 }
 
 pub fn part1(input: &str) -> usize {
-    part_(Point { x: 50, y: 6 }, input)
-        .values()
-        .filter(|p| **p)
+    part_(Vector::new(50, 6), input)
+        .into_values()
+        .filter(|p| *p)
         .count()
 }
 
 pub fn part2(input: &str) -> &str {
-    ocr::parse(&part_(Point { x: 50, y: 6 }, input).to_string())
+    ocr::parse(&part_(Vector::new(50, 6), input).to_string())
 }
 
 pub fn tests() {
@@ -103,7 +103,7 @@ pub fn tests() {
                    rotate row y=0 by 4
                    rotate column x=1 by 1";
     assert_eq!(
-        part_(Point { x: 7, y: 3 }, example).to_string(),
+        part_(Vector::new(7, 3), example).to_string(),
         ".#..#.#\n#.#....\n.#.....\n",
     );
 }

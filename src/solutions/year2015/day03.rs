@@ -1,10 +1,8 @@
 use std::{collections::HashSet, iter::once};
 
-use nalgebra::Vector2;
+use crate::grid2::{IntoVector, Vector, Z};
 
-use crate::grid2::{IntoVector, Z};
-
-fn deliver(dirs: impl Iterator<Item = char>) -> HashSet<Vector2<i32>> {
+fn deliver(dirs: impl Iterator<Item = char>) -> HashSet<Vector> {
     let mut santa = Z;
     once(santa)
         .chain(dirs.map(|c| {

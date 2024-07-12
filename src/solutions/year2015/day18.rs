@@ -1,31 +1,24 @@
-use crate::{
-    grid::{Point, Rect},
-    part::Part,
-};
+use crate::{grid2::Grid, part::Part};
 
-fn step(lights: &mut Rect<bool>, scrap: &mut Rect<bool>) {
+fn step(lights: &mut Grid<bool>, scrap: &mut Grid<bool>) {
     for (pos, light) in &*lights {
-        let neighbors_on = pos
-            .adjacent8()
-            .into_iter()
-            .filter(|&p| lights.get(p) == Some(&true))
-            .count();
+        let neighbors_on = lights.adjacent8(pos).filter(|p| **p).count();
         scrap[pos] = neighbors_on == 3 || *light && neighbors_on == 2;
     }
     std::mem::swap(lights, scrap);
 }
 
-fn fix_corners(lights: &mut Rect<bool>) {
+fn fix_corners(lights: &mut Grid<bool>) {
     for x in [0, lights.size.x - 1] {
         for y in [0, lights.size.y - 1] {
-            lights[Point { y, x }] = true;
+            lights[[x, y]] = true;
         }
     }
 }
 
 fn part_(part: Part, steps: u32, input: &str) -> usize {
-    let mut lights = Rect::parse(input, |_, c| c == '#');
-    let mut scrap = Rect::new(false, lights.size);
+    let mut lights = Grid::parse(input, |_, c| c == '#');
+    let mut scrap = Grid::new(false, lights.size);
     if part == Part::Two {
         fix_corners(&mut lights);
     }
@@ -35,7 +28,7 @@ fn part_(part: Part, steps: u32, input: &str) -> usize {
             fix_corners(&mut lights);
         }
     }
-    lights.values().filter(|light| **light).count()
+    lights.into_values().filter(|light| *light).count()
 }
 
 pub fn part1(input: &str) -> usize {

@@ -1,10 +1,8 @@
 use std::{collections::HashMap, iter};
 
-use nalgebra::Vector2;
+use crate::grid2::{self, Vector, E, N, S, W, Z};
 
-use crate::grid2::{self, E, N, S, W, Z};
-
-fn spiral() -> impl Iterator<Item = Vector2<i32>> {
+fn spiral() -> impl Iterator<Item = Vector> {
     let mut v = W;
     let mut ring = 0;
     let mut dir = E;
