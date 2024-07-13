@@ -1,16 +1,19 @@
 use std::collections::HashSet;
 
-use crate::grid_4d::Point;
+use nalgebra::Vector4;
 
 pub fn part1(input: &str) -> usize {
-    let mut constellations: Vec<HashSet<Point>> = Vec::new();
-    for point in input.lines().map(Into::into) {
+    let mut constellations: Vec<HashSet<Vector4<i32>>> = Vec::new();
+    for point in input
+        .lines()
+        .map(|s| Vector4::from_iterator(s.split(',').map(|n| n.parse().unwrap())))
+    {
         let mut connected = HashSet::from([point]);
         let mut i = 0;
         while i < constellations.len() {
             if constellations[i]
                 .iter()
-                .any(|&p| (p - point).manhattan() <= 3)
+                .any(|&p| (p - point).abs().sum() <= 3)
             {
                 connected.extend(constellations.swap_remove(i));
                 continue;
