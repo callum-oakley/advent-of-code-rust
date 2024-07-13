@@ -84,11 +84,7 @@ impl IntoTurn for char {
 
 impl IntoTurn for &str {
     fn into_turn(self) -> Turn {
-        match self {
-            "L" => LEFT,
-            "R" => RIGHT,
-            _ => panic!("don't know how to convert {self} into a turn"),
-        }
+        self.chars().next().unwrap().into_turn()
     }
 }
 
