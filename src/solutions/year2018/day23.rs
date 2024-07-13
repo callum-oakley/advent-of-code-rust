@@ -1,7 +1,7 @@
 use regex::Regex;
 
 use crate::{
-    grid::{Bounds3, IntoVector3, Vector3},
+    grid::{Bounds, IntoVector, Vector3},
     search::{self, Queue},
 };
 
@@ -15,7 +15,7 @@ fn parse(input: &str) -> Vec<Bot> {
     let re = Regex::new(r"pos=<([^>]+)>, r=(\d+)").unwrap();
     re.captures_iter(input)
         .map(|captures| Bot {
-            pos: captures[1].into_vector3(),
+            pos: captures[1].into_vector(),
             r: captures[2].parse().unwrap(),
         })
         .collect()
@@ -68,7 +68,7 @@ pub fn part1(input: &str) -> usize {
 // to finding a lowest cost path to a cube of width 1.
 pub fn part2(input: &str) -> i32 {
     let bots = parse(input);
-    let bounds = Bounds3::new(bots.iter().map(|bot| bot.pos));
+    let bounds = Bounds::new(bots.iter().map(|bot| bot.pos));
     let mut q = search::dijkstra(
         Cube {
             pos: bounds.min,

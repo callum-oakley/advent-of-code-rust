@@ -1,6 +1,6 @@
 use num::Integer;
 
-use crate::grid::{IntoVector3, Vector3};
+use crate::grid::{IntoVector, Vector3};
 
 #[derive(Clone)]
 struct Moon {
@@ -12,7 +12,7 @@ fn parse(input: &str) -> Vec<Moon> {
     input
         .lines()
         .map(|line| Moon {
-            pos: line.into_vector3(),
+            pos: line.into_vector(),
             vel: Vector3::zeros(),
         })
         .collect()

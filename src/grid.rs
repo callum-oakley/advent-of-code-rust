@@ -8,6 +8,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 pub type Vector = nalgebra::Vector2<i32>;
+pub type Vector3 = nalgebra::Vector3<i32>;
 pub type Turn = nalgebra::Matrix2<i32>;
 
 pub const NW: Vector = Vector::new(-1, -1);
@@ -39,11 +40,11 @@ pub fn reading_ord_key(v: Vector) -> [i32; 2] {
     [v.y, v.x]
 }
 
-pub trait IntoVector {
-    fn into_vector(self) -> Vector;
+pub trait IntoVector<const D: usize> {
+    fn into_vector(self) -> nalgebra::SVector<i32, D>;
 }
 
-impl IntoVector for char {
+impl IntoVector<2> for char {
     fn into_vector(self) -> Vector {
         match self {
             'N' | 'U' | '^' => N,
@@ -55,18 +56,12 @@ impl IntoVector for char {
     }
 }
 
-impl IntoVector for &str {
-    fn into_vector(self) -> Vector {
-        if self.len() == 1 {
-            return self.chars().next().unwrap().into_vector();
-        }
+impl<const D: usize> IntoVector<D> for &str {
+    fn into_vector(self) -> nalgebra::SVector<i32, D> {
         lazy_static! {
-            static ref RE: Regex = Regex::new(r"(-?\d+)[^-\d]+(-?\d+)").unwrap();
+            static ref INTS: Regex = Regex::new(r"-?\d+").unwrap();
         }
-        let Some(c) = RE.captures(self) else {
-            panic!("don't know how to convert {self} into a vector");
-        };
-        Vector::new(c[1].parse().unwrap(), c[2].parse().unwrap())
+        nalgebra::SVector::from_iterator(INTS.find_iter(self).map(|m| m.as_str().parse().unwrap()))
     }
 }
 
@@ -292,13 +287,13 @@ impl fmt::Display for Grid<char> {
     }
 }
 
-pub struct Bounds {
-    pub min: Vector,
-    pub max: Vector,
+pub struct Bounds<const D: usize> {
+    pub min: nalgebra::SVector<i32, D>,
+    pub max: nalgebra::SVector<i32, D>,
 }
 
-impl Bounds {
-    pub fn new(mut points: impl Iterator<Item = Vector>) -> Self {
+impl<const D: usize> Bounds<D> {
+    pub fn new(mut points: impl Iterator<Item = nalgebra::SVector<i32, D>>) -> Self {
         let point = points.next().unwrap();
         let mut res = Self {
             min: point,
@@ -315,8 +310,8 @@ impl Bounds {
         res
     }
 
-    pub fn size(&self) -> Vector {
-        self.max - self.min + Vector::new(1, 1)
+    pub fn size(&self) -> nalgebra::SVector<i32, D> {
+        self.max - self.min + nalgebra::SVector::from_element(1)
     }
 }
 
@@ -331,58 +326,5 @@ where
             res[point - bounds.min] = true;
         }
         res
-    }
-}
-
-// 3D stuff
-
-pub type Vector3 = nalgebra::Vector3<i32>;
-
-pub trait IntoVector3 {
-    fn into_vector3(self) -> Vector3;
-}
-
-impl IntoVector3 for &str {
-    fn into_vector3(self) -> Vector3 {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"(-?\d+)[^-\d]+(-?\d+)[^-\d]+(-?\d+)").unwrap();
-        }
-        let Some(c) = RE.captures(self) else {
-            panic!("don't know how to convert {self} into a vector");
-        };
-        Vector3::new(
-            c[1].parse().unwrap(),
-            c[2].parse().unwrap(),
-            c[3].parse().unwrap(),
-        )
-    }
-}
-
-// TODO we should be able to make Bounds generic in dimension, but the exact type bounds elude me.
-pub struct Bounds3 {
-    pub min: Vector3,
-    pub max: Vector3,
-}
-
-impl Bounds3 {
-    pub fn new(mut points: impl Iterator<Item = Vector3>) -> Self {
-        let point = points.next().unwrap();
-        let mut res = Self {
-            min: point,
-            max: point,
-        };
-
-        for point in points {
-            for (axis, &element) in point.iter().enumerate() {
-                res.min[axis] = res.min[axis].min(element);
-                res.max[axis] = res.max[axis].max(element);
-            }
-        }
-
-        res
-    }
-
-    pub fn size(&self) -> Vector3 {
-        self.max - self.min + Vector3::new(1, 1, 1)
     }
 }

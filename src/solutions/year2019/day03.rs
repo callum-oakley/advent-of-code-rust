@@ -9,7 +9,7 @@ fn parse_wire(s: &str) -> impl Iterator<Item = Vector> + '_ {
     s.split(',')
         .flat_map(|instruction| {
             let (dir, n) = instruction.split_at(1);
-            iter::repeat(dir.into_vector()).take(n.parse().unwrap())
+            iter::repeat(dir.chars().next().unwrap().into_vector()).take(n.parse().unwrap())
         })
         .scan(Z, |pos, dir| {
             *pos += dir;

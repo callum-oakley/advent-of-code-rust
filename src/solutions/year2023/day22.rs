@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use crate::grid::{IntoVector3, Vector3};
+use crate::grid::{IntoVector, Vector3};
 
 type Brick = Vec<Vector3>;
 
@@ -9,8 +9,8 @@ fn parse(input: &str) -> (HashMap<usize, Brick>, HashMap<Vector3, usize>) {
         .lines()
         .map(|line| {
             let (start, end) = line.split_once('~').unwrap();
-            let start = start.into_vector3();
-            let end = end.into_vector3();
+            let start: Vector3 = start.into_vector();
+            let end: Vector3 = end.into_vector();
             let mut brick = vec![start];
             let mut pos = start;
             while pos != end {

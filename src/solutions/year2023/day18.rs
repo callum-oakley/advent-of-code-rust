@@ -8,8 +8,12 @@ lazy_static! {
 }
 
 fn parse1(input: &str) -> impl Iterator<Item = (Vector, i32)> + '_ {
-    RE.captures_iter(input)
-        .map(|captures| (captures[1].into_vector(), captures[2].parse().unwrap()))
+    RE.captures_iter(input).map(|captures| {
+        (
+            captures[1].chars().next().unwrap().into_vector(),
+            captures[2].parse().unwrap(),
+        )
+    })
 }
 
 fn parse2(input: &str) -> impl Iterator<Item = (Vector, i32)> + '_ {

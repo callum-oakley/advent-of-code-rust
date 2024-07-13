@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::grid::{IntoVector3, Vector3};
+use crate::grid::{IntoVector, Vector3};
 
 struct Particle {
     p: Vector3,
@@ -19,9 +19,9 @@ impl From<&str> for Particle {
     fn from(s: &str) -> Self {
         let mut points = s.split(", ");
         Particle {
-            p: points.next().unwrap().into_vector3(),
-            v: points.next().unwrap().into_vector3(),
-            a: points.next().unwrap().into_vector3(),
+            p: points.next().unwrap().into_vector(),
+            v: points.next().unwrap().into_vector(),
+            a: points.next().unwrap().into_vector(),
         }
     }
 }
