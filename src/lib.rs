@@ -13,7 +13,7 @@ pub mod intcode;
 pub mod solutions;
 
 mod combinatorics;
-mod grid2;
+mod grid;
 mod grid_3d;
 mod grid_4d;
 mod grid_hex;

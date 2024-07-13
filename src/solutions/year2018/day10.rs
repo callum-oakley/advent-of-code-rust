@@ -1,7 +1,7 @@
 use regex::Regex;
 
 use crate::{
-    grid2::{Bounds, Grid, IntoVector, Vector},
+    grid::{Bounds, Grid, IntoVector, Vector},
     ocr,
 };
 

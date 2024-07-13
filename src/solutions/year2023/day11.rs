@@ -1,8 +1,8 @@
-use crate::grid2::{self, Bounds, Vector};
+use crate::grid::{self, Bounds, Vector};
 
 fn parse(expansion: i32, input: &str) -> Vec<Vector> {
     let mut galaxies = Vec::new();
-    grid2::scan(input, |pos, c| {
+    grid::scan(input, |pos, c| {
         if c == '#' {
             galaxies.push(pos);
         }

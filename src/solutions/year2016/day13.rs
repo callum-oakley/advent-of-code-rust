@@ -1,7 +1,7 @@
 use std::iter;
 
 use crate::{
-    grid2::{self, Vector},
+    grid::{self, Vector},
     search::{self, Queue},
 };
 
@@ -29,7 +29,7 @@ fn traversal(input: &str) -> impl Iterator<Item = State> {
     );
     iter::from_fn(move || {
         q.pop().map(|state| {
-            for pos in grid2::adjacent4(state.pos) {
+            for pos in grid::adjacent4(state.pos) {
                 if pos.x >= 0 && pos.y >= 0 && is_open(seed, pos) {
                     q.push(State {
                         pos,

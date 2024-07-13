@@ -3,7 +3,7 @@ use std::{
     ops::{Div, Mul, Rem},
 };
 
-use crate::grid2::{Grid, Vector, Z};
+use crate::grid::{Grid, Vector, Z};
 
 fn rotate(pattern: &Grid<bool>) -> Grid<bool> {
     let mut res = pattern.clone();

@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use regex::Regex;
 
-use crate::grid2::{self, Vector};
+use crate::grid::{self, Vector};
 
 struct Label {
     val: u32,
@@ -13,7 +13,7 @@ fn parse(input: &str) -> (HashMap<Vector, char>, Vec<Label>) {
     let num = Regex::new(r"\d+").unwrap();
 
     let mut symbols = HashMap::new();
-    grid2::scan(input, |pos, c| {
+    grid::scan(input, |pos, c| {
         if c != '.' && !c.is_ascii_digit() {
             symbols.insert(pos, c);
         }
@@ -29,7 +29,7 @@ fn parse(input: &str) -> (HashMap<Vector, char>, Vec<Label>) {
                 covers: (m.start()..m.end())
                     .flat_map(|x| {
                         let x = i32::try_from(x).unwrap();
-                        grid2::adjacent8([x, y])
+                        grid::adjacent8([x, y])
                     })
                     .collect(),
             })

@@ -1,4 +1,4 @@
-use crate::grid2::{Grid, Vector, LEFT, RIGHT, S};
+use crate::grid::{Grid, Vector, LEFT, RIGHT, S};
 
 fn part_(input: &str) -> (String, usize) {
     let grid = Grid::parse(input, |_, c| c);

@@ -1,7 +1,7 @@
 use md5::{Digest, Md5};
 
 use crate::{
-    grid2::{IntoVector, Vector, Z},
+    grid::{IntoVector, Vector, Z},
     search::{self, Queue},
 };
 

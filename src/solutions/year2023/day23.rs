@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 
 use crate::{
-    grid2::{Grid, IntoVector, Vector},
+    grid::{Grid, IntoVector, Vector},
     search::{self, Queue},
 };
 

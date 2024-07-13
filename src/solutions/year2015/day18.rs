@@ -1,4 +1,4 @@
-use crate::{grid2::Grid, part::Part};
+use crate::{grid::Grid, part::Part};
 
 fn step(lights: &mut Grid<bool>, scrap: &mut Grid<bool>) {
     for (pos, light) in &*lights {

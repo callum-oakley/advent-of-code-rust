@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::grid2::{Grid, Vector, E, N, S, W};
+use crate::grid::{Grid, Vector, E, N, S, W};
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 enum Tile {

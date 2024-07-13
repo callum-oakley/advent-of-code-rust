@@ -1,5 +1,5 @@
 use crate::{
-    grid2::{Vector, Z},
+    grid::{Vector, Z},
     intcode::VM,
 };
 

@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::{
-    grid2::{self, Grid, Vector, E, N, S, W},
+    grid::{self, Grid, Vector, E, N, S, W},
     search::{self, Queue},
 };
 
@@ -89,7 +89,7 @@ pub fn part1(input: &str) -> u32 {
             return state.steps;
         }
 
-        for p in grid2::adjacent4(state.pos) {
+        for p in grid::adjacent4(state.pos) {
             if maze.passages.contains(&p) {
                 q.push(State {
                     pos: p,
@@ -136,7 +136,7 @@ pub fn part2(input: &str) -> u32 {
             return state.steps;
         }
 
-        for p in grid2::adjacent4(state.pos) {
+        for p in grid::adjacent4(state.pos) {
             if maze.passages.contains(&p) {
                 q.push(State {
                     pos: p,

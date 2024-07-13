@@ -2,7 +2,7 @@ use std::collections::{HashSet, VecDeque};
 
 use regex::Regex;
 
-use crate::grid2::{Bounds, Vector, E, N, S, W};
+use crate::grid::{Bounds, Vector, E, N, S, W};
 
 fn parse(input: &str) -> HashSet<Vector> {
     let re = Regex::new(r"(x|y)=(\d+), (x|y)=(\d+)\.\.(\d+)").unwrap();

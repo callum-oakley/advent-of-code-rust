@@ -1,4 +1,4 @@
-use crate::grid2::Grid;
+use crate::grid::Grid;
 
 fn parse(input: &str) -> impl Iterator<Item = Grid<bool>> + '_ {
     input

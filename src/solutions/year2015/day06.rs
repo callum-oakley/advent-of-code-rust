@@ -1,7 +1,7 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::grid2::{IntoVector, Vector};
+use crate::grid::{IntoVector, Vector};
 
 enum Op {
     On,

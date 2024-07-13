@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
-    grid2::Grid,
+    grid::Grid,
     hash,
     search::{self, Queue},
 };

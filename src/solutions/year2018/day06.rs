@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::grid2::{Bounds, IntoVector, Vector};
+use crate::grid::{Bounds, IntoVector, Vector};
 
 fn unique_closest(pos: Vector, coordinates: &[Vector]) -> Option<Vector> {
     let mut min_dist = (pos - coordinates[0]).abs().sum();

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    grid2::{Grid, Vector, LEFT, N, RIGHT, Z},
+    grid::{Grid, Vector, LEFT, N, RIGHT, Z},
     intcode::{State, VM},
     ocr,
 };

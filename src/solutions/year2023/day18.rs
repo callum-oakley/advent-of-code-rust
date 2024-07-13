@@ -1,7 +1,7 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::grid2::{IntoVector, Vector, E, N, S, W, Z};
+use crate::grid::{IntoVector, Vector, E, N, S, W, Z};
 
 lazy_static! {
     static ref RE: Regex = Regex::new(r"([UDLR]) (\d+) \(#([0-9a-f]{5})([0-3])\)").unwrap();

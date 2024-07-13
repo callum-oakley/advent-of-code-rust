@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 use crate::{
-    grid2::{self, Grid, Vector, E, S},
+    grid::{self, Grid, Vector, E, S},
     ocr,
 };
 
@@ -40,7 +40,7 @@ fn parse(input: &str) -> impl Iterator<Item = Instruction> + '_ {
 
 fn reverse(screen: &mut Grid<bool>, dir: Vector, mut start: Vector, mut end: Vector) {
     end -= dir;
-    while grid2::reading_ord_key(start) < grid2::reading_ord_key(end) {
+    while grid::reading_ord_key(start) < grid::reading_ord_key(end) {
         let tmp = screen[start];
         screen[start] = screen[end];
         screen[end] = tmp;

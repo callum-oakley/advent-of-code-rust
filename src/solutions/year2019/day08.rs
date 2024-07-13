@@ -1,5 +1,5 @@
 use crate::{
-    grid2::{Grid, Vector},
+    grid::{Grid, Vector},
     ocr,
 };
 

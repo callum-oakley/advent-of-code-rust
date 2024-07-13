@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
-    grid2::{Grid, IntoChar, Turn, Vector, E, LEFT, N, RIGHT, S, W, Z},
+    grid::{Grid, IntoChar, Turn, Vector, E, LEFT, N, RIGHT, S, W, Z},
     search::{self, Queue},
 };
 

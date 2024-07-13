@@ -1,5 +1,5 @@
 use crate::{
-    grid2::{self, Grid, Vector},
+    grid::{self, Grid, Vector},
     part::Part,
     search::{self, Queue},
 };
@@ -113,8 +113,8 @@ fn first_step(cave: &mut Grid<Square>, pos: Vector, target_kind: Kind) -> Option
         |state| {
             (
                 state.dist,
-                grid2::reading_ord_key(state.pos),
-                state.first_step.map(grid2::reading_ord_key),
+                grid::reading_ord_key(state.pos),
+                state.first_step.map(grid::reading_ord_key),
             )
         },
     );

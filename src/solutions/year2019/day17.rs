@@ -6,7 +6,7 @@ use std::{
 use anyhow::{Context, Result};
 
 use crate::{
-    grid2::{self, IntoVector, Vector, LEFT, RIGHT},
+    grid::{self, IntoVector, Vector, LEFT, RIGHT},
     intcode::{State, VM},
 };
 
@@ -43,7 +43,7 @@ struct Robot {
 fn parse(map: &str) -> (HashSet<Vector>, Robot) {
     let mut scaffold = HashSet::new();
     let mut robot = None;
-    grid2::scan(map, |pos, c| match c {
+    grid::scan(map, |pos, c| match c {
         '#' => {
             scaffold.insert(pos);
         }
@@ -64,7 +64,7 @@ fn part1_(map: &str) -> i32 {
     let (scaffold, _) = parse(map);
     scaffold
         .iter()
-        .filter(|&&pos| grid2::adjacent4(pos).all(|p| scaffold.contains(&p)))
+        .filter(|&&pos| grid::adjacent4(pos).all(|p| scaffold.contains(&p)))
         .map(|pos| pos.y * pos.x)
         .sum()
 }

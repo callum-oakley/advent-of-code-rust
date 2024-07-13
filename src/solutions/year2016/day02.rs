@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::grid2::{IntoVector, Vector, E, N, NE, NW, S, SE, SW, W, Z};
+use crate::grid::{IntoVector, Vector, E, N, NE, NW, S, SE, SW, W, Z};
 
 fn parse(input: &str) -> impl Iterator<Item = impl Iterator<Item = Vector> + '_> + '_ {
     input

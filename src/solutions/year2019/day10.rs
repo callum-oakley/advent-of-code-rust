@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use ordered_float::OrderedFloat;
 
-use crate::grid2::Vector;
+use crate::grid::Vector;
 
 fn parse(input: &str) -> Vec<Vector> {
     let mut res = Vec::new();

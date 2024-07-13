@@ -3,7 +3,7 @@ use std::{
     mem,
 };
 
-use crate::grid2::{self, Grid, Vector};
+use crate::grid::{self, Grid, Vector};
 
 fn biodiversity(bugs: &Grid<bool>) -> u32 {
     bugs.values()
@@ -31,7 +31,7 @@ pub fn part1(input: &str) -> u32 {
 
 fn adjacent(bugs: &HashMap<i32, Grid<bool>>, depth: i32, pos: Vector) -> usize {
     let mut res = 0;
-    for p in grid2::adjacent4(pos) {
+    for p in grid::adjacent4(pos) {
         res += if p.x < 0 {
             usize::from(bugs[&(depth - 1)][[1, 2]])
         } else if p.y < 0 {

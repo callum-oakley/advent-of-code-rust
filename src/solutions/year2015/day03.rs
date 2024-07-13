@@ -1,6 +1,6 @@
 use std::{collections::HashSet, iter::once};
 
-use crate::grid2::{IntoVector, Vector, Z};
+use crate::grid::{IntoVector, Vector, Z};
 
 fn deliver(dirs: impl Iterator<Item = char>) -> HashSet<Vector> {
     let mut santa = Z;

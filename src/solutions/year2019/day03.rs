@@ -3,7 +3,7 @@ use std::{
     iter,
 };
 
-use crate::grid2::{IntoVector, Vector, Z};
+use crate::grid::{IntoVector, Vector, Z};
 
 fn parse_wire(s: &str) -> impl Iterator<Item = Vector> + '_ {
     s.split(',')

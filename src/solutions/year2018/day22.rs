@@ -1,7 +1,7 @@
 use std::{cell::RefCell, collections::HashMap};
 
 use crate::{
-    grid2::{self, IntoVector, Vector, N, W, Z},
+    grid::{self, IntoVector, Vector, N, W, Z},
     search::{self, Queue},
 };
 
@@ -84,7 +84,7 @@ struct State {
 
 impl State {
     fn adjacent<'a>(&'a self, cave: &'a Cave) -> impl Iterator<Item = Self> + 'a {
-        grid2::adjacent4(self.pos)
+        grid::adjacent4(self.pos)
             .filter_map(|pos| {
                 if pos.x >= 0 && pos.y >= 0 && compatible(cave.erosion(pos).into(), self.tool) {
                     Some(State {

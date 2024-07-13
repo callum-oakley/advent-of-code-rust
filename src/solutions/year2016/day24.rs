@@ -5,7 +5,7 @@ use std::{
 
 use crate::{
     combinatorics::permute,
-    grid2::{self, Grid, Vector},
+    grid::{self, Grid, Vector},
     search::{self, Queue},
 };
 
@@ -19,7 +19,7 @@ fn distance(ducts: &HashSet<Vector>, a: Vector, b: Vector) -> u32 {
         if state.pos == b {
             return state.steps;
         }
-        for pos in grid2::adjacent4(state.pos) {
+        for pos in grid::adjacent4(state.pos) {
             if ducts.contains(&pos) {
                 q.push(State {
                     pos,

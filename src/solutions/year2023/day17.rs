@@ -1,5 +1,5 @@
 use crate::{
-    grid2::{Grid, Turn, Vector, E, LEFT, NW, RIGHT, Z},
+    grid::{Grid, Turn, Vector, E, LEFT, NW, RIGHT, Z},
     search::{self, Queue},
 };
 

@@ -1,7 +1,7 @@
 use std::{collections::HashSet, iter};
 
 use crate::{
-    grid2::{self, Grid, Vector, E, N, NE, NW, S, SE, SW, W},
+    grid::{self, Grid, Vector, E, N, NE, NW, S, SE, SW, W},
     search::{self, Queue},
 };
 
@@ -48,7 +48,7 @@ fn area(start: Vector, boundary: &HashSet<Vector>) -> impl Iterator<Item = Vecto
     let mut q = search::breadth_first(start, |&state| state);
     iter::from_fn(move || {
         q.pop().map(|state| {
-            for pos in grid2::adjacent4(state) {
+            for pos in grid::adjacent4(state) {
                 if !boundary.contains(&pos) {
                     q.push(pos);
                 }

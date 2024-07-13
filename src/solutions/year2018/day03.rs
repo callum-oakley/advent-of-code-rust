@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::grid2::{Grid, IntoVector, Vector};
+use crate::grid::{Grid, IntoVector, Vector};
 
 struct Claim {
     id: u32,

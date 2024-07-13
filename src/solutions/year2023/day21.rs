@@ -1,5 +1,5 @@
 use crate::{
-    grid2::{self, Grid, Vector},
+    grid::{self, Grid, Vector},
     search::{self, Queue},
 };
 
@@ -35,7 +35,7 @@ fn part_(garden: &Grid<bool>, start: Vector, max_steps: u64) -> u64 {
             res += 1;
         }
         if state.steps < max_steps {
-            for pos in grid2::adjacent4(state.pos) {
+            for pos in grid::adjacent4(state.pos) {
                 if garden[pos.zip_map(&garden.size, i32::rem_euclid)] {
                     q.push(State {
                         pos,

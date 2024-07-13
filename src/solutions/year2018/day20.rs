@@ -4,7 +4,7 @@ use std::{
 };
 
 use crate::{
-    grid2::{IntoVector, Vector, Z},
+    grid::{IntoVector, Vector, Z},
     search::{self, Queue},
 };
 
