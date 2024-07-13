@@ -1,18 +1,18 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use crate::grid::{Point, E, N, S, W, Z};
+use crate::grid2::{IntoVector, Vector, E, N, S, W, Z};
 
 lazy_static! {
     static ref RE: Regex = Regex::new(r"([UDLR]) (\d+) \(#([0-9a-f]{5})([0-3])\)").unwrap();
 }
 
-fn parse1(input: &str) -> impl Iterator<Item = (Point, i32)> + '_ {
+fn parse1(input: &str) -> impl Iterator<Item = (Vector, i32)> + '_ {
     RE.captures_iter(input)
-        .map(|captures| (captures[1].into(), captures[2].parse().unwrap()))
+        .map(|captures| (captures[1].into_vector(), captures[2].parse().unwrap()))
 }
 
-fn parse2(input: &str) -> impl Iterator<Item = (Point, i32)> + '_ {
+fn parse2(input: &str) -> impl Iterator<Item = (Vector, i32)> + '_ {
     RE.captures_iter(input).map(|captures| {
         (
             match &captures[4] {
@@ -27,7 +27,7 @@ fn parse2(input: &str) -> impl Iterator<Item = (Point, i32)> + '_ {
     })
 }
 
-fn part_(input: impl Iterator<Item = (Point, i32)>) -> i64 {
+fn part_(input: impl Iterator<Item = (Vector, i32)>) -> i64 {
     let mut pos = Z;
     let mut boundary = vec![pos];
     let mut boundary_len = 0;

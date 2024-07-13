@@ -1,18 +1,18 @@
 use std::collections::HashSet;
 
 use crate::{
-    grid::{Point, Rect, Turn, E, N, S, W, Z},
+    grid2::{Grid, IntoChar, Turn, Vector, E, LEFT, N, RIGHT, S, W, Z},
     search::{self, Queue},
 };
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 struct Packet {
-    pos: Point,
-    dir: Point,
+    pos: Vector,
+    dir: Vector,
 }
 
 impl Packet {
-    fn new(pos: Point, dir: Point) -> Self {
+    fn new(pos: Vector, dir: Vector) -> Self {
         Self { pos, dir }
     }
 
@@ -22,12 +22,12 @@ impl Packet {
     }
 
     fn turn(mut self, turn: Turn) -> Self {
-        self.dir = self.dir.turn(turn);
+        self.dir = turn * self.dir;
         self
     }
 }
 
-fn energize(tiles: &Rect<char>, beam: Packet) -> usize {
+fn energize(tiles: &Grid<char>, beam: Packet) -> usize {
     let mut energized = HashSet::new();
     let mut q = search::breadth_first(beam, |&p| p);
     while let Some(packet) = q.pop() {
@@ -35,13 +35,13 @@ fn energize(tiles: &Rect<char>, beam: Packet) -> usize {
             continue;
         }
         energized.insert(packet.pos);
-        match (tiles[packet.pos], packet.dir) {
-            ('.', _) | ('|', N | S) | ('-', E | W) => q.push(packet.tick()),
-            ('\\', N | S) | ('/', E | W) => q.push(packet.turn(Turn::Left).tick()),
-            ('\\', E | W) | ('/', N | S) => q.push(packet.turn(Turn::Right).tick()),
-            ('|', E | W) | ('-', N | S) => {
-                q.push(packet.turn(Turn::Left).tick());
-                q.push(packet.turn(Turn::Right).tick());
+        match (tiles[packet.pos], packet.dir.into_char()) {
+            ('.', _) | ('|', 'N' | 'S') | ('-', 'E' | 'W') => q.push(packet.tick()),
+            ('\\', 'N' | 'S') | ('/', 'E' | 'W') => q.push(packet.turn(LEFT).tick()),
+            ('\\', 'E' | 'W') | ('/', 'N' | 'S') => q.push(packet.turn(RIGHT).tick()),
+            ('|', 'E' | 'W') | ('-', 'N' | 'S') => {
+                q.push(packet.turn(LEFT).tick());
+                q.push(packet.turn(RIGHT).tick());
             }
             _ => unreachable!(),
         }
@@ -50,20 +50,20 @@ fn energize(tiles: &Rect<char>, beam: Packet) -> usize {
 }
 
 pub fn part1(input: &str) -> usize {
-    energize(&Rect::parse(input, |_, c| c), Packet::new(Z, E))
+    energize(&Grid::parse(input, |_, c| c), Packet::new(Z, E))
 }
 
 pub fn part2(input: &str) -> usize {
-    let tiles = Rect::parse(input, |_, c| c);
+    let tiles = Grid::parse(input, |_, c| c);
     let size = tiles.size;
     let mut res = 0;
     for y in 0..size.y {
-        res = res.max(energize(&tiles, Packet::new(Point::new(y, 0), E)));
-        res = res.max(energize(&tiles, Packet::new(Point::new(y, size.x - 1), W)));
+        res = res.max(energize(&tiles, Packet::new(Vector::new(0, y), E)));
+        res = res.max(energize(&tiles, Packet::new(Vector::new(size.x - 1, y), W)));
     }
     for x in 0..size.x {
-        res = res.max(energize(&tiles, Packet::new(Point::new(0, x), S)));
-        res = res.max(energize(&tiles, Packet::new(Point::new(size.y - 1, x), N)));
+        res = res.max(energize(&tiles, Packet::new(Vector::new(x, 0), S)));
+        res = res.max(energize(&tiles, Packet::new(Vector::new(x, size.y - 1), N)));
     }
     res
 }

@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::grid::{Point, Rect, E, N, S, W};
+use crate::grid2::{Grid, Vector, E, N, S, W};
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 enum Tile {
@@ -9,8 +9,8 @@ enum Tile {
     Block,
 }
 
-fn parse(input: &str) -> Rect<Tile> {
-    Rect::parse(input, |_, c| match c {
+fn parse(input: &str) -> Grid<Tile> {
+    Grid::parse(input, |_, c| match c {
         '.' => Tile::Empty,
         'O' => Tile::Ball,
         '#' => Tile::Block,
@@ -18,7 +18,7 @@ fn parse(input: &str) -> Rect<Tile> {
     })
 }
 
-fn roll(platform: &mut Rect<Tile>, dir: Point, mut ball: Point) {
+fn roll(platform: &mut Grid<Tile>, dir: Vector, mut ball: Vector) {
     platform[ball] = Tile::Empty;
     while platform.get(ball + dir) == Some(&Tile::Empty) {
         ball += dir;
@@ -26,27 +26,27 @@ fn roll(platform: &mut Rect<Tile>, dir: Point, mut ball: Point) {
     platform[ball] = Tile::Ball;
 }
 
-fn tilt(platform: &mut Rect<Tile>, dir: Point) {
+fn tilt(platform: &mut Grid<Tile>, dir: Vector) {
     if dir == N || dir == W {
         for y in 0..platform.size.y {
             for x in 0..platform.size.x {
-                if platform[Point { y, x }] == Tile::Ball {
-                    roll(platform, dir, Point { y, x });
+                if platform[[x, y]] == Tile::Ball {
+                    roll(platform, dir, Vector::new(x, y));
                 }
             }
         }
     } else {
         for y in (0..platform.size.y).rev() {
             for x in (0..platform.size.x).rev() {
-                if platform[Point { y, x }] == Tile::Ball {
-                    roll(platform, dir, Point { y, x });
+                if platform[[x, y]] == Tile::Ball {
+                    roll(platform, dir, Vector::new(x, y));
                 }
             }
         }
     }
 }
 
-fn score(platform: &Rect<Tile>) -> i32 {
+fn score(platform: &Grid<Tile>) -> i32 {
     platform
         .iter()
         .filter(|(_, &tile)| tile == Tile::Ball)
@@ -61,13 +61,13 @@ pub fn part1(input: &str) -> i32 {
 }
 
 pub fn part2(input: &str) -> i32 {
-    fn spin(platform: &mut Rect<Tile>) {
+    fn spin(platform: &mut Grid<Tile>) {
         for dir in [N, W, S, E] {
             tilt(platform, dir);
         }
     }
 
-    fn find_cycle(platform: &mut Rect<Tile>) -> (usize, usize) {
+    fn find_cycle(platform: &mut Grid<Tile>) -> (usize, usize) {
         let mut seen = HashMap::new();
         for spins in 0.. {
             if let Some(start) = seen.get(platform) {

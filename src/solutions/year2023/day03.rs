@@ -2,18 +2,18 @@ use std::collections::{HashMap, HashSet};
 
 use regex::Regex;
 
-use crate::grid::{self, Point};
+use crate::grid2::{self, Vector};
 
 struct Label {
     val: u32,
-    covers: HashSet<Point>,
+    covers: HashSet<Vector>,
 }
 
-fn parse(input: &str) -> (HashMap<Point, char>, Vec<Label>) {
+fn parse(input: &str) -> (HashMap<Vector, char>, Vec<Label>) {
     let num = Regex::new(r"\d+").unwrap();
 
     let mut symbols = HashMap::new();
-    grid::scan_rect(input, |pos, c| {
+    grid2::scan(input, |pos, c| {
         if c != '.' && !c.is_ascii_digit() {
             symbols.insert(pos, c);
         }
@@ -23,10 +23,14 @@ fn parse(input: &str) -> (HashMap<Point, char>, Vec<Label>) {
         .lines()
         .enumerate()
         .flat_map(|(y, line)| {
+            let y = i32::try_from(y).unwrap();
             num.find_iter(line).map(move |m| Label {
                 val: m.as_str().parse().unwrap(),
                 covers: (m.start()..m.end())
-                    .flat_map(|x| Point::new(y, x).adjacent8())
+                    .flat_map(|x| {
+                        let x = i32::try_from(x).unwrap();
+                        grid2::adjacent8([x, y])
+                    })
                     .collect(),
             })
         })

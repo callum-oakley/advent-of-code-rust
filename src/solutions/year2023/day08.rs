@@ -3,13 +3,11 @@ use std::collections::HashMap;
 use num::Integer;
 use regex::Regex;
 
-use crate::grid::Turn;
-
-fn parse(input: &str) -> (Vec<Turn>, HashMap<&str, (&str, &str)>) {
+fn parse(input: &str) -> (&[u8], HashMap<&str, (&str, &str)>) {
     let re = Regex::new(r"[0-9A-Z]{3}").unwrap();
     let (instructions, network) = input.split_once("\n\n").unwrap();
     (
-        instructions.chars().map(Turn::from).collect(),
+        instructions.as_bytes(),
         network
             .lines()
             .map(|line| {
@@ -27,7 +25,7 @@ fn parse(input: &str) -> (Vec<Turn>, HashMap<&str, (&str, &str)>) {
 }
 
 fn dist<'a>(
-    instructions: &[Turn],
+    instructions: &'a [u8],
     network: &HashMap<&'a str, (&'a str, &'a str)>,
     start: &'a str,
     end: impl Fn(&str) -> bool,
@@ -36,8 +34,9 @@ fn dist<'a>(
     let mut steps = 0;
     while !end(element) {
         element = match instructions[steps % instructions.len()] {
-            Turn::Left => network[element].0,
-            Turn::Right => network[element].1,
+            b'L' => network[element].0,
+            b'R' => network[element].1,
+            _ => unreachable!(),
         };
         steps += 1;
     }
@@ -46,7 +45,7 @@ fn dist<'a>(
 
 pub fn part1(input: &str) -> usize {
     let (instructions, network) = parse(input);
-    dist(&instructions, &network, "AAA", |e| e == "ZZZ")
+    dist(instructions, &network, "AAA", |e| e == "ZZZ")
 }
 
 pub fn part2(input: &str) -> usize {
@@ -56,7 +55,7 @@ pub fn part2(input: &str) -> usize {
         .filter(|&e| &e[2..] == "A")
         // We always reach a Z, and then cycle with a period equal to the number of steps it took us
         // to get there.
-        .map(|e| dist(&instructions, &network, e, |e| &e[2..] == "Z"))
+        .map(|e| dist(instructions, &network, e, |e| &e[2..] == "Z"))
         .reduce(|x, y| Integer::lcm(&x, &y))
         .unwrap()
 }

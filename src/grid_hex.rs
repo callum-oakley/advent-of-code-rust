@@ -1,11 +1,11 @@
-use crate::grid;
+use crate::grid_legacy;
 
-pub type Point = grid::Point;
+pub type Point = grid_legacy::Point;
 
 // As described here (in the "flat" orientation):
 // <https://www.redblobgames.com/grids/hexagons/#coordinates-axial>
 // Let x correspond to q and y correspond to r:
-pub const Z: Point = grid::Z;
+pub const Z: Point = grid_legacy::Z;
 pub const N: Point = Point { x: 0, y: -1 };
 pub const NE: Point = Point { x: 1, y: -1 };
 pub const SE: Point = Point { x: 1, y: 0 };

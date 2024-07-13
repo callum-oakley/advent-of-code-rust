@@ -24,11 +24,13 @@ pub const SE: Vector = Vector::new(1, 1);
 pub const LEFT: Turn = Turn::new(0, 1, -1, 0);
 pub const RIGHT: Turn = Turn::new(0, -1, 1, 0);
 
-pub fn adjacent4(v: Vector) -> impl Iterator<Item = Vector> {
+pub fn adjacent4<V: Into<Vector>>(v: V) -> impl Iterator<Item = Vector> {
+    let v = v.into();
     [N, W, E, S].into_iter().map(move |dir| dir + v)
 }
 
-pub fn adjacent8(v: Vector) -> impl Iterator<Item = Vector> {
+pub fn adjacent8<V: Into<Vector>>(v: V) -> impl Iterator<Item = Vector> {
+    let v = v.into();
     [NW, N, NE, W, E, SW, S, SE]
         .into_iter()
         .map(move |dir| dir + v)
@@ -89,6 +91,40 @@ impl IntoTurn for &str {
             "L" => LEFT,
             "R" => RIGHT,
             _ => panic!("don't know how to convert {self} into a turn"),
+        }
+    }
+}
+
+pub trait IntoChar {
+    fn into_char(self) -> char;
+}
+
+impl IntoChar for Vector {
+    fn into_char(self) -> char {
+        if self == N {
+            'N'
+        } else if self == W {
+            'W'
+        } else if self == Z {
+            'Z'
+        } else if self == E {
+            'E'
+        } else if self == S {
+            'S'
+        } else {
+            panic!("don't know how to convert {self} into a char")
+        }
+    }
+}
+
+impl IntoChar for Turn {
+    fn into_char(self) -> char {
+        if self == LEFT {
+            'L'
+        } else if self == RIGHT {
+            'R'
+        } else {
+            panic!("don't know how to convert {self} into a char")
         }
     }
 }

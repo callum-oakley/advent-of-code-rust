@@ -1,13 +1,13 @@
 use std::{collections::HashSet, iter};
 
 use crate::{
-    grid::{Point, Rect, E, N, NE, NW, S, SE, SW, W},
+    grid2::{self, Grid, Vector, E, N, NE, NW, S, SE, SW, W},
     search::{self, Queue},
 };
 
-fn parse(input: &str) -> (Point, Rect<Vec<Point>>) {
+fn parse(input: &str) -> (Vector, Grid<Vec<Vector>>) {
     let mut start = None;
-    let mut pipes = Rect::parse(input, |pos, c| match c {
+    let mut pipes = Grid::parse(input, |pos, c| match c {
         '|' => vec![pos + N, pos + S],
         '-' => vec![pos + E, pos + W],
         'L' => vec![pos + N, pos + E],
@@ -22,19 +22,19 @@ fn parse(input: &str) -> (Point, Rect<Vec<Point>>) {
         _ => unreachable!(),
     });
     let start = start.unwrap();
-    pipes[start] = start
-        .adjacent4()
-        .into_iter()
-        .filter(|&pos| pipes.get(pos).is_some_and(|adj| adj.contains(&start)))
+    pipes[start] = pipes
+        .adjacent4(start)
+        .filter(|(_, adj)| adj.contains(&start))
+        .map(|(pos, _)| pos)
         .collect();
     assert_eq!(pipes[start].len(), 2);
     (start, pipes)
 }
 
-fn boundary(start: Point, pipes: &Rect<Vec<Point>>) -> Vec<Point> {
+fn boundary(start: Vector, pipes: &Grid<Vec<Vector>>) -> Vec<Vector> {
     let mut res = vec![start];
     let mut seen = HashSet::from([start]);
-    while let Some(&pos) = pipes[res.last().unwrap()]
+    while let Some(&pos) = pipes[*res.last().unwrap()]
         .iter()
         .find(|&p| !seen.contains(p))
     {
@@ -44,11 +44,11 @@ fn boundary(start: Point, pipes: &Rect<Vec<Point>>) -> Vec<Point> {
     res
 }
 
-fn area(start: Point, boundary: &HashSet<Point>) -> impl Iterator<Item = Point> + '_ {
+fn area(start: Vector, boundary: &HashSet<Vector>) -> impl Iterator<Item = Vector> + '_ {
     let mut q = search::breadth_first(start, |&state| state);
     iter::from_fn(move || {
         q.pop().map(|state| {
-            for pos in state.adjacent4() {
+            for pos in grid2::adjacent4(state) {
                 if !boundary.contains(&pos) {
                     q.push(pos);
                 }
@@ -58,7 +58,7 @@ fn area(start: Point, boundary: &HashSet<Point>) -> impl Iterator<Item = Point> 
     })
 }
 
-fn count_area(start: Point, boundary: &HashSet<Point>, size: Point) -> Option<usize> {
+fn count_area(start: Vector, boundary: &HashSet<Vector>, size: Vector) -> Option<usize> {
     let mut count = 0;
     for pos in area(start, boundary) {
         if pos.x == 0 || pos.y == 0 || pos.x == size.x - 1 || pos.y == size.y - 1 {

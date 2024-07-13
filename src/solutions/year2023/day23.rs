@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 
 use crate::{
-    grid::{Point, Rect},
+    grid2::{Grid, IntoVector, Vector},
     search::{self, Queue},
 };
 
@@ -9,21 +9,21 @@ use crate::{
 enum Tile {
     Path,
     Forest,
-    Slope(Point),
+    Slope(Vector),
 }
 
-fn parse(input: &str) -> Rect<Tile> {
-    Rect::parse(input, |_, c| match c {
+fn parse(input: &str) -> Grid<Tile> {
+    Grid::parse(input, |_, c| match c {
         '.' => Tile::Path,
         '#' => Tile::Forest,
-        '^' | '<' | '>' | 'v' => Tile::Slope(c.into()),
+        '^' | '<' | '>' | 'v' => Tile::Slope(c.into_vector()),
         _ => unreachable!(),
     })
 }
 
-fn reachable(map: &Rect<Tile>, nodes: &HashSet<Point>, start: Point) -> HashMap<Point, usize> {
+fn reachable(map: &Grid<Tile>, nodes: &HashSet<Vector>, start: Vector) -> HashMap<Vector, usize> {
     struct State {
-        pos: Point,
+        pos: Vector,
         steps: usize,
     }
     let mut res = HashMap::new();
@@ -43,8 +43,8 @@ fn reachable(map: &Rect<Tile>, nodes: &HashSet<Point>, start: Point) -> HashMap<
                 steps: state.steps + 1,
             });
         } else {
-            for pos in state.pos.adjacent4() {
-                if map.get(pos).is_some_and(|&tile| tile != Tile::Forest) {
+            for (pos, &tile) in map.adjacent4(state.pos) {
+                if tile != Tile::Forest {
                     q.push(State {
                         pos,
                         steps: state.steps + 1,
@@ -56,12 +56,11 @@ fn reachable(map: &Rect<Tile>, nodes: &HashSet<Point>, start: Point) -> HashMap<
     res
 }
 
-fn graph(map: &Rect<Tile>, start: Point, end: Point) -> HashMap<Point, HashMap<Point, usize>> {
+fn graph(map: &Grid<Tile>, start: Vector, end: Vector) -> HashMap<Vector, HashMap<Vector, usize>> {
     let mut nodes = HashSet::from([start, end]);
-    nodes.extend(map.keys().filter(|pos| {
-        pos.adjacent4()
-            .into_iter()
-            .filter(|&p| map.get(p).is_some_and(|&tile| tile != Tile::Forest))
+    nodes.extend(map.keys().filter(|&pos| {
+        map.adjacent4_values(pos)
+            .filter(|&&tile| tile != Tile::Forest)
             .count()
             >= 3
     }));
@@ -71,13 +70,13 @@ fn graph(map: &Rect<Tile>, start: Point, end: Point) -> HashMap<Point, HashMap<P
         .collect()
 }
 
-fn steps(graph: &HashMap<Point, HashMap<Point, usize>>, path: &[Point]) -> usize {
+fn steps(graph: &HashMap<Vector, HashMap<Vector, usize>>, path: &[Vector]) -> usize {
     path.windows(2).map(|hop| graph[&hop[0]][&hop[1]]).sum()
 }
 
-fn part_(map: &Rect<Tile>) -> usize {
-    let start = Point::new(0, 1);
-    let end = map.size - Point::new(1, 2);
+fn part_(map: &Grid<Tile>) -> usize {
+    let start = Vector::new(1, 0);
+    let end = map.size - Vector::new(2, 1);
     let graph = graph(map, start, end);
     let mut q = VecDeque::from([vec![start]]);
     let mut max_steps = 0;

@@ -1,15 +1,15 @@
-use crate::grid::{self, Axis, Bounds, Point};
+use crate::grid2::{self, Bounds, Vector};
 
-fn parse(expansion: i32, input: &str) -> Vec<Point> {
+fn parse(expansion: i32, input: &str) -> Vec<Vector> {
     let mut galaxies = Vec::new();
-    grid::scan_rect(input, |pos, c| {
+    grid2::scan(input, |pos, c| {
         if c == '#' {
             galaxies.push(pos);
         }
     });
 
     let mut size = Bounds::new(galaxies.iter().copied()).size();
-    for axis in [Axis::X, Axis::Y] {
+    for axis in [0, 1] {
         let mut a = 0;
         while a < size[axis] {
             if galaxies.iter().any(|galaxy| galaxy[axis] == a) {
@@ -34,7 +34,7 @@ fn part_(expansion: i32, input: &str) -> i64 {
     let mut res = 0;
     for i in 0..galaxies.len() {
         for j in i + 1..galaxies.len() {
-            res += i64::from((galaxies[j] - galaxies[i]).manhattan());
+            res += i64::from((galaxies[j] - galaxies[i]).abs().sum());
         }
     }
     res

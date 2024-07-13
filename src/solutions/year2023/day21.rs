@@ -1,11 +1,11 @@
 use crate::{
-    grid::{Point, Rect},
+    grid2::{self, Grid, Vector},
     search::{self, Queue},
 };
 
-fn parse(input: &str) -> (Rect<bool>, Point) {
+fn parse(input: &str) -> (Grid<bool>, Vector) {
     let mut start = None;
-    let garden = Rect::parse(input, |pos, c| match c {
+    let garden = Grid::parse(input, |pos, c| match c {
         'S' => {
             start = Some(pos);
             true
@@ -17,10 +17,9 @@ fn parse(input: &str) -> (Rect<bool>, Point) {
     (garden, start.unwrap())
 }
 
-fn part_(garden: &Rect<bool>, start: Point, max_steps: u64) -> u64 {
-    #[derive(Clone, Copy, PartialEq, Eq, Hash)]
+fn part_(garden: &Grid<bool>, start: Vector, max_steps: u64) -> u64 {
     struct State {
-        pos: Point,
+        pos: Vector,
         steps: u64,
     }
     let mut q = search::breadth_first(
@@ -28,7 +27,7 @@ fn part_(garden: &Rect<bool>, start: Point, max_steps: u64) -> u64 {
             pos: start,
             steps: 0,
         },
-        |&state| state.pos,
+        |state| state.pos,
     );
     let mut res = 0;
     while let Some(state) = q.pop() {
@@ -36,11 +35,8 @@ fn part_(garden: &Rect<bool>, start: Point, max_steps: u64) -> u64 {
             res += 1;
         }
         if state.steps < max_steps {
-            for pos in state.pos.adjacent4() {
-                if garden[Point {
-                    y: pos.y.rem_euclid(garden.size.y),
-                    x: pos.x.rem_euclid(garden.size.x),
-                }] {
+            for pos in grid2::adjacent4(state.pos) {
+                if garden[pos.zip_map(&garden.size, i32::rem_euclid)] {
                     q.push(State {
                         pos,
                         steps: state.steps + 1,

@@ -1,21 +1,21 @@
 use crate::{
-    grid::{Point, Rect, Turn, E, NW, Z},
+    grid2::{Grid, Turn, Vector, E, LEFT, NW, RIGHT, Z},
     search::{self, Queue},
 };
 
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone)]
 struct Crucible {
-    pos: Point,
-    dir: Point,
+    pos: Vector,
+    dir: Vector,
     straight_len: u8,
     heat_loss: u32,
 }
 
 impl Crucible {
-    fn step(&self, city: &Rect<u32>, turn: Option<Turn>) -> Option<Self> {
+    fn step(&self, city: &Grid<u32>, turn: Option<Turn>) -> Option<Self> {
         let mut crucible = self.clone();
         if let Some(turn) = turn {
-            crucible.dir = crucible.dir.turn(turn);
+            crucible.dir = turn * crucible.dir;
             crucible.straight_len = 1;
         } else {
             crucible.straight_len += 1;
@@ -27,7 +27,7 @@ impl Crucible {
 }
 
 fn part_(min_straight_len: u8, max_straight_len: u8, input: &str) -> u32 {
-    let city = Rect::parse(input, |_, c| c.to_digit(10).unwrap());
+    let city = Grid::parse(input, |_, c| c.to_digit(10).unwrap());
     let target = city.size + NW;
     let mut q = search::dijkstra(
         Crucible {
@@ -44,10 +44,10 @@ fn part_(min_straight_len: u8, max_straight_len: u8, input: &str) -> u32 {
             return crucible.heat_loss;
         }
         if crucible.straight_len >= min_straight_len {
-            if let Some(crucible) = crucible.step(&city, Some(Turn::Left)) {
+            if let Some(crucible) = crucible.step(&city, Some(LEFT)) {
                 q.push(crucible);
             }
-            if let Some(crucible) = crucible.step(&city, Some(Turn::Right)) {
+            if let Some(crucible) = crucible.step(&city, Some(RIGHT)) {
                 q.push(crucible);
             }
         }
