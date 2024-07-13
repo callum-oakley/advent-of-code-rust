@@ -3,9 +3,9 @@ use std::{
     mem,
 };
 
-use crate::grid::{Point, Rect};
+use crate::grid2::{self, Grid, Vector};
 
-fn biodiversity(bugs: &Rect<bool>) -> u32 {
+fn biodiversity(bugs: &Grid<bool>) -> u32 {
     bugs.values()
         .enumerate()
         .map(|(i, &bug)| if bug { 1 << i } else { 0 })
@@ -13,18 +13,14 @@ fn biodiversity(bugs: &Rect<bool>) -> u32 {
 }
 
 pub fn part1(input: &str) -> u32 {
-    let mut bugs = Rect::parse(input, |_, c| c == '#');
+    let mut bugs = Grid::parse(input, |_, c| c == '#');
     let mut seen = HashSet::new();
 
     while !seen.contains(&bugs) {
         seen.insert(bugs.clone());
         let mut bugs_next = bugs.clone();
         for (pos, bug) in &bugs {
-            let adjacent = pos
-                .adjacent4()
-                .into_iter()
-                .filter(|&p| *bugs.get(p).unwrap_or(&false))
-                .count();
+            let adjacent = bugs.adjacent4_values(pos).filter(|&&bug| bug).count();
             bugs_next[pos] = adjacent == 1 || !bug && adjacent == 2;
         }
         bugs = bugs_next;
@@ -33,31 +29,23 @@ pub fn part1(input: &str) -> u32 {
     biodiversity(&bugs)
 }
 
-fn adjacent(bugs: &HashMap<i32, Rect<bool>>, depth: i32, pos: Point) -> usize {
+fn adjacent(bugs: &HashMap<i32, Grid<bool>>, depth: i32, pos: Vector) -> usize {
     let mut res = 0;
-    for p in pos.adjacent4() {
+    for p in grid2::adjacent4(pos) {
         res += if p.x < 0 {
-            usize::from(bugs[&(depth - 1)][Point { y: 2, x: 1 }])
+            usize::from(bugs[&(depth - 1)][[1, 2]])
         } else if p.y < 0 {
-            usize::from(bugs[&(depth - 1)][Point { y: 1, x: 2 }])
+            usize::from(bugs[&(depth - 1)][[2, 1]])
         } else if p.x > 4 {
-            usize::from(bugs[&(depth - 1)][Point { y: 2, x: 3 }])
+            usize::from(bugs[&(depth - 1)][[3, 2]])
         } else if p.y > 4 {
-            usize::from(bugs[&(depth - 1)][Point { y: 3, x: 2 }])
-        } else if p == (Point { y: 2, x: 2 }) {
-            match pos {
-                Point { y: 1, x: 2 } => (0..5)
-                    .filter(|&x| bugs[&(depth + 1)][Point { y: 0, x }])
-                    .count(),
-                Point { y: 2, x: 1 } => (0..5)
-                    .filter(|&y| bugs[&(depth + 1)][Point { y, x: 0 }])
-                    .count(),
-                Point { y: 2, x: 3 } => (0..5)
-                    .filter(|&y| bugs[&(depth + 1)][Point { y, x: 4 }])
-                    .count(),
-                Point { y: 3, x: 2 } => (0..5)
-                    .filter(|&x| bugs[&(depth + 1)][Point { y: 4, x }])
-                    .count(),
+            usize::from(bugs[&(depth - 1)][[2, 3]])
+        } else if p == Vector::new(2, 2) {
+            match Into::<[i32; 2]>::into(pos) {
+                [2, 1] => (0..5).filter(|&x| bugs[&(depth + 1)][[x, 0]]).count(),
+                [1, 2] => (0..5).filter(|&y| bugs[&(depth + 1)][[0, y]]).count(),
+                [3, 2] => (0..5).filter(|&y| bugs[&(depth + 1)][[4, y]]).count(),
+                [2, 3] => (0..5).filter(|&x| bugs[&(depth + 1)][[x, 4]]).count(),
                 _ => unreachable!(),
             }
         } else {
@@ -69,11 +57,11 @@ fn adjacent(bugs: &HashMap<i32, Rect<bool>>, depth: i32, pos: Point) -> usize {
 
 fn part2_(minutes: usize, input: &str) -> usize {
     let mut bugs = HashMap::from([
-        (-2, Rect::new(false, Point { y: 5, x: 5 })),
-        (-1, Rect::new(false, Point { y: 5, x: 5 })),
-        (0, Rect::parse(input, |_, c| c == '#')),
-        (1, Rect::new(false, Point { y: 5, x: 5 })),
-        (2, Rect::new(false, Point { y: 5, x: 5 })),
+        (-2, Grid::new(false, [5, 5])),
+        (-1, Grid::new(false, [5, 5])),
+        (0, Grid::parse(input, |_, c| c == '#')),
+        (1, Grid::new(false, [5, 5])),
+        (2, Grid::new(false, [5, 5])),
     ]);
     let mut bugs_next = bugs.clone();
 
@@ -83,7 +71,7 @@ fn part2_(minutes: usize, input: &str) -> usize {
     for _ in 0..minutes {
         for depth in min_depth..=max_depth {
             for (pos, bug) in &bugs[&depth] {
-                if pos == (Point { y: 2, x: 2 }) {
+                if pos == Vector::new(2, 2) {
                     continue;
                 }
                 let adjacent = adjacent(&bugs, depth, pos);
@@ -95,19 +83,19 @@ fn part2_(minutes: usize, input: &str) -> usize {
 
         if bugs[&min_depth].values().any(|&bug| bug) {
             min_depth -= 1;
-            bugs.insert(min_depth - 1, Rect::new(false, Point { y: 5, x: 5 }));
-            bugs_next.insert(min_depth - 1, Rect::new(false, Point { y: 5, x: 5 }));
+            bugs.insert(min_depth - 1, Grid::new(false, [5, 5]));
+            bugs_next.insert(min_depth - 1, Grid::new(false, [5, 5]));
         }
 
         if bugs[&max_depth].values().any(|&bug| bug) {
             max_depth += 1;
-            bugs.insert(max_depth + 1, Rect::new(false, Point { y: 5, x: 5 }));
-            bugs_next.insert(max_depth + 1, Rect::new(false, Point { y: 5, x: 5 }));
+            bugs.insert(max_depth + 1, Grid::new(false, [5, 5]));
+            bugs_next.insert(max_depth + 1, Grid::new(false, [5, 5]));
         }
     }
 
     bugs.values()
-        .flat_map(Rect::values)
+        .flat_map(Grid::values)
         .filter(|&&bug| bug)
         .count()
 }

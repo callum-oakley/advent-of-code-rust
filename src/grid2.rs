@@ -93,14 +93,25 @@ impl IntoTurn for &str {
     }
 }
 
-impl IntoTurn for i64 {
-    fn into_turn(self) -> Turn {
-        match self {
-            0 => LEFT,
-            1 => RIGHT,
-            _ => panic!("don't know how to convert {self} into a turn"),
+pub fn scan<F: FnMut(Vector, char)>(s: &str, mut f: F) -> Vector {
+    let mut size = Z;
+    let mut width = None;
+    for c in s.chars() {
+        if c == '\n' {
+            if let Some(w) = width {
+                assert!(w == size.x, "string is not rectangular");
+            } else {
+                width = Some(size.x);
+            }
+            size.x = 0;
+            size.y += 1;
+        } else {
+            f(size, c);
+            size.x += 1;
         }
     }
+    size.y += 1;
+    size
 }
 
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -121,23 +132,7 @@ impl<T> Grid<T> {
 
     pub fn parse<F: FnMut(Vector, char) -> T>(s: &str, mut f: F) -> Self {
         let mut data = Vec::new();
-        let mut size = Z;
-        let mut width = None;
-        for c in s.chars() {
-            if c == '\n' {
-                if let Some(w) = width {
-                    assert!(w == size.x, "string is not rectangular");
-                } else {
-                    width = Some(size.x);
-                }
-                size.x = 0;
-                size.y += 1;
-            } else {
-                data.push(f(size, c));
-                size.x += 1;
-            }
-        }
-        size.y += 1;
+        let size = scan(s, |v, c| data.push(f(v, c)));
         Self { data, size }
     }
 

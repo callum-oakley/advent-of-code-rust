@@ -1,5 +1,5 @@
 use crate::{
-    grid::{Point, E, N, S, W, Z},
+    grid2::{Vector, E, N, S, W, Z},
     intcode::VM,
     search::{self, Queue},
 };
@@ -7,24 +7,24 @@ use crate::{
 #[derive(Clone)]
 struct State {
     vm: VM,
-    pos: Point,
+    pos: Vector,
     steps: u32,
     found_oxygen_system: bool,
 }
 
 impl State {
     fn adjacent(&self) -> impl Iterator<Item = Self> + '_ {
-        [N, S, W, E].iter().enumerate().map(|(i, dir)| {
+        [N, S, W, E].into_iter().enumerate().map(|(i, dir)| {
             let mut state = self.clone();
             state.vm.input(i64::try_from(i).unwrap() + 1);
             match state.vm.output() {
                 0 => {}
                 1 => {
-                    state.pos += *dir;
+                    state.pos += dir;
                     state.steps += 1;
                 }
                 2 => {
-                    state.pos += *dir;
+                    state.pos += dir;
                     state.steps += 1;
                     state.found_oxygen_system = true;
                 }

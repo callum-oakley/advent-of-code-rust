@@ -2,17 +2,14 @@ use std::collections::{HashMap, HashSet};
 
 use ordered_float::OrderedFloat;
 
-use crate::grid::Point;
+use crate::grid2::Vector;
 
-fn parse(input: &str) -> Vec<Point> {
+fn parse(input: &str) -> Vec<Vector> {
     let mut res = Vec::new();
     for (y, line) in input.lines().enumerate() {
         for (x, c) in line.chars().enumerate() {
             if c == '#' {
-                res.push(Point {
-                    y: y.try_into().unwrap(),
-                    x: x.try_into().unwrap(),
-                });
+                res.push(Vector::new(x.try_into().unwrap(), y.try_into().unwrap()));
             }
         }
     }
@@ -22,11 +19,11 @@ fn parse(input: &str) -> Vec<Point> {
 // Angle from the y-axis, in the range (-pi, pi] with zero straight down, and increasing clockwise.
 // Note that this is shifted from the usual definition used in polar coordinates because it makes
 // the problem easier.
-fn theta(asteroid: Point) -> OrderedFloat<f64> {
+fn theta(asteroid: Vector) -> OrderedFloat<f64> {
     OrderedFloat(-f64::atan2(asteroid.x.into(), asteroid.y.into()))
 }
 
-fn count_visible(asteroids: &[Point], origin: Point) -> usize {
+fn count_visible(asteroids: &[Vector], origin: Vector) -> usize {
     asteroids
         .iter()
         .filter(|&&a| a != origin)
@@ -35,7 +32,7 @@ fn count_visible(asteroids: &[Point], origin: Point) -> usize {
         .len()
 }
 
-fn origin(asteroids: &[Point]) -> Point {
+fn origin(asteroids: &[Vector]) -> Vector {
     asteroids
         .iter()
         .copied()
@@ -52,16 +49,16 @@ pub fn part2(input: &str) -> i32 {
     let mut asteroids = parse(input);
     let origin = origin(&asteroids);
 
-    let mut rays: HashMap<OrderedFloat<f64>, Vec<Point>> = HashMap::new();
+    let mut rays: HashMap<OrderedFloat<f64>, Vec<Vector>> = HashMap::new();
     for &asteroid in &asteroids {
         rays.entry(theta(asteroid - origin))
             .or_default()
             .push(asteroid);
     }
 
-    let mut depths: HashMap<Point, usize> = HashMap::new();
+    let mut depths: HashMap<Vector, usize> = HashMap::new();
     for ray in rays.values_mut() {
-        ray.sort_unstable_by_key(|&asteroid| (asteroid - origin).manhattan());
+        ray.sort_unstable_by_key(|&asteroid| (asteroid - origin).abs().sum());
         for (depth, &asteroid) in ray.iter().enumerate() {
             depths.insert(asteroid, depth);
         }

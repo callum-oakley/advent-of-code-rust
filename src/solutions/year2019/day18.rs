@@ -1,7 +1,7 @@
 use std::collections::{BTreeSet, HashMap};
 
 use crate::{
-    grid::{Point, Rect, E, N, NE, NW, S, SE, SW, W, Z},
+    grid2::{Grid, Vector, E, N, NE, NW, S, SE, SW, W, Z},
     search::{self, Queue},
 };
 
@@ -28,10 +28,10 @@ struct Path {
     keys: BTreeSet<char>,
 }
 
-fn reachable(map: &Rect<char>, pos: Point) -> Vec<Path> {
+fn reachable(map: &Grid<char>, pos: Vector) -> Vec<Path> {
     #[derive(Clone)]
     struct State {
-        pos: Point,
+        pos: Vector,
         steps: usize,
         keys: BTreeSet<char>,
         found_key: bool,
@@ -58,18 +58,13 @@ fn reachable(map: &Rect<char>, pos: Point) -> Vec<Path> {
             });
             continue;
         }
-        for pos in state
-            .pos
-            .adjacent4()
-            .into_iter()
-            .filter(|pos| is_open(map[pos]))
-        {
+        for (pos, &tile) in map.adjacent4(state.pos).filter(|&(_, &tile)| is_open(tile)) {
             let mut state = state.clone();
             state.pos = pos;
             state.steps += 1;
-            if is_door(map[pos]) {
-                state.keys.insert(key(map[pos]));
-            } else if is_key(map[pos]) {
+            if is_door(tile) {
+                state.keys.insert(key(tile));
+            } else if is_key(tile) {
                 state.found_key = true;
             }
             q.push(state);
@@ -79,14 +74,14 @@ fn reachable(map: &Rect<char>, pos: Point) -> Vec<Path> {
     res
 }
 
-fn key_graph(map: &Rect<char>) -> HashMap<char, Vec<Path>> {
+fn key_graph(map: &Grid<char>) -> HashMap<char, Vec<Path>> {
     map.iter()
         .filter(|(_, &tile)| is_key(tile))
         .map(|(pos, &tile)| (tile, reachable(map, pos)))
         .collect()
 }
 
-fn part_(map: &Rect<char>, robots: Vec<char>) -> usize {
+fn part_(map: &Grid<char>, robots: Vec<char>) -> usize {
     #[derive(Clone, PartialOrd, Ord, PartialEq, Eq)]
     struct State {
         robots: Vec<char>,
@@ -143,11 +138,11 @@ fn part_(map: &Rect<char>, robots: Vec<char>) -> usize {
 }
 
 pub fn part1(input: &str) -> usize {
-    part_(&Rect::parse(input, |_, tile| tile), vec!['@'])
+    part_(&Grid::parse(input, |_, tile| tile), vec!['@'])
 }
 
 pub fn part2(input: &str) -> usize {
-    let mut map = Rect::parse(input, |_, tile| tile);
+    let mut map = Grid::parse(input, |_, tile| tile);
     let (start, _) = map.iter().find(|(_, &tile)| tile == '@').unwrap();
     for dir in [Z, N, E, S, W] {
         map[start + dir] = '#';

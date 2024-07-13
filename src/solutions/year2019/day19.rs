@@ -1,9 +1,9 @@
 use crate::{
-    grid::{Point, Z},
+    grid2::{Vector, Z},
     intcode::VM,
 };
 
-fn in_beam(mut vm: VM, pos: Point) -> bool {
+fn in_beam(mut vm: VM, pos: Vector) -> bool {
     vm.input(pos.x.into());
     vm.input(pos.y.into());
     let res = vm.output() == 1;
@@ -16,7 +16,7 @@ pub fn part1(input: &str) -> usize {
     let mut res = 0;
     for y in 0..50 {
         for x in 0..50 {
-            if in_beam(vm.clone(), Point { y, x }) {
+            if in_beam(vm.clone(), Vector::new(x, y)) {
                 res += 1;
             }
         }
@@ -28,9 +28,9 @@ pub fn part2(input: &str) -> i32 {
     let vm = VM::new(input);
     let mut pos = Z;
     loop {
-        if !in_beam(vm.clone(), pos + Point { y: 0, x: 99 }) {
+        if !in_beam(vm.clone(), pos + Vector::new(99, 0)) {
             pos.y += 1;
-        } else if !in_beam(vm.clone(), pos + Point { y: 99, x: 0 }) {
+        } else if !in_beam(vm.clone(), pos + Vector::new(0, 99)) {
             pos.x += 1;
         } else {
             return 10000 * pos.x + pos.y;

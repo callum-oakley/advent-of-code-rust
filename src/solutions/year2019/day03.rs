@@ -3,13 +3,13 @@ use std::{
     iter,
 };
 
-use crate::grid::{Point, Z};
+use crate::grid2::{IntoVector, Vector, Z};
 
-fn parse_wire(s: &str) -> impl Iterator<Item = Point> + '_ {
+fn parse_wire(s: &str) -> impl Iterator<Item = Vector> + '_ {
     s.split(',')
         .flat_map(|instruction| {
             let (dir, n) = instruction.split_at(1);
-            iter::repeat(dir.into()).take(n.parse().unwrap())
+            iter::repeat(dir.into_vector()).take(n.parse().unwrap())
         })
         .scan(Z, |pos, dir| {
             *pos += dir;
@@ -20,8 +20,8 @@ fn parse_wire(s: &str) -> impl Iterator<Item = Point> + '_ {
 fn parse(
     input: &str,
 ) -> (
-    impl Iterator<Item = Point> + '_,
-    impl Iterator<Item = Point> + '_,
+    impl Iterator<Item = Vector> + '_,
+    impl Iterator<Item = Vector> + '_,
 ) {
     let (wire0, wire1) = input.split_once('\n').unwrap();
     (parse_wire(wire0), parse_wire(wire1))
@@ -29,10 +29,10 @@ fn parse(
 
 pub fn part1(input: &str) -> i32 {
     let (wire0, wire1) = parse(input);
-    let wire0 = wire0.collect::<HashSet<Point>>();
+    let wire0 = wire0.collect::<HashSet<Vector>>();
     wire1
         .filter(|pos| wire0.contains(pos))
-        .map(Point::manhattan)
+        .map(|v| v.abs().sum())
         .min()
         .unwrap()
 }
@@ -42,7 +42,7 @@ pub fn part2(input: &str) -> usize {
     let wire0 = wire0
         .enumerate()
         .map(|(steps0, pos)| (pos, steps0))
-        .collect::<HashMap<Point, usize>>();
+        .collect::<HashMap<Vector, usize>>();
     wire1
         .enumerate()
         .filter_map(|(steps1, pos)| {

@@ -1,32 +1,32 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::{
-    grid::{Point, Rect, E, N, S, W},
+    grid2::{self, Grid, Vector, E, N, S, W},
     search::{self, Queue},
 };
 
 struct Maze {
-    passages: HashSet<Point>,
-    outer_portals: HashMap<Point, Point>,
-    inner_portals: HashMap<Point, Point>,
-    start: Point,
-    finish: Point,
+    passages: HashSet<Vector>,
+    outer_portals: HashMap<Vector, Vector>,
+    inner_portals: HashMap<Vector, Vector>,
+    start: Vector,
+    finish: Vector,
 }
 
 fn parse(input: &str) -> Maze {
-    let r = Rect::parse(input, |_, c| c);
+    let g = Grid::parse(input, |_, c| c);
 
     let mut passages = HashSet::new();
-    let mut outer_portals: HashMap<(char, char), Point> = HashMap::new();
-    let mut inner_portals: HashMap<(char, char), Point> = HashMap::new();
+    let mut outer_portals: HashMap<(char, char), Vector> = HashMap::new();
+    let mut inner_portals: HashMap<(char, char), Vector> = HashMap::new();
     let mut start = None;
     let mut finish = None;
 
-    for (pos, &c) in &r {
+    for (pos, &c) in &g {
         if c == '.' {
             passages.insert(pos);
             for dir in [N, E, S, W] {
-                if let (Some(&d), Some(&e)) = (r.get(pos + dir), r.get(pos + dir * 2)) {
+                if let (Some(&d), Some(&e)) = (g.get(pos + dir), g.get(pos + dir * 2)) {
                     if d.is_ascii_uppercase() && e.is_ascii_uppercase() {
                         let label = if dir == N || dir == W { (e, d) } else { (d, e) };
                         match label {
@@ -38,9 +38,9 @@ fn parse(input: &str) -> Maze {
                             }
                             _ => {
                                 if pos.y == 2
-                                    || pos.y == r.size.y - 3
+                                    || pos.y == g.size.y - 3
                                     || pos.x == 2
-                                    || pos.x == r.size.x - 3
+                                    || pos.x == g.size.x - 3
                                 {
                                     outer_portals.insert(label, pos);
                                 } else {
@@ -71,7 +71,7 @@ fn parse(input: &str) -> Maze {
 
 pub fn part1(input: &str) -> u32 {
     struct State {
-        pos: Point,
+        pos: Vector,
         steps: u32,
     }
 
@@ -89,7 +89,7 @@ pub fn part1(input: &str) -> u32 {
             return state.steps;
         }
 
-        for p in state.pos.adjacent4() {
+        for p in grid2::adjacent4(state.pos) {
             if maze.passages.contains(&p) {
                 q.push(State {
                     pos: p,
@@ -116,7 +116,7 @@ pub fn part1(input: &str) -> u32 {
 pub fn part2(input: &str) -> u32 {
     #[derive(Debug)]
     struct State {
-        pos: Point,
+        pos: Vector,
         level: u32,
         steps: u32,
     }
@@ -136,7 +136,7 @@ pub fn part2(input: &str) -> u32 {
             return state.steps;
         }
 
-        for p in state.pos.adjacent4() {
+        for p in grid2::adjacent4(state.pos) {
             if maze.passages.contains(&p) {
                 q.push(State {
                     pos: p,

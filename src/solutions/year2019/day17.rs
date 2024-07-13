@@ -6,7 +6,7 @@ use std::{
 use anyhow::{Context, Result};
 
 use crate::{
-    grid::{self, Point, Turn},
+    grid2::{self, IntoVector, Vector, LEFT, RIGHT},
     intcode::{State, VM},
 };
 
@@ -36,20 +36,23 @@ pub fn play(vm: &mut VM, r: impl Read, mut w: impl Write) -> Result<Option<i64>>
 
 #[derive(Clone, Copy)]
 struct Robot {
-    pos: Point,
-    dir: Point,
+    pos: Vector,
+    dir: Vector,
 }
 
-fn parse(map: &str) -> (HashSet<Point>, Robot) {
+fn parse(map: &str) -> (HashSet<Vector>, Robot) {
     let mut scaffold = HashSet::new();
     let mut robot = None;
-    grid::scan_rect(map, |pos, c| match c {
+    grid2::scan(map, |pos, c| match c {
         '#' => {
             scaffold.insert(pos);
         }
         '^' | '>' | 'v' | '<' => {
             scaffold.insert(pos);
-            robot = Some(Robot { pos, dir: c.into() });
+            robot = Some(Robot {
+                pos,
+                dir: c.into_vector(),
+            });
         }
         '.' => {}
         _ => unreachable!(),
@@ -61,28 +64,28 @@ fn part1_(map: &str) -> i32 {
     let (scaffold, _) = parse(map);
     scaffold
         .iter()
-        .filter(|pos| pos.adjacent4().iter().all(|p| scaffold.contains(p)))
+        .filter(|&&pos| grid2::adjacent4(pos).all(|p| scaffold.contains(&p)))
         .map(|pos| pos.y * pos.x)
         .sum()
 }
 
-type Path = Vec<(Turn, u8)>;
-type PathRef<'a> = &'a [(Turn, u8)];
+type Path = Vec<(char, u8)>;
+type PathRef<'a> = &'a [(char, u8)];
 
-fn path(scaffold: &HashSet<Point>, mut robot: Robot) -> Path {
+fn path(scaffold: &HashSet<Vector>, mut robot: Robot) -> Path {
     let mut res: Path = Vec::new();
     loop {
         if scaffold.contains(&(robot.pos + robot.dir)) {
             robot.pos += robot.dir;
             res.last_mut().unwrap().1 += 1;
-        } else if scaffold.contains(&(robot.pos + robot.dir.turn(Turn::Left))) {
-            robot.dir = robot.dir.turn(Turn::Left);
+        } else if scaffold.contains(&(robot.pos + LEFT * robot.dir)) {
+            robot.dir = LEFT * robot.dir;
             robot.pos += robot.dir;
-            res.push((Turn::Left, 1));
-        } else if scaffold.contains(&(robot.pos + robot.dir.turn(Turn::Right))) {
-            robot.dir = robot.dir.turn(Turn::Right);
+            res.push(('L', 1));
+        } else if scaffold.contains(&(robot.pos + RIGHT * robot.dir)) {
+            robot.dir = RIGHT * robot.dir;
             robot.pos += robot.dir;
-            res.push((Turn::Right, 1));
+            res.push(('R', 1));
         } else {
             break;
         }
@@ -94,14 +97,11 @@ fn path_to_string(path: PathRef) -> String {
     use std::fmt::Write;
 
     let mut res = String::new();
-    for (t, n) in path {
+    for (c, n) in path {
         if !res.is_empty() {
             res.push(',');
         }
-        match t {
-            Turn::Left => write!(res, "L,{n}").unwrap(),
-            Turn::Right => write!(res, "R,{n}").unwrap(),
-        }
+        write!(res, "{c},{n}").unwrap();
     }
     res
 }
@@ -165,7 +165,7 @@ fn compress(path: PathRef) -> String {
 pub fn part1(input: &str) -> i32 {
     let mut buf = Vec::new();
     play(&mut VM::new(input), io::empty(), &mut buf).unwrap();
-    part1_(&String::from_utf8(buf).unwrap())
+    part1_(String::from_utf8(buf).unwrap().trim())
 }
 
 pub fn part2(input: &str) -> i64 {
@@ -173,7 +173,7 @@ pub fn part2(input: &str) -> i64 {
 
     let mut buf = Vec::new();
     play(&mut vm.clone(), io::empty(), &mut buf).unwrap();
-    let (scaffold, robot) = parse(&String::from_utf8(buf).unwrap());
+    let (scaffold, robot) = parse(String::from_utf8(buf).unwrap().trim());
 
     let path = path(&scaffold, robot);
     let mut instructions = compress(&path);
