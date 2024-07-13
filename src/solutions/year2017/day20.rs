@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
-use crate::grid_3d::Point;
+use crate::grid::{IntoVector3, Vector3};
 
 struct Particle {
-    p: Point,
-    v: Point,
-    a: Point,
+    p: Vector3,
+    v: Vector3,
+    a: Vector3,
 }
 
 impl Particle {
@@ -19,9 +19,9 @@ impl From<&str> for Particle {
     fn from(s: &str) -> Self {
         let mut points = s.split(", ");
         Particle {
-            p: points.next().unwrap().into(),
-            v: points.next().unwrap().into(),
-            a: points.next().unwrap().into(),
+            p: points.next().unwrap().into_vector3(),
+            v: points.next().unwrap().into_vector3(),
+            a: points.next().unwrap().into_vector3(),
         }
     }
 }
@@ -49,7 +49,7 @@ fn collide(system: &mut HashMap<usize, Particle>) {
 pub fn part1(input: &str) -> usize {
     parse(input)
         .into_iter()
-        .min_by_key(|(_, p)| (p.a.manhattan(), p.v.manhattan(), p.p.manhattan()))
+        .min_by_key(|(_, p)| (p.a.abs().sum(), p.v.abs().sum(), p.p.abs().sum()))
         .unwrap()
         .0
 }

@@ -73,7 +73,7 @@ fn part_(input: &str) -> (usize, usize) {
     while let Some(block) = queue.pop_front() {
         let down = block + S;
 
-        if flowing.contains(&down) || down.y > bounds.max_y {
+        if flowing.contains(&down) || down.y > bounds.max.y {
             continue;
         }
 
@@ -106,11 +106,11 @@ fn part_(input: &str) -> (usize, usize) {
     (
         flowing
             .into_iter()
-            .filter(|&p| p.y >= bounds.min_y && p.y <= bounds.max_y)
+            .filter(|&p| p.y >= bounds.min.y && p.y <= bounds.max.y)
             .count(),
         settled
             .into_iter()
-            .filter(|&p| p.y >= bounds.min_y && p.y <= bounds.max_y)
+            .filter(|&p| p.y >= bounds.min.y && p.y <= bounds.max.y)
             .count(),
     )
 }

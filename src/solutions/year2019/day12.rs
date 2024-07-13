@@ -1,19 +1,19 @@
 use num::Integer;
 
-use crate::grid_3d::{Axis, Point, Z};
+use crate::grid::{IntoVector3, Vector3};
 
 #[derive(Clone)]
 struct Moon {
-    pos: Point,
-    vel: Point,
+    pos: Vector3,
+    vel: Vector3,
 }
 
 fn parse(input: &str) -> Vec<Moon> {
     input
         .lines()
         .map(|line| Moon {
-            pos: line.into(),
-            vel: Z,
+            pos: line.into_vector3(),
+            vel: Vector3::zeros(),
         })
         .collect()
 }
@@ -21,7 +21,7 @@ fn parse(input: &str) -> Vec<Moon> {
 fn tick(system: &mut [Moon]) {
     for i in 0..system.len() {
         for j in 0..system.len() {
-            for axis in [Axis::X, Axis::Y, Axis::Z] {
+            for axis in 0..3 {
                 match system[i].pos[axis].cmp(&system[j].pos[axis]) {
                     std::cmp::Ordering::Less => {
                         system[i].vel[axis] += 1;
@@ -46,12 +46,12 @@ fn part1_(steps: usize, input: &str) -> i32 {
     }
     system
         .iter()
-        .map(|moon| moon.pos.manhattan() * moon.vel.manhattan())
+        .map(|moon| moon.pos.abs().sum() * moon.vel.abs().sum())
         .sum()
 }
 
-fn period(axis: Axis, mut system: Vec<Moon>) -> usize {
-    fn fingerprint(axis: Axis, system: &[Moon]) -> Vec<(i32, i32)> {
+fn period(axis: usize, mut system: Vec<Moon>) -> usize {
+    fn fingerprint(axis: usize, system: &[Moon]) -> Vec<(i32, i32)> {
         system
             .iter()
             .map(|moon| (moon.pos[axis], moon.vel[axis]))
@@ -77,9 +77,8 @@ pub fn part2(input: &str) -> usize {
     let system = parse(input);
     // The movement in each axis is independent so we can find the period of each axis
     // independently and take the LCM.
-    [Axis::X, Axis::Y, Axis::Z]
-        .iter()
-        .map(|&axis| period(axis, system.clone()))
+    (0..3)
+        .map(|axis| period(axis, system.clone()))
         .reduce(|a, b| Integer::lcm(&a, &b))
         .unwrap()
 }

@@ -14,7 +14,6 @@ pub mod solutions;
 
 mod combinatorics;
 mod grid;
-mod grid_3d;
 mod hash;
 mod number_theory;
 mod ocr;

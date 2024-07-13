@@ -1,13 +1,13 @@
 use regex::Regex;
 
 use crate::{
-    grid_3d::{Axis, Bounds, Point},
+    grid::{Bounds3, IntoVector3, Vector3},
     search::{self, Queue},
 };
 
 #[derive(Copy, Clone)]
 struct Bot {
-    pos: Point,
+    pos: Vector3,
     r: i32,
 }
 
@@ -15,15 +15,15 @@ fn parse(input: &str) -> Vec<Bot> {
     let re = Regex::new(r"pos=<([^>]+)>, r=(\d+)").unwrap();
     re.captures_iter(input)
         .map(|captures| Bot {
-            pos: captures[1].into(),
+            pos: captures[1].into_vector3(),
             r: captures[2].parse().unwrap(),
         })
         .collect()
 }
 
-#[derive(Copy, Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 struct Cube {
-    pos: Point,
+    pos: Vector3,
     w: i32,
 }
 
@@ -31,7 +31,7 @@ impl Cube {
     // Does the given cube intersect with the given bot's range?
     fn intersects(self, bot: Bot) -> bool {
         let mut dist = 0;
-        for axis in [Axis::X, Axis::Y, Axis::Z] {
+        for axis in 0..3 {
             if bot.pos[axis] < self.pos[axis] {
                 dist += self.pos[axis] - bot.pos[axis];
             } else if bot.pos[axis] > self.pos[axis] + self.w - 1 {
@@ -45,7 +45,7 @@ impl Cube {
         [0, self.w / 2].into_iter().flat_map(move |z| {
             [0, self.w / 2].into_iter().flat_map(move |y| {
                 [0, self.w / 2].into_iter().map(move |x| Self {
-                    pos: self.pos + Point { z, y, x },
+                    pos: self.pos + Vector3::new(x, y, z),
                     w: self.w / 2,
                 })
             })
@@ -57,7 +57,7 @@ pub fn part1(input: &str) -> usize {
     let bots = parse(input);
     let best_bot = bots.iter().max_by_key(|bot| bot.r).unwrap();
     bots.iter()
-        .filter(|bot| (bot.pos - best_bot.pos).manhattan() <= best_bot.r)
+        .filter(|bot| (bot.pos - best_bot.pos).abs().sum() <= best_bot.r)
         .count()
 }
 
@@ -68,30 +68,24 @@ pub fn part1(input: &str) -> usize {
 // to finding a lowest cost path to a cube of width 1.
 pub fn part2(input: &str) -> i32 {
     let bots = parse(input);
-    let bounds = Bounds::new(bots.iter().map(|bot| bot.pos));
+    let bounds = Bounds3::new(bots.iter().map(|bot| bot.pos));
     let mut q = search::dijkstra(
         Cube {
-            pos: Point {
-                z: bounds.min_z,
-                y: bounds.min_y,
-                x: bounds.min_x,
-            },
-            w: (bounds.max_x - bounds.min_x)
-                .max(bounds.max_y - bounds.min_y)
-                .max(bounds.max_z - bounds.min_z),
+            pos: bounds.min,
+            w: bounds.size().max(),
         },
         Clone::clone,
         |cube| {
             (
                 bots.iter().filter(|&&bot| !cube.intersects(bot)).count(),
                 // tie break with manhattan distance
-                cube.pos.manhattan(),
+                cube.pos.abs().sum(),
             )
         },
     );
     while let Some(cube) = q.pop() {
         if cube.w == 1 {
-            return cube.pos.manhattan();
+            return cube.pos.abs().sum();
         }
         for subcube in cube.subcubes() {
             q.push(subcube);

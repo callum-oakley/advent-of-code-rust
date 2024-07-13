@@ -6,7 +6,7 @@ pub fn part1(input: &str) -> usize {
     let mut constellations: Vec<HashSet<Vector4<i32>>> = Vec::new();
     for point in input
         .lines()
-        .map(|s| Vector4::from_iterator(s.split(',').map(|n| n.parse().unwrap())))
+        .map(|s| Vector4::from_iterator(s.split(',').map(|n| n.trim().parse().unwrap())))
     {
         let mut connected = HashSet::from([point]);
         let mut i = 0;
