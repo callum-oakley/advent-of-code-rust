@@ -16,8 +16,6 @@ mod combinatorics;
 mod grid;
 mod grid_3d;
 mod grid_4d;
-mod grid_hex;
-mod grid_legacy;
 mod hash;
 mod number_theory;
 mod ocr;
