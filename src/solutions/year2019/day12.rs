@@ -1,11 +1,12 @@
+use nalgebra::Vector3;
 use num::Integer;
 
-use crate::grid::{IntoVector, Vector3};
+use crate::grid::IntoVector;
 
 #[derive(Clone)]
 struct Moon {
-    pos: Vector3,
-    vel: Vector3,
+    pos: Vector3<i32>,
+    vel: Vector3<i32>,
 }
 
 fn parse(input: &str) -> Vec<Moon> {

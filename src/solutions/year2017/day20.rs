@@ -1,11 +1,13 @@
 use std::collections::HashMap;
 
-use crate::grid::{IntoVector, Vector3};
+use nalgebra::Vector3;
+
+use crate::grid::IntoVector;
 
 struct Particle {
-    p: Vector3,
-    v: Vector3,
-    a: Vector3,
+    p: Vector3<i32>,
+    v: Vector3<i32>,
+    a: Vector3<i32>,
 }
 
 impl Particle {

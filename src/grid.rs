@@ -2,16 +2,14 @@ use std::{
     fmt::{self, Write},
     iter,
     ops::{Index, IndexMut},
+    str::FromStr,
 };
 
 use lazy_static::lazy_static;
+use nalgebra::{SVector, Scalar};
 use regex::Regex;
 
-type SVector<const D: usize> = nalgebra::SVector<i32, D>;
-
 pub type Vector = nalgebra::Vector2<i32>;
-pub type Vector3 = nalgebra::Vector3<i32>;
-pub type Vector4 = nalgebra::Vector4<i32>;
 pub type Turn = nalgebra::Matrix2<i32>;
 
 pub const NW: Vector = Vector::new(-1, -1);
@@ -43,11 +41,11 @@ pub fn reading_ord_key(v: Vector) -> [i32; 2] {
     [v.y, v.x]
 }
 
-pub trait IntoVector<const D: usize> {
-    fn into_vector(self) -> SVector<D>;
+pub trait IntoVector<T, const D: usize> {
+    fn into_vector(self) -> SVector<T, D>;
 }
 
-impl IntoVector<2> for char {
+impl IntoVector<i32, 2> for char {
     fn into_vector(self) -> Vector {
         match self {
             'N' | 'U' | '^' => N,
@@ -59,8 +57,12 @@ impl IntoVector<2> for char {
     }
 }
 
-impl<const D: usize> IntoVector<D> for &str {
-    fn into_vector(self) -> SVector<D> {
+impl<T, const D: usize> IntoVector<T, D> for &str
+where
+    T: Scalar + FromStr,
+    T::Err: fmt::Debug,
+{
+    fn into_vector(self) -> SVector<T, D> {
         lazy_static! {
             static ref INTS: Regex = Regex::new(r"-?\d+").unwrap();
         }
@@ -287,12 +289,12 @@ impl fmt::Display for Grid<char> {
 }
 
 pub struct Bounds<const D: usize> {
-    pub min: SVector<D>,
-    pub max: SVector<D>,
+    pub min: SVector<i32, D>,
+    pub max: SVector<i32, D>,
 }
 
 impl<const D: usize> Bounds<D> {
-    pub fn new(mut points: impl Iterator<Item = SVector<D>>) -> Self {
+    pub fn new(mut points: impl Iterator<Item = SVector<i32, D>>) -> Self {
         let point = points.next().unwrap();
         let mut res = Self {
             min: point,
@@ -309,7 +311,7 @@ impl<const D: usize> Bounds<D> {
         res
     }
 
-    pub fn size(&self) -> SVector<D> {
+    pub fn size(&self) -> SVector<i32, D> {
         self.max - self.min + SVector::from_element(1)
     }
 }

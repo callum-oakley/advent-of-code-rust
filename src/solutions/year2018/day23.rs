@@ -1,13 +1,14 @@
+use nalgebra::Vector3;
 use regex::Regex;
 
 use crate::{
-    grid::{Bounds, IntoVector, Vector3},
+    grid::{Bounds, IntoVector},
     search::{self, Queue},
 };
 
 #[derive(Copy, Clone)]
 struct Bot {
-    pos: Vector3,
+    pos: Vector3<i32>,
     r: i32,
 }
 
@@ -23,7 +24,7 @@ fn parse(input: &str) -> Vec<Bot> {
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 struct Cube {
-    pos: Vector3,
+    pos: Vector3<i32>,
     w: i32,
 }
 

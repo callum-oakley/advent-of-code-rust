@@ -1,16 +1,18 @@
 use std::collections::{HashMap, HashSet, VecDeque};
 
-use crate::grid::{IntoVector, Vector3};
+use nalgebra::Vector3;
 
-type Brick = Vec<Vector3>;
+use crate::grid::IntoVector;
 
-fn parse(input: &str) -> (HashMap<usize, Brick>, HashMap<Vector3, usize>) {
+type Brick = Vec<Vector3<i32>>;
+
+fn parse(input: &str) -> (HashMap<usize, Brick>, HashMap<Vector3<i32>, usize>) {
     let bricks = input
         .lines()
         .map(|line| {
             let (start, end) = line.split_once('~').unwrap();
-            let start: Vector3 = start.into_vector();
-            let end: Vector3 = end.into_vector();
+            let start: Vector3<i32> = start.into_vector();
+            let end: Vector3<i32> = end.into_vector();
             let mut brick = vec![start];
             let mut pos = start;
             while pos != end {
@@ -32,11 +34,11 @@ fn parse(input: &str) -> (HashMap<usize, Brick>, HashMap<Vector3, usize>) {
     (bricks, cubes)
 }
 
-const UP: Vector3 = Vector3::new(0, 0, 1);
+const UP: Vector3<i32> = Vector3::new(0, 0, 1);
 
 fn supports(
     bricks: &HashMap<usize, Brick>,
-    cubes: &HashMap<Vector3, usize>,
+    cubes: &HashMap<Vector3<i32>, usize>,
     i: usize,
 ) -> HashSet<usize> {
     let mut res = HashSet::new();
@@ -52,7 +54,7 @@ fn supports(
 
 fn supported_by(
     bricks: &HashMap<usize, Brick>,
-    cubes: &HashMap<Vector3, usize>,
+    cubes: &HashMap<Vector3<i32>, usize>,
     i: usize,
 ) -> HashSet<usize> {
     let mut res = HashSet::new();
@@ -68,7 +70,7 @@ fn supported_by(
 
 fn settle(
     bricks: &mut HashMap<usize, Brick>,
-    cubes: &mut HashMap<Vector3, usize>,
+    cubes: &mut HashMap<Vector3<i32>, usize>,
 ) -> HashSet<usize> {
     let mut res = HashSet::new();
 
