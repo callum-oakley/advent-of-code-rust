@@ -1,4 +1,4 @@
-use nalgebra::{Vector2, Vector3};
+use nalgebra::{matrix, vector, Vector2, Vector3};
 
 use crate::{combinatorics, grid::IntoVector};
 
@@ -9,7 +9,8 @@ struct Stone {
 }
 
 fn xy_intersection(s1: Stone, s2: Stone) -> Option<(f64, f64, Vector2<f64>)> {
-    // Using the equations from https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line_segment
+    // Using the equations from
+    // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line_segment
     // re-arrange s = p + t * v to s = p + t * (v + p - p)
     let x1 = s1.p.x;
     let y1 = s1.p.y;
@@ -55,6 +56,77 @@ pub fn part1(input: &str) -> usize {
     part1_(2e14, 4e14, input)
 }
 
+#[allow(clippy::cast_possible_truncation)]
+pub fn part2(input: &str) -> i64 {
+    let mut stones = parse(input);
+    let s0 = stones.next().unwrap();
+    let s1 = stones.next().unwrap();
+    let s2 = stones.next().unwrap();
+    let s3 = stones.next().unwrap();
+
+    // Following the explanation here:
+    // https://www.reddit.com/r/adventofcode/comments/18pnycy/comment/kepu26z/
+    //
+    // Let the first four stones be s0, s1, s2, s3 and the rock be r, then
+    //
+    // r.p + t * r.v == si.p + t * si.v
+    // r.p - si.p == -t * (r.v - si.v)
+    //
+    // so r.p - si.p and r.v - si.v are parallel and
+    //
+    // (r.p - si.p) x (r.v - si.v) == 0
+    // r.p x r.v + si.v x r.p - si.p x r.v + si.p x si.v == 0
+    //
+    // Subtracting the equation for i = 1 from i = 0, and i = 3 from i = 2
+    //
+    // (s0.v - s1.v) x r.p + (s1.p - s0.p) x r.v + s0.p x s0.v + s1.v x s1.p == 0
+    // (s2.v - s3.v) x r.p + (s3.p - s2.p) x r.v + s2.p x s2.v + s3.v x s3.p == 0
+    //
+    // which is a linear system of 6 equations with 6 unknowns
+    //
+    // (s0.v - s1.v).y * r.p.z - (s0.v - s1.v).z * r.p.y +
+    //     (s1.p - s0.p).y * r.v.z - (s1.p - s0.p).z * r.v.y +
+    //     s0.p.y * s0.v.z - s0.p.z * s0.v.y + s1.v.y * s1.p.z - s1.v.z * s1.p.y == 0
+    // (s0.v - s1.v).z * r.p.x - (s0.v - s1.v).x * r.p.z +
+    //     (s1.p - s0.p).z * r.v.x - (s1.p - s0.p).x * r.v.z +
+    //     s0.p.z * s0.v.x - s0.p.x * s0.v.z + s1.v.z * s1.p.x - s1.v.x * s1.p.z == 0
+    // (s0.v - s1.v).x * r.p.y - (s0.v - s1.v).y * r.p.x +
+    //     (s1.p - s0.p).x * r.v.y - (s1.p - s0.p).y * r.v.x +
+    //     s0.p.x * s0.v.y - s0.p.y * s0.v.x + s1.v.x * s1.p.y - s1.v.y * s1.p.x == 0
+    // (s2.v - s3.v).y * r.p.z - (s2.v - s3.v).z * r.p.y +
+    //     (s3.p - s2.p).y * r.v.z - (s3.p - s2.p).z * r.v.y +
+    //     s2.p.y * s2.v.z - s2.p.z * s2.v.y + s3.v.y * s3.p.z - s3.v.z * s3.p.y == 0
+    // (s2.v - s3.v).z * r.p.x - (s2.v - s3.v).x * r.p.z +
+    //     (s3.p - s2.p).z * r.v.x - (s3.p - s2.p).x * r.v.z +
+    //     s2.p.z * s2.v.x - s2.p.x * s2.v.z + s3.v.z * s3.p.x - s3.v.x * s3.p.z == 0
+    // (s2.v - s3.v).x * r.p.y - (s2.v - s3.v).y * r.p.x +
+    //     (s3.p - s2.p).x * r.v.y - (s3.p - s2.p).y * r.v.x +
+    //     s2.p.x * s2.v.y - s2.p.y * s2.v.x + s3.v.x * s3.p.y - s3.v.y * s3.p.x == 0
+
+    // columns correspond to r.p.x, r.p.y, r.p.z, r.v.x, r.v.y, r.v.z
+    let m = matrix![
+        0., - (s0.v - s1.v).z, (s0.v - s1.v).y, 0., - (s1.p - s0.p).z, (s1.p - s0.p).y;
+        (s0.v - s1.v).z, 0., - (s0.v - s1.v).x, (s1.p - s0.p).z, 0., - (s1.p - s0.p).x;
+        - (s0.v - s1.v).y, (s0.v - s1.v).x, 0., - (s1.p - s0.p).y, (s1.p - s0.p).x, 0.;
+        0., - (s2.v - s3.v).z, (s2.v - s3.v).y, 0., - (s3.p - s2.p).z, (s3.p - s2.p).y;
+        (s2.v - s3.v).z, 0., - (s2.v - s3.v).x, (s3.p - s2.p).z, 0., - (s3.p - s2.p).x;
+        - (s2.v - s3.v).y, (s2.v - s3.v).x, 0., - (s3.p - s2.p).y, (s3.p - s2.p).x, 0.;
+    ];
+
+    let b = -vector![
+        s0.p.y * s0.v.z - s0.p.z * s0.v.y + s1.v.y * s1.p.z - s1.v.z * s1.p.y,
+        s0.p.z * s0.v.x - s0.p.x * s0.v.z + s1.v.z * s1.p.x - s1.v.x * s1.p.z,
+        s0.p.x * s0.v.y - s0.p.y * s0.v.x + s1.v.x * s1.p.y - s1.v.y * s1.p.x,
+        s2.p.y * s2.v.z - s2.p.z * s2.v.y + s3.v.y * s3.p.z - s3.v.z * s3.p.y,
+        s2.p.z * s2.v.x - s2.p.x * s2.v.z + s3.v.z * s3.p.x - s3.v.x * s3.p.z,
+        s2.p.x * s2.v.y - s2.p.y * s2.v.x + s3.v.x * s3.p.y - s3.v.y * s3.p.x,
+    ];
+
+    let r = m.qr().solve(&b).unwrap();
+
+    (r[0].round() + r[1].round() + r[2].round()) as i64
+}
+
 pub fn tests() {
     let example = "
         19, 13, 30 @ -2,  1, -2
@@ -64,4 +136,5 @@ pub fn tests() {
         20, 19, 15 @  1, -5, -3
     ";
     assert_eq!(part1_(7., 27., example), 2);
+    assert_eq!(part2(example), 47);
 }
