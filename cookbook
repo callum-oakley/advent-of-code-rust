@@ -26,5 +26,5 @@ init year day
     mkdir -p "${dir}"
     file="${dir}/day$(printf %02d "${day}").rs"
     touch "${file}"
-    cargo build
     code "${file}"
+    cargo build
