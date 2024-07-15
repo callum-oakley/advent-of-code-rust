@@ -1,59 +1,93 @@
-use std::collections::HashMap;
+use std::{
+    cmp::Reverse,
+    collections::{HashMap, HashSet},
+};
 
-use rand::seq::SliceRandom;
+use rand::seq::IteratorRandom;
 
-// TODO this is slow. Try a different approach.
-pub fn part1(input: &str) -> usize {
-    // https://en.wikipedia.org/wiki/Karger%27s_algorithm
-    let mut edges: Vec<(&str, &str)> = Vec::new();
-    let mut nodes: HashMap<&str, usize> = HashMap::new();
-    for line in input.trim().lines() {
-        let (a, bs) = line.trim().split_once(": ").unwrap();
-        nodes.insert(a, 1);
-        for b in bs.split_whitespace() {
-            nodes.insert(b, 1);
-            edges.push((a, b));
+use crate::search::{self, Queue};
+
+fn shortest_path<'a>(
+    graph: &HashMap<&'a str, HashSet<&'a str>>,
+    start: &'a str,
+    goal: &'a str,
+) -> Vec<&'a str> {
+    struct State<'a> {
+        pos: &'a str,
+        path: Vec<&'a str>,
+    }
+
+    let mut q = search::breadth_first(
+        State {
+            pos: start,
+            path: vec![start],
+        },
+        |state| state.pos,
+    );
+
+    while let Some(state) = q.pop() {
+        if state.pos == goal {
+            return state.path;
+        }
+        for &pos in &graph[state.pos] {
+            let mut path = state.path.clone();
+            path.push(pos);
+            q.push(State { pos, path });
         }
     }
+
+    unreachable!()
+}
+
+fn component_size(graph: &HashMap<&str, HashSet<&str>>, start: &str) -> usize {
+    let mut size = 0;
+
+    let mut q = search::breadth_first(start, |&state| state);
+
+    while let Some(a) = q.pop() {
+        size += 1;
+        for &b in &graph[a] {
+            q.push(b);
+        }
+    }
+
+    size
+}
+
+pub fn part1(input: &str) -> usize {
+    let mut graph: HashMap<&str, HashSet<&str>> = HashMap::new();
+    for line in input.trim().lines() {
+        let (a, bs) = line.trim().split_once(": ").unwrap();
+        for b in bs.split_whitespace() {
+            graph.entry(a).or_default().insert(b);
+            graph.entry(b).or_default().insert(a);
+        }
+    }
+
+    let mut heatmap: HashMap<[&str; 2], usize> = HashMap::new();
 
     let mut rng = rand::thread_rng();
 
-    loop {
-        let mut edges = edges.clone();
-        let mut nodes = nodes.clone();
+    for _ in 0..1000 {
+        let a = *graph.keys().choose(&mut rng).unwrap();
+        let b = *graph.keys().choose(&mut rng).unwrap();
 
-        while nodes.len() > 2 {
-            let &(a, b) = edges.choose(&mut rng).unwrap();
-
-            // Relabel edges
-            for edge in &mut edges {
-                if edge.0 == b {
-                    edge.0 = a;
-                }
-                if edge.1 == b {
-                    edge.1 = a;
-                }
-            }
-
-            // Remove self loops
-            let mut i = 0;
-            while i < edges.len() {
-                if edges[i].0 == edges[i].1 {
-                    edges.swap_remove(i);
-                    continue;
-                }
-                i += 1;
-            }
-
-            // Update component counts
-            let b_count = nodes.remove(b).unwrap();
-            *nodes.get_mut(a).unwrap() += b_count;
-        }
-
-        if edges.len() == 3 {
-            return nodes.values().product();
+        for edge in shortest_path(&graph, a, b).windows(2) {
+            let mut edge = [edge[0], edge[1]];
+            edge.sort_unstable();
+            *heatmap.entry(edge).or_default() += 1;
         }
     }
+
+    let mut edges: Vec<_> = heatmap.keys().copied().collect();
+    edges.sort_by_key(|edge| Reverse(heatmap[edge]));
+
+    for &[a, b] in &edges[0..3] {
+        graph.get_mut(a).unwrap().remove(b);
+        graph.get_mut(b).unwrap().remove(a);
+    }
+
+    component_size(&graph, edges[0][0]) * component_size(&graph, edges[0][1])
 }
 
 pub fn tests() {
