@@ -44,7 +44,7 @@ fn parse(input: &str) -> impl Iterator<Item = Stone> + '_ {
 
 fn part1_(low: f64, high: f64, input: &str) -> usize {
     let stones = parse(input).collect::<Vec<_>>();
-    combinatorics::combination(2, &stones)
+    combinatorics::combinations(2, &stones)
         .filter_map(|pair| xy_intersection(*pair[0], *pair[1]))
         .filter(|&(t, u, p)| {
             t >= 0. && u >= 0. && low <= p.x && p.x <= high && low <= p.y && p.y <= high

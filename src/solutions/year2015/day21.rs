@@ -2,7 +2,7 @@ use std::{cmp, mem};
 
 use regex::Regex;
 
-use crate::combinatorics::combination;
+use crate::combinatorics::combinations;
 
 #[derive(Clone, Copy)]
 struct Item {
@@ -26,13 +26,13 @@ impl Item {
             })
             .collect::<Vec<Self>>();
 
-        let weapon_choices = combination(1, &items[0..5]).collect::<Vec<_>>();
-        let armor_choices = combination(0, &items[5..10])
-            .chain(combination(1, &items[5..10]))
+        let weapon_choices = combinations(1, &items[0..5]).collect::<Vec<_>>();
+        let armor_choices = combinations(0, &items[5..10])
+            .chain(combinations(1, &items[5..10]))
             .collect::<Vec<_>>();
-        let ring_choices = combination(0, &items[10..])
-            .chain(combination(1, &items[10..]))
-            .chain(combination(2, &items[10..]))
+        let ring_choices = combinations(0, &items[10..])
+            .chain(combinations(1, &items[10..]))
+            .chain(combinations(2, &items[10..]))
             .collect::<Vec<_>>();
 
         let mut res = Vec::new();

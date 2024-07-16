@@ -1,4 +1,4 @@
-use crate::combinatorics::combination;
+use crate::combinatorics::combinations;
 
 fn parse(input: &str) -> Vec<u64> {
     input
@@ -10,7 +10,7 @@ fn parse(input: &str) -> Vec<u64> {
 pub fn part_(groups: u64, input: &str) -> u64 {
     let packages = parse(input);
     for group_size in 1.. {
-        if let Some(res) = combination(group_size, &packages)
+        if let Some(res) = combinations(group_size, &packages)
             .filter(|group| {
                 // Strictly speaking we should also check that the remaining
                 // packages can be split, but this turns out to be unnecessary.

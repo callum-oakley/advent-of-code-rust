@@ -127,8 +127,8 @@ impl State {
         for lift in self.adjacent_floors() {
             let items_on_floor = self.items_on_floor();
 
-            for items in combinatorics::combination(1, &items_on_floor)
-                .chain(combinatorics::combination(2, &items_on_floor))
+            for items in combinatorics::combinations(1, &items_on_floor)
+                .chain(combinatorics::combinations(2, &items_on_floor))
             {
                 let mut state = self.clone();
 

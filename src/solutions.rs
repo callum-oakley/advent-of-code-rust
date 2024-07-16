@@ -140,6 +140,10 @@ pub mod year2019 {
     pub mod day25;
 }
 
+pub mod year2020 {
+    pub mod day01;
+}
+
 pub mod year2023 {
     pub mod day01;
     pub mod day02;
@@ -1304,6 +1308,15 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
             part1: Some(|input| year2019::day25::part1(input).to_string()),
             part2: None,
             tests: None,
+        },
+    );
+
+    solutions.entry(2020).or_default().insert(
+        1,
+        Solution {
+            part1: Some(|input| year2020::day01::part1(input).to_string()),
+            part2: Some(|input| year2020::day01::part2(input).to_string()),
+            tests: Some(year2020::day01::tests),
         },
     );
 

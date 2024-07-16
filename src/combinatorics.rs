@@ -14,19 +14,19 @@ pub fn permute<T: PartialOrd>(xs: &mut [T]) -> bool {
     false
 }
 
-pub fn combination<T>(k: usize, items: &[T]) -> Box<dyn Iterator<Item = Vec<&T>> + '_> {
+pub fn combinations<T>(k: usize, items: &[T]) -> Box<dyn Iterator<Item = Vec<&T>> + '_> {
     if k == 0 {
         Box::new(iter::once(Vec::new()))
     } else if k > items.len() {
         Box::new(iter::empty())
     } else {
         Box::new(
-            combination(k - 1, &items[1..])
+            combinations(k - 1, &items[1..])
                 .map(|mut choice| {
                     choice.push(&items[0]);
                     choice
                 })
-                .chain(combination(k, &items[1..])),
+                .chain(combinations(k, &items[1..])),
         )
     }
 }
