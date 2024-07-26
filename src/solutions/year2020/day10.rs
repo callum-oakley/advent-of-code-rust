@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
-fn parse(input: &str) -> Vec<u64> {
-    let mut res: Vec<u64> = input
+fn parse(input: &str) -> Vec<i64> {
+    let mut res: Vec<i64> = input
         .split_whitespace()
         .map(|x| x.parse().unwrap())
         .collect();
@@ -11,38 +11,24 @@ fn parse(input: &str) -> Vec<u64> {
     res
 }
 
-fn count_arrangements(cache: &mut HashMap<usize, u64>, adapters: &[u64], i: usize) -> u64 {
-    if let Some(&res) = cache.get(&i) {
-        return res;
-    }
-
-    let res = if i + 1 == adapters.len() {
-        1
-    } else {
-        let options = adapters[i + 1..]
-            .iter()
-            .take_while(|&adapter| adapter - adapters[i] <= 3)
-            .count();
-        (0..options)
-            .map(|j| count_arrangements(cache, adapters, i + 1 + j))
-            .sum()
-    };
-
-    cache.insert(i, res);
-    res
-}
-
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> i64 {
     let adapters = parse(input);
-    let mut diffs: HashMap<u64, u64> = HashMap::new();
+    let mut diffs: HashMap<i64, i64> = HashMap::new();
     for pair in adapters.windows(2) {
         *diffs.entry(pair[1] - pair[0]).or_default() += 1;
     }
     diffs[&1] * diffs[&3]
 }
 
-pub fn part2(input: &str) -> u64 {
-    count_arrangements(&mut HashMap::new(), &parse(input), 0)
+pub fn part2(input: &str) -> i64 {
+    // The number of routes to each adapter is the sum of the number of routes to each of the
+    // possible previous adapters (it's like a messy Pascal's triangle).
+    let adapters = parse(input);
+    let mut routes: HashMap<i64, i64> = HashMap::from([(0, 1)]);
+    for &a in &adapters[1..] {
+        routes.insert(a, (a - 3..a).filter_map(|b| routes.get(&b)).sum());
+    }
+    routes[&adapters[adapters.len() - 1]]
 }
 
 pub fn tests() {
