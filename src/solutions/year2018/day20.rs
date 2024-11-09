@@ -61,14 +61,13 @@ fn search(input: &str) -> impl Iterator<Item = State> {
     let graph = expand(input);
     let mut q = search::breadth_first(State { pos: Z, dist: 0 }, |state| state.pos);
     iter::from_fn(move || {
-        q.pop().map(|state| {
+        q.pop().inspect(|state| {
             for &pos in &graph[&state.pos] {
                 q.push(State {
                     pos,
                     dist: state.dist + 1,
                 });
             }
-            state
         })
     })
 }

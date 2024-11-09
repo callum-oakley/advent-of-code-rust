@@ -28,7 +28,7 @@ fn traversal(input: &str) -> impl Iterator<Item = State> {
         |state| state.pos,
     );
     iter::from_fn(move || {
-        q.pop().map(|state| {
+        q.pop().inspect(|state| {
             for pos in grid::adjacent4(state.pos) {
                 if pos.x >= 0 && pos.y >= 0 && is_open(seed, pos) {
                     q.push(State {
@@ -37,7 +37,6 @@ fn traversal(input: &str) -> impl Iterator<Item = State> {
                     });
                 }
             }
-            state
         })
     })
 }

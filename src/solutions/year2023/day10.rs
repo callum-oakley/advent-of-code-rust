@@ -47,13 +47,12 @@ fn boundary(start: Vector, pipes: &Grid<Vec<Vector>>) -> Vec<Vector> {
 fn area(start: Vector, boundary: &HashSet<Vector>) -> impl Iterator<Item = Vector> + '_ {
     let mut q = search::breadth_first(start, |&state| state);
     iter::from_fn(move || {
-        q.pop().map(|state| {
+        q.pop().inspect(|&state| {
             for pos in grid::adjacent4(state) {
                 if !boundary.contains(&pos) {
                     q.push(pos);
                 }
             }
-            state
         })
     })
 }
