@@ -5,6 +5,8 @@ fn parse(input: &str) -> Vec<u32> {
         .collect()
 }
 
+// false positive: https://github.com/rust-lang/rust-clippy/issues/13185
+#[expect(clippy::manual_inspect)]
 pub fn part1(input: &str) -> usize {
     parse(input)
         .chunks_mut(3)

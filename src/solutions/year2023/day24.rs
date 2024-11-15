@@ -56,7 +56,7 @@ pub fn part1(input: &str) -> usize {
     part1_(2e14, 4e14, input)
 }
 
-#[allow(clippy::cast_possible_truncation)]
+#[expect(clippy::cast_possible_truncation)]
 pub fn part2(input: &str) -> i64 {
     let mut stones = parse(input);
     let s0 = stones.next().unwrap();

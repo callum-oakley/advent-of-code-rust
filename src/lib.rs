@@ -1,6 +1,6 @@
 #![cfg_attr(feature = "allow_dead_code", allow(dead_code))]
 #![warn(clippy::pedantic)]
-#![allow(
+#![expect(
     clippy::must_use_candidate,
     clippy::missing_panics_doc,
     clippy::missing_errors_doc

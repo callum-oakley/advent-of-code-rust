@@ -166,7 +166,7 @@ pub fn part2(input: &str) -> u32 {
     unreachable!()
 }
 
-#[allow(clippy::too_many_lines)]
+#[expect(clippy::too_many_lines)]
 pub fn tests() {
     let example0 = [
         "         A           ",

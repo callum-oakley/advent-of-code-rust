@@ -88,7 +88,7 @@ fn main() {
 
         // Clippy doesn't like the redundant to_string when the solution is
         // already a String.
-        #[allow(clippy::redundant_clone, clippy::too_many_lines)]
+        #[expect(clippy::redundant_clone, clippy::too_many_lines)]
         pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {{
             let mut solutions: BTreeMap<u16, BTreeMap<u8, Solution>> = BTreeMap::new();
         "
