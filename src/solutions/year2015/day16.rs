@@ -1,13 +1,11 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::LazyLock};
 
 use regex::Regex;
 
-use lazy_static::lazy_static;
-
-lazy_static! {
-    static ref HEAD_RE: Regex = Regex::new(r"\d+").unwrap();
-    static ref TAIL_RE: Regex = Regex::new(r"(\w+): (\d+)").unwrap();
-    static ref TARGET_STATS: HashMap<&'static str, u16> = vec![
+static HEAD_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d+").unwrap());
+static TAIL_RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(\w+): (\d+)").unwrap());
+static TARGET_STATS: LazyLock<HashMap<&'static str, u16>> = LazyLock::new(|| {
+    vec![
         ("children", 3),
         ("cats", 7),
         ("samoyeds", 2),
@@ -20,8 +18,8 @@ lazy_static! {
         ("perfumes", 1),
     ]
     .into_iter()
-    .collect();
-}
+    .collect()
+});
 
 struct Sue<'a> {
     id: u16,

@@ -1,6 +1,5 @@
-use std::{cmp::Ordering, collections::HashMap};
+use std::{cmp::Ordering, collections::HashMap, sync::LazyLock};
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
 #[derive(Clone, Copy)]
@@ -25,9 +24,8 @@ struct Workflow<'a> {
 
 impl<'a> Workflow<'a> {
     fn new(s: &'a str) -> Self {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"(\w+)(<|>)(\d+):(\w+)").unwrap();
-        }
+        static RE: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"(\w+)(<|>)(\d+):(\w+)").unwrap());
         Self {
             steps: s
                 .split(',')

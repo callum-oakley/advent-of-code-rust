@@ -1,6 +1,5 @@
-use std::cmp::Reverse;
+use std::{cmp::Reverse, sync::LazyLock};
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
@@ -24,12 +23,14 @@ struct Group<'a> {
 }
 
 fn parse_group(army: Army, s: &str) -> Group {
-    lazy_static! {
-        static ref GROUP: Regex = Regex::new(
+    static GROUP: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(
             r"(\d+) units each with (\d+) hit points (\([^)]+\) )?with an attack that does (\d+) (\w+) damage at initiative (\d+)",
-        ).unwrap();
-        static ref MODIFIERS: Regex = Regex::new(r"(weak|immune) to ([\w, ]+)").unwrap();
-    }
+        ).unwrap()
+    });
+    static MODIFIERS: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"(weak|immune) to ([\w, ]+)").unwrap());
+
     let group = GROUP.captures(s).unwrap();
 
     let mut weaknesses = Vec::new();

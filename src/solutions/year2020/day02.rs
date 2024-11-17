@@ -1,10 +1,9 @@
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
+
 use regex::Regex;
 
 fn parse(input: &str) -> impl Iterator<Item = (usize, usize, char, &str)> + '_ {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"(\d+)-(\d+) (\w): (\w+)").unwrap();
-    }
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(\d+)-(\d+) (\w): (\w+)").unwrap());
     RE.captures_iter(input).map(|captures| {
         (
             captures[1].parse().unwrap(),

@@ -1,6 +1,5 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, sync::LazyLock};
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
 use crate::grid::{Grid, IntoVector, Vector};
@@ -13,9 +12,8 @@ struct Claim {
 
 impl From<&str> for Claim {
     fn from(s: &str) -> Self {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"#(\d+) @ (\d+,\d+): (\d+x\d+)").unwrap();
-        }
+        static RE: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"#(\d+) @ (\d+,\d+): (\d+x\d+)").unwrap());
         let captures = RE.captures(s).unwrap();
         Claim {
             id: captures[1].parse().unwrap(),

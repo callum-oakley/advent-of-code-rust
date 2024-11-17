@@ -1,12 +1,10 @@
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
+
 use regex::Regex;
 
-lazy_static! {
-    static ref VOWELS: Regex = Regex::new("a|e|i|o|u").unwrap();
-    static ref AB_CD_PQ_XY: Regex = Regex::new("ab|cd|pq|xy").unwrap();
-}
-
 fn is_nice1(s: &str) -> bool {
+    static VOWELS: LazyLock<Regex> = LazyLock::new(|| Regex::new("a|e|i|o|u").unwrap());
+    static AB_CD_PQ_XY: LazyLock<Regex> = LazyLock::new(|| Regex::new("ab|cd|pq|xy").unwrap());
     VOWELS.find_iter(s).count() >= 3
         && s.as_bytes().windows(2).any(|pair| pair[0] == pair[1])
         && !AB_CD_PQ_XY.is_match(s)

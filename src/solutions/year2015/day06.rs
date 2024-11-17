@@ -1,4 +1,5 @@
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
+
 use regex::Regex;
 
 use crate::grid::{IntoVector, Vector};
@@ -16,10 +17,9 @@ struct Instruction {
 }
 
 fn parse(s: &str) -> impl Iterator<Item = Instruction> + '_ {
-    lazy_static! {
-        static ref RE: Regex =
-            Regex::new(r"(turn on|turn off|toggle) (\d+,\d+) through (\d+,\d+)").unwrap();
-    }
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r"(turn on|turn off|toggle) (\d+,\d+) through (\d+,\d+)").unwrap()
+    });
     RE.captures_iter(s).map(|captures| Instruction {
         op: match &captures[1] {
             "turn on" => Op::On,

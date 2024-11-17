@@ -1,6 +1,5 @@
-use std::cmp::min;
+use std::{cmp::min, sync::LazyLock};
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
 struct Reindeer {
@@ -18,12 +17,12 @@ impl Reindeer {
 }
 
 fn parse(input: &str) -> impl Iterator<Item = Reindeer> + '_ {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(
-            r"\w+ can fly (\d+) km/s for (\d+) seconds, but then must rest for (\d+) seconds."
+    static RE: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(
+            r"\w+ can fly (\d+) km/s for (\d+) seconds, but then must rest for (\d+) seconds.",
         )
-        .unwrap();
-    }
+        .unwrap()
+    });
     RE.captures_iter(input).map(|captures| Reindeer {
         speed: captures[1].parse().unwrap(),
         stamina: captures[2].parse().unwrap(),

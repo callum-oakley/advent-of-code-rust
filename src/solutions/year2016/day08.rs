@@ -1,4 +1,5 @@
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
+
 use regex::Regex;
 
 use crate::{
@@ -13,9 +14,7 @@ enum Instruction {
 }
 
 fn parse(input: &str) -> impl Iterator<Item = Instruction> + '_ {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"\d+").unwrap();
-    }
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d+").unwrap());
     input.lines().map(|line| {
         let line = line.trim();
         let mut nums = RE.find_iter(line);

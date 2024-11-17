@@ -1,6 +1,5 @@
-use std::{collections::HashMap, ops::Add};
+use std::{collections::HashMap, ops::Add, sync::LazyLock};
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
 enum Event {
@@ -16,9 +15,8 @@ struct Log {
 
 impl From<&str> for Log {
     fn from(s: &str) -> Self {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r":(\d\d)\] (\w+) #?(\d+)?").unwrap();
-        }
+        static RE: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r":(\d\d)\] (\w+) #?(\d+)?").unwrap());
         let captures = RE.captures(s).unwrap();
         Log {
             minute: captures[1].parse().unwrap(),

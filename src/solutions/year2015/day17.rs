@@ -1,15 +1,13 @@
 use std::{
     cmp::Ordering,
     iter::{empty, once},
+    sync::LazyLock,
 };
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
 fn parse(input: &str) -> Vec<u32> {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"\d+").unwrap();
-    }
+    static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d+").unwrap());
     let mut containers: Vec<_> = RE
         .find_iter(input)
         .map(|m| m.as_str().parse().unwrap())

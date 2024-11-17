@@ -1,6 +1,5 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, sync::LazyLock};
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
 use crate::vm_2018;
@@ -33,9 +32,7 @@ fn apply(ops: [vm_2018::Op; 16], i: Instruction, regs: &mut Regs) {
     );
 }
 
-lazy_static! {
-    static ref RE: Regex = Regex::new(r"\d+").unwrap();
-}
+static RE: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"\d+").unwrap());
 
 fn parse_sample(input: &str) -> Sample {
     let mut ints = RE.find_iter(input);

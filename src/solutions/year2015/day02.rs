@@ -1,11 +1,9 @@
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
+
 use regex::Regex;
 
-lazy_static! {
-    static ref PRESENT: Regex = Regex::new(r"(\d+)x(\d+)x(\d+)").unwrap();
-}
-
 fn parse(input: &str) -> impl Iterator<Item = [u32; 3]> + '_ {
+    static PRESENT: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"(\d+)x(\d+)x(\d+)").unwrap());
     PRESENT.captures_iter(input).map(|captures| {
         let mut sides: [u32; 3] = [
             captures[1].parse().unwrap(),

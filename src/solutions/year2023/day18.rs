@@ -1,11 +1,11 @@
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
+
 use regex::Regex;
 
 use crate::grid::{IntoVector, Vector, E, N, S, W, Z};
 
-lazy_static! {
-    static ref RE: Regex = Regex::new(r"([UDLR]) (\d+) \(#([0-9a-f]{5})([0-3])\)").unwrap();
-}
+static RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"([UDLR]) (\d+) \(#([0-9a-f]{5})([0-3])\)").unwrap());
 
 fn parse1(input: &str) -> impl Iterator<Item = (Vector, i32)> + '_ {
     RE.captures_iter(input).map(|captures| {

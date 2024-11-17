@@ -3,9 +3,9 @@ use std::{
     iter,
     ops::{Index, IndexMut},
     str::FromStr,
+    sync::LazyLock,
 };
 
-use lazy_static::lazy_static;
 use nalgebra::{SVector, Scalar};
 use regex::Regex;
 
@@ -63,9 +63,7 @@ where
     T::Err: fmt::Debug,
 {
     fn into_vector(self) -> SVector<T, D> {
-        lazy_static! {
-            static ref INTS: Regex = Regex::new(r"-?\d+").unwrap();
-        }
+        static INTS: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"-?\d+").unwrap());
         SVector::from_iterator(INTS.find_iter(self).map(|m| m.as_str().parse().unwrap()))
     }
 }

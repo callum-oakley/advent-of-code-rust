@@ -1,10 +1,10 @@
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
+
 use regex::Regex;
 
 fn part_(recursive: bool, input: &str) -> usize {
-    lazy_static! {
-        static ref RE: Regex = Regex::new(r"^([A-Z]*)\((\d+)x(\d+)\)+(.*)$").unwrap();
-    }
+    static RE: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^([A-Z]*)\((\d+)x(\d+)\)+(.*)$").unwrap());
     if let Some(captures) = RE.captures(input) {
         let scope: usize = captures[2].parse().unwrap();
         let reps: usize = captures[3].parse().unwrap();

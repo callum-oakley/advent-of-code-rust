@@ -1,6 +1,5 @@
-use std::{cmp::Reverse, collections::HashMap};
+use std::{cmp::Reverse, collections::HashMap, sync::LazyLock};
 
-use lazy_static::lazy_static;
 use regex::Regex;
 
 struct Room<'a> {
@@ -11,9 +10,8 @@ struct Room<'a> {
 
 impl<'a> Room<'a> {
     fn new(s: &'a str) -> Self {
-        lazy_static! {
-            static ref RE: Regex = Regex::new(r"([a-z\-]+)-(\d+)\[([a-z]{5})\]").unwrap();
-        }
+        static RE: LazyLock<Regex> =
+            LazyLock::new(|| Regex::new(r"([a-z\-]+)-(\d+)\[([a-z]{5})\]").unwrap());
         let captures = RE.captures(s).unwrap();
         Self {
             name: captures.get(1).unwrap().as_str(),
