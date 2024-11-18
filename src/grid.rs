@@ -327,3 +327,9 @@ where
         res
     }
 }
+
+impl Grid<bool> {
+    pub fn points(&self) -> impl Iterator<Item = Vector> + '_ {
+        self.iter().filter(|&(_, &v)| v).map(|(k, _)| k)
+    }
+}
