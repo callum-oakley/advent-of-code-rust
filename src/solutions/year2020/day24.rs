@@ -53,7 +53,10 @@ pub fn part1(input: &str) -> usize {
 pub fn part2(input: &str) -> usize {
     let mut black = init(parse(input));
     for _ in 0..100 {
-        black = Uniq::new(black.iter().flat_map(|&tile| adjacent(tile)))
+        black = black
+            .iter()
+            .flat_map(|&tile| adjacent(tile))
+            .uniq()
             .filter(|&tile| {
                 let adjacent_count = adjacent(tile).filter(|a| black.contains(a)).count();
                 if black.contains(&tile) {

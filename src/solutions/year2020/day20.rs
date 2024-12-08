@@ -97,7 +97,10 @@ fn assemble(tiles: Vec<Tile>) -> HashMap<Vector, Tile> {
 
     let mut fixed = HashMap::from([(Z, free.pop().unwrap().pop().unwrap())]);
     while !free.is_empty() {
-        let (v, i, j) = Uniq::new(fixed.keys().flat_map(|&v| adjacent4(v)))
+        let (v, i, j) = fixed
+            .keys()
+            .flat_map(|&v| adjacent4(v))
+            .uniq()
             .filter(|v| !fixed.contains_key(v))
             .find_map(|v| {
                 free.iter().enumerate().find_map(|(i, tiles)| {

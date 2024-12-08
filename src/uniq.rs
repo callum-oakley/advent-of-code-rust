@@ -1,35 +1,24 @@
-use std::{collections::HashSet, hash::Hash};
+use std::{collections::HashSet, hash::Hash, iter};
 
-// TODO can we always replace uses of Uniq with `collect::<HashSet<_>>()`
-pub struct Uniq<I: Iterator> {
-    inner: I,
-    seen: HashSet<I::Item>,
+pub trait Uniq: Iterator {
+    fn uniq(self) -> impl Iterator<Item = Self::Item>;
 }
 
-impl<I: Iterator> Uniq<I> {
-    pub fn new(inner: I) -> Self {
-        Self {
-            inner,
-            seen: HashSet::new(),
-        }
-    }
-}
-
-impl<I: Iterator> Iterator for Uniq<I>
+impl<T> Uniq for T
 where
-    I::Item: Eq,
-    I::Item: Hash,
-    I::Item: Clone,
+    T: Iterator,
+    T::Item: Clone + Eq + Hash,
 {
-    type Item = I::Item;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        for item in self.inner.by_ref() {
-            if !self.seen.contains(&item) {
-                self.seen.insert(item.clone());
-                return Some(item);
+    fn uniq(mut self) -> impl Iterator<Item = Self::Item> {
+        let mut seen: HashSet<Self::Item> = HashSet::new();
+        iter::from_fn(move || {
+            for item in self.by_ref() {
+                if !seen.contains(&item) {
+                    seen.insert(item.clone());
+                    return Some(item);
+                }
             }
-        }
-        None
+            None
+        })
     }
 }

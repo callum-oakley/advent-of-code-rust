@@ -33,7 +33,7 @@ fn step<'a>(
 
 pub fn part1(input: &str) -> usize {
     let (reactions, molecule) = parse(input);
-    Uniq::new(step(&reactions, molecule)).count()
+    step(&reactions, molecule).uniq().count()
 }
 
 #[derive(Clone, PartialOrd, Ord, PartialEq, Eq)]

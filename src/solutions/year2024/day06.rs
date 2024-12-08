@@ -1,6 +1,9 @@
 use std::collections::HashSet;
 
-use crate::grid::{Grid, Vector, N, RIGHT};
+use crate::{
+    grid::{Grid, Vector, N, RIGHT},
+    uniq::Uniq,
+};
 
 #[derive(PartialEq, Eq, Hash, Clone, Copy)]
 struct Guard {
@@ -46,8 +49,8 @@ pub fn part1(input: &str) -> usize {
         .0
         .into_iter()
         .map(|guard| guard.pos)
-        .collect::<HashSet<_>>()
-        .len()
+        .uniq()
+        .count()
 }
 
 pub fn part2(input: &str) -> usize {

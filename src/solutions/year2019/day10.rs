@@ -1,8 +1,8 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use ordered_float::OrderedFloat;
 
-use crate::grid::Vector;
+use crate::{grid::Vector, uniq::Uniq};
 
 fn parse(input: &str) -> Vec<Vector> {
     let mut res = Vec::new();
@@ -28,8 +28,8 @@ fn count_visible(asteroids: &[Vector], origin: Vector) -> usize {
         .iter()
         .filter(|&&a| a != origin)
         .map(|&a| theta(a - origin))
-        .collect::<HashSet<_>>()
-        .len()
+        .uniq()
+        .count()
 }
 
 fn origin(asteroids: &[Vector]) -> Vector {

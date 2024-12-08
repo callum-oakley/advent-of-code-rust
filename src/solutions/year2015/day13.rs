@@ -29,7 +29,7 @@ fn part_(preferences: &HashMap<(&str, &str), i32>) -> i32 {
             .sum::<i32>()
             + preferences[&(arrangement[arrangement.len() - 1], arrangement[0])]
     };
-    let mut arrangement: Vec<_> = Uniq::new(preferences.keys().map(|(a, _)| *a)).collect();
+    let mut arrangement: Vec<_> = preferences.keys().map(|(a, _)| *a).uniq().collect();
     arrangement.sort_unstable();
     let mut best_happiness = happiness(&arrangement);
     // Since the arrangement is circular, we can fix the first element
@@ -45,7 +45,12 @@ pub fn part1(input: &str) -> i32 {
 
 pub fn part2(input: &str) -> i32 {
     let mut preferences = parse(input);
-    for guest in Uniq::new(preferences.keys().map(|(a, _)| *a)).collect::<Vec<_>>() {
+    for guest in preferences
+        .keys()
+        .map(|(a, _)| *a)
+        .uniq()
+        .collect::<Vec<_>>()
+    {
         preferences.insert((guest, "me"), 0);
         preferences.insert(("me", guest), 0);
     }

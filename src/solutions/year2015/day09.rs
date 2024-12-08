@@ -27,7 +27,7 @@ fn part_(input: &str, best: fn(u32, u32) -> u32) -> u32 {
             .map(|pair| distances[&(pair[0], pair[1])])
             .sum()
     };
-    let mut route: Vec<_> = Uniq::new(distances.keys().map(|(a, _)| *a)).collect();
+    let mut route: Vec<_> = distances.keys().map(|(a, _)| *a).uniq().collect();
     route.sort_unstable();
     let mut best_distance = distance(&route);
     while permute(&mut route) {
