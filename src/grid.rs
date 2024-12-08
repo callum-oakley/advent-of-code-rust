@@ -183,6 +183,10 @@ impl<T> Grid<T> {
         }
     }
 
+    pub fn contains_key<V: Into<Vector>>(&self, v: V) -> bool {
+        self.get(v).is_some()
+    }
+
     pub fn keys(&self) -> impl Iterator<Item = Vector> {
         let size = self.size;
         let mut pos = Z;

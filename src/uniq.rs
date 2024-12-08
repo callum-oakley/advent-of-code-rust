@@ -1,5 +1,6 @@
 use std::{collections::HashSet, hash::Hash};
 
+// TODO can we always replace uses of Uniq with `collect::<HashSet<_>>()`
 pub struct Uniq<I: Iterator> {
     inner: I,
     seen: HashSet<I::Item>,

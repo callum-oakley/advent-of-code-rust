@@ -24,7 +24,7 @@ fn parse(input: &str) -> (Grid<bool>, Guard) {
 
 fn walk(obstructions: &Grid<bool>, mut guard: Guard) -> (HashSet<Guard>, bool) {
     let mut visited = HashSet::new();
-    while obstructions.get(guard.pos).is_some() {
+    while obstructions.contains_key(guard.pos) {
         if visited.contains(&guard) {
             return (visited, true);
         }
