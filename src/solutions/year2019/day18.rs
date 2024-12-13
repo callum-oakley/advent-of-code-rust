@@ -2,7 +2,7 @@ use std::collections::{BTreeSet, HashMap};
 
 use crate::{
     grid::{Grid, Vector, E, N, NE, NW, S, SE, SW, W, Z},
-    search::{self, Queue},
+    search2,
 };
 
 fn is_open(tile: char) -> bool {
@@ -37,9 +37,7 @@ fn reachable(map: &Grid<char>, pos: Vector) -> Vec<Path> {
         found_key: bool,
     }
 
-    let mut res = Vec::new();
-
-    let mut q = search::breadth_first(
+    search2::breadth_first(
         State {
             pos,
             steps: 0,
@@ -47,31 +45,30 @@ fn reachable(map: &Grid<char>, pos: Vector) -> Vec<Path> {
             found_key: false,
         },
         |state| state.pos,
-    );
-
-    while let Some(state) = q.pop() {
-        if state.found_key {
-            res.push(Path {
-                dest: map[state.pos],
-                steps: state.steps,
-                keys: state.keys,
-            });
-            continue;
-        }
-        for (pos, &tile) in map.adjacent4(state.pos).filter(|&(_, &tile)| is_open(tile)) {
-            let mut state = state.clone();
-            state.pos = pos;
-            state.steps += 1;
-            if is_door(tile) {
-                state.keys.insert(key(tile));
-            } else if is_key(tile) {
-                state.found_key = true;
+        |state, push| {
+            if state.found_key {
+                return;
             }
-            q.push(state);
-        }
-    }
-
-    res
+            for (pos, &tile) in map.adjacent4(state.pos).filter(|&(_, &tile)| is_open(tile)) {
+                let mut state = state.clone();
+                state.pos = pos;
+                state.steps += 1;
+                if is_door(tile) {
+                    state.keys.insert(key(tile));
+                } else if is_key(tile) {
+                    state.found_key = true;
+                }
+                push(state);
+            }
+        },
+    )
+    .filter(|state| state.found_key)
+    .map(|state| Path {
+        dest: map[state.pos],
+        steps: state.steps,
+        keys: state.keys,
+    })
+    .collect()
 }
 
 fn key_graph(map: &Grid<char>) -> HashMap<char, Vec<Path>> {
@@ -105,7 +102,7 @@ fn part_(map: &Grid<char>, robots: Vec<char>) -> usize {
         .unwrap();
 
     // Then A* on this higher level graph is fast enough.
-    let mut q = search::a_star(
+    search2::a_star(
         State {
             robots,
             steps: 0,
@@ -114,27 +111,25 @@ fn part_(map: &Grid<char>, robots: Vec<char>) -> usize {
         |state| (state.robots.clone(), state.keys.clone()),
         |state| state.steps,
         // For each key left to collect, we'll have to move at least min_path_steps.
-        |state| (final_key_count - state.keys.len()) * min_path_steps,
-    );
-
-    while let Some(state) = q.pop() {
-        if state.keys.len() == final_key_count {
-            return state.steps;
-        }
-        for i in 0..state.robots.len() {
-            for path in key_graph[&state.robots[i]]
-                .iter()
-                .filter(|path| path.keys.is_subset(&state.keys))
-            {
-                let mut state = state.clone();
-                state.robots[i] = path.dest;
-                state.steps += path.steps;
-                state.keys.insert(path.dest);
-                q.push(state);
+        move |state| (final_key_count - state.keys.len()) * min_path_steps,
+        move |state, push| {
+            for i in 0..state.robots.len() {
+                for path in key_graph[&state.robots[i]]
+                    .iter()
+                    .filter(|path| path.keys.is_subset(&state.keys))
+                {
+                    let mut state = state.clone();
+                    state.robots[i] = path.dest;
+                    state.steps += path.steps;
+                    state.keys.insert(path.dest);
+                    push(state);
+                }
             }
-        }
-    }
-    unreachable!()
+        },
+    )
+    .find(|state| state.keys.len() == final_key_count)
+    .unwrap()
+    .steps
 }
 
 pub fn part1(input: &str) -> usize {

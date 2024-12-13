@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use crate::{
     grid::{self, Grid, Vector, E, N, S, W},
-    search::{self, Queue},
+    search2,
 };
 
 struct Maze {
@@ -76,45 +76,40 @@ pub fn part1(input: &str) -> u32 {
     }
 
     let maze = parse(input);
-    let mut q = search::breadth_first(
+    search2::breadth_first(
         State {
             pos: maze.start,
             steps: 0,
         },
         |state| state.pos,
-    );
+        move |state, push| {
+            for p in grid::adjacent4(state.pos) {
+                if maze.passages.contains(&p) {
+                    push(State {
+                        pos: p,
+                        steps: state.steps + 1,
+                    });
+                }
+            }
 
-    while let Some(state) = q.pop() {
-        if state.pos == maze.finish {
-            return state.steps;
-        }
-
-        for p in grid::adjacent4(state.pos) {
-            if maze.passages.contains(&p) {
-                q.push(State {
+            if let Some(&p) = maze
+                .outer_portals
+                .get(&state.pos)
+                .or(maze.inner_portals.get(&state.pos))
+            {
+                push(State {
                     pos: p,
                     steps: state.steps + 1,
                 });
             }
-        }
-
-        if let Some(&p) = maze
-            .outer_portals
-            .get(&state.pos)
-            .or(maze.inner_portals.get(&state.pos))
-        {
-            q.push(State {
-                pos: p,
-                steps: state.steps + 1,
-            });
-        }
-    }
-
-    unreachable!()
+        },
+    )
+    .find(|state| state.pos == maze.finish)
+    .unwrap()
+    .steps
 }
 
 pub fn part2(input: &str) -> u32 {
-    #[derive(Debug)]
     struct State {
         pos: Vector,
         level: u32,
@@ -122,48 +117,44 @@ pub fn part2(input: &str) -> u32 {
     }
 
     let maze = parse(input);
-    let mut q = search::breadth_first(
+    search2::breadth_first(
         State {
             pos: maze.start,
             level: 0,
             steps: 0,
         },
         |state| (state.pos, state.level),
-    );
+        move |state, push| {
+            for p in grid::adjacent4(state.pos) {
+                if maze.passages.contains(&p) {
+                    push(State {
+                        pos: p,
+                        level: state.level,
+                        steps: state.steps + 1,
+                    });
+                }
+            }
 
-    while let Some(state) = q.pop() {
-        if state.pos == maze.finish && state.level == 0 {
-            return state.steps;
-        }
-
-        for p in grid::adjacent4(state.pos) {
-            if maze.passages.contains(&p) {
-                q.push(State {
+            if let Some(&p) = maze.outer_portals.get(&state.pos) {
+                if state.level > 0 {
+                    push(State {
+                        pos: p,
+                        level: state.level - 1,
+                        steps: state.steps + 1,
+                    });
+                }
+            } else if let Some(&p) = maze.inner_portals.get(&state.pos) {
+                push(State {
                     pos: p,
-                    level: state.level,
+                    level: state.level + 1,
                     steps: state.steps + 1,
                 });
             }
-        }
-
-        if let Some(&p) = maze.outer_portals.get(&state.pos) {
-            if state.level > 0 {
-                q.push(State {
-                    pos: p,
-                    level: state.level - 1,
-                    steps: state.steps + 1,
-                });
-            }
-        } else if let Some(&p) = maze.inner_portals.get(&state.pos) {
-            q.push(State {
-                pos: p,
-                level: state.level + 1,
-                steps: state.steps + 1,
-            });
-        }
-    }
-
-    unreachable!()
+        },
+    )
+    .find(|state| state.pos == maze.finish && state.level == 0)
+    .unwrap()
+    .steps
 }
 
 #[expect(clippy::too_many_lines)]

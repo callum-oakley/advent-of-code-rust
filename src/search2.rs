@@ -139,7 +139,6 @@ where
 }
 
 /// Search a state space min-cost-plus-heuristic first.
-#[expect(dead_code)]
 pub fn a_star<S, H, K, A, C, D, O>(
     start: S,
     hash_key: H,

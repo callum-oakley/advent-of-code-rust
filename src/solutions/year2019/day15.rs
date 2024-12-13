@@ -1,7 +1,7 @@
 use crate::{
     grid::{Vector, E, N, S, W, Z},
     intcode::VM,
-    search::{self, Queue},
+    search2,
 };
 
 #[derive(Clone)]
@@ -36,7 +36,7 @@ impl State {
 }
 
 fn oxygen_system(input: &str) -> State {
-    let mut q = search::breadth_first(
+    search2::breadth_first(
         State {
             vm: VM::new(input),
             pos: Z,
@@ -44,16 +44,10 @@ fn oxygen_system(input: &str) -> State {
             found_oxygen_system: false,
         },
         |state| state.pos,
-    );
-    while let Some(state) = q.pop() {
-        if state.found_oxygen_system {
-            return state;
-        }
-        for s in state.adjacent() {
-            q.push(s);
-        }
-    }
-    unreachable!()
+        |state, push| state.adjacent().for_each(push),
+    )
+    .find(|state| state.found_oxygen_system)
+    .unwrap()
 }
 
 pub fn part1(input: &str) -> u32 {
@@ -61,19 +55,15 @@ pub fn part1(input: &str) -> u32 {
 }
 
 pub fn part2(input: &str) -> u32 {
-    let mut q = search::breadth_first(
+    search2::breadth_first(
         State {
             steps: 0,
             ..oxygen_system(input)
         },
         |state| state.pos,
-    );
-    let mut max_steps = 0;
-    while let Some(state) = q.pop() {
-        max_steps = max_steps.max(state.steps);
-        for s in state.adjacent() {
-            q.push(s);
-        }
-    }
-    max_steps
+        |state, push| state.adjacent().for_each(push),
+    )
+    .map(|state| state.steps)
+    .max()
+    .unwrap()
 }
