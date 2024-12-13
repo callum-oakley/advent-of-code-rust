@@ -2,7 +2,7 @@ use md5::{Digest, Md5};
 
 use crate::{
     grid::{IntoVector, Vector, Z},
-    search2,
+    search,
 };
 
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -48,7 +48,7 @@ fn adjacent(input: &str, state: &State, push: &mut dyn FnMut(State)) {
 }
 
 pub fn part1(input: &str) -> String {
-    search2::breadth_first(
+    search::breadth_first(
         State {
             path: String::new(),
             pos: Z,
@@ -62,7 +62,7 @@ pub fn part1(input: &str) -> String {
 }
 
 pub fn part2(input: &str) -> usize {
-    search2::breadth_first(
+    search::breadth_first(
         State {
             path: String::new(),
             pos: Z,

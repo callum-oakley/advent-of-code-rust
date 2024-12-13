@@ -1,6 +1,6 @@
 use crate::{
     grid::{self, Grid, Vector},
-    search2,
+    search,
 };
 
 fn parse(input: &str) -> (Grid<bool>, Vector) {
@@ -22,7 +22,7 @@ fn part_(garden: &Grid<bool>, start: Vector, max_steps: usize) -> usize {
         pos: Vector,
         steps: usize,
     }
-    search2::breadth_first(
+    search::breadth_first(
         State {
             pos: start,
             steps: 0,

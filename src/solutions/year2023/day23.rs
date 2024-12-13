@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use crate::{
     grid::{Grid, IntoVector, Vector},
-    search2,
+    search,
 };
 
 #[derive(Clone, Copy, PartialEq)]
@@ -22,7 +22,7 @@ fn parse(input: &str) -> Grid<Tile> {
 }
 
 fn reachable(map: &Grid<Tile>, nodes: &HashSet<Vector>, start: Vector) -> HashMap<Vector, usize> {
-    search2::breadth_first(
+    search::breadth_first(
         (start, 0),
         |&(pos, _)| pos,
         |&(pos, steps), push| {
@@ -65,7 +65,7 @@ fn part_(map: &Grid<Tile>) -> usize {
     let start = Vector::new(1, 0);
     let end = map.size - Vector::new(2, 1);
     let graph = graph(map, start, end);
-    search2::breadth_first_nohash(vec![start], |path, push| {
+    search::breadth_first_nohash(vec![start], |path, push| {
         let pos = *path.last().unwrap();
         if pos != end {
             for &p in graph[&pos].keys() {

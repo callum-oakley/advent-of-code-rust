@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::{
     grid::{self, Grid, Vector, E, N, NE, NW, S, SE, SW, W},
-    search2,
+    search,
 };
 
 fn parse(input: &str) -> (Vector, Grid<Vec<Vector>>) {
@@ -45,7 +45,7 @@ fn boundary(start: Vector, pipes: &Grid<Vec<Vector>>) -> Vec<Vector> {
 }
 
 fn area(start: Vector, boundary: &HashSet<Vector>) -> impl Iterator<Item = Vector> + '_ {
-    search2::breadth_first(
+    search::breadth_first(
         start,
         |&state| state,
         |&state, push| {

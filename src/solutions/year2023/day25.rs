@@ -5,7 +5,7 @@ use std::{
 
 use rand::seq::IteratorRandom;
 
-use crate::search2;
+use crate::search;
 
 fn shortest_path<'a>(
     graph: &HashMap<&'a str, HashSet<&'a str>>,
@@ -16,7 +16,7 @@ fn shortest_path<'a>(
         pos: &'a str,
         path: Vec<&'a str>,
     }
-    search2::breadth_first(
+    search::breadth_first(
         State {
             pos: start,
             path: vec![start],
@@ -36,7 +36,7 @@ fn shortest_path<'a>(
 }
 
 fn component_size(graph: &HashMap<&str, HashSet<&str>>, start: &str) -> usize {
-    search2::breadth_first(
+    search::breadth_first(
         start,
         |&state| state,
         |&state, push| graph[state].iter().copied().for_each(push),

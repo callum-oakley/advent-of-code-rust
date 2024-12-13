@@ -3,7 +3,7 @@ use regex::Regex;
 
 use crate::{
     grid::{Bounds, IntoVector},
-    search2,
+    search,
 };
 
 #[derive(Copy, Clone)]
@@ -70,7 +70,7 @@ pub fn part1(input: &str) -> usize {
 pub fn part2(input: &str) -> i32 {
     let bots = parse(input);
     let bounds = Bounds::new(bots.iter().map(|bot| bot.pos));
-    search2::dijkstra(
+    search::dijkstra(
         Cube {
             pos: bounds.min,
             w: bounds.size().max(),

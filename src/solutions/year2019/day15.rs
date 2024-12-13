@@ -1,7 +1,7 @@
 use crate::{
     grid::{Vector, E, N, S, W, Z},
     intcode::VM,
-    search2,
+    search,
 };
 
 #[derive(Clone)]
@@ -36,7 +36,7 @@ impl State {
 }
 
 fn oxygen_system(input: &str) -> State {
-    search2::breadth_first(
+    search::breadth_first(
         State {
             vm: VM::new(input),
             pos: Z,
@@ -55,7 +55,7 @@ pub fn part1(input: &str) -> u32 {
 }
 
 pub fn part2(input: &str) -> u32 {
-    search2::breadth_first(
+    search::breadth_first(
         State {
             steps: 0,
             ..oxygen_system(input)

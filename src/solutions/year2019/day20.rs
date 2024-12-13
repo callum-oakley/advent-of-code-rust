@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use crate::{
     grid::{self, Grid, Vector, E, N, S, W},
-    search2,
+    search,
 };
 
 struct Maze {
@@ -76,7 +76,7 @@ pub fn part1(input: &str) -> u32 {
     }
 
     let maze = parse(input);
-    search2::breadth_first(
+    search::breadth_first(
         State {
             pos: maze.start,
             steps: 0,
@@ -117,7 +117,7 @@ pub fn part2(input: &str) -> u32 {
     }
 
     let maze = parse(input);
-    search2::breadth_first(
+    search::breadth_first(
         State {
             pos: maze.start,
             level: 0,

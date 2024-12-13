@@ -4,7 +4,7 @@ use regex::Regex;
 
 use crate::{
     grid::{self, Grid, Vector, Z},
-    search2,
+    search,
 };
 
 #[derive(Copy, Clone)]
@@ -64,7 +64,7 @@ fn part2_(size: Vector, input: &str) -> usize {
         }
     }
 
-    search2::a_star(
+    search::a_star(
         State {
             hole: hole.unwrap(),
             goal: Vector::new(size.x - 1, 0),

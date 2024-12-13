@@ -1,6 +1,6 @@
 use crate::{
     grid::{self, Vector},
-    search2,
+    search,
 };
 
 fn is_open(seed: u32, v: Vector) -> bool {
@@ -18,7 +18,7 @@ struct State {
 
 fn search(input: &str) -> impl Iterator<Item = State> {
     let seed = input.parse().unwrap();
-    search2::breadth_first(
+    search::breadth_first(
         State {
             pos: Vector::new(1, 1),
             steps: 0,

@@ -2,7 +2,7 @@ use std::collections::{BTreeSet, HashMap};
 
 use crate::{
     grid::{Grid, Vector, E, N, NE, NW, S, SE, SW, W, Z},
-    search2,
+    search,
 };
 
 fn is_open(tile: char) -> bool {
@@ -37,7 +37,7 @@ fn reachable(map: &Grid<char>, pos: Vector) -> Vec<Path> {
         found_key: bool,
     }
 
-    search2::breadth_first(
+    search::breadth_first(
         State {
             pos,
             steps: 0,
@@ -102,7 +102,7 @@ fn part_(map: &Grid<char>, robots: Vec<char>) -> usize {
         .unwrap();
 
     // Then A* on this higher level graph is fast enough.
-    search2::a_star(
+    search::a_star(
         State {
             robots,
             steps: 0,

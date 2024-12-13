@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::search2;
+use crate::search;
 
 fn parse(input: &str) -> HashMap<u32, Vec<u32>> {
     let mut res = HashMap::new();
@@ -15,7 +15,7 @@ fn parse(input: &str) -> HashMap<u32, Vec<u32>> {
 }
 
 fn search(graph: &HashMap<u32, Vec<u32>>, start: u32) -> impl Iterator<Item = u32> + '_ {
-    search2::breadth_first(
+    search::breadth_first(
         start,
         |&pos| pos,
         |&pos, push| graph[&pos].iter().copied().for_each(push),

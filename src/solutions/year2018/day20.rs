@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use crate::{
     grid::{IntoVector, Vector, Z},
-    search2,
+    search,
 };
 
 // Construct a map of the base as a graph by stepping through the regex keeping track of all the
@@ -56,7 +56,7 @@ struct State {
 
 fn search(input: &str) -> impl Iterator<Item = State> {
     let graph = expand(input);
-    search2::breadth_first(
+    search::breadth_first(
         State { pos: Z, dist: 0 },
         |state| state.pos,
         move |state, push| {

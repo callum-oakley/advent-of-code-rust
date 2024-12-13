@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use crate::{grid::Grid, hash, search2};
+use crate::{grid::Grid, hash, search};
 
 fn disk(input: &str) -> Grid<bool> {
     let mut res = Grid::new(false, [128, 128]);
@@ -27,7 +27,7 @@ pub fn part2(input: &str) -> usize {
 
     while !unexplored.is_empty() {
         regions += 1;
-        for pos in search2::breadth_first(
+        for pos in search::breadth_first(
             *unexplored.iter().next().unwrap(),
             |&pos| pos,
             |&pos, push| {

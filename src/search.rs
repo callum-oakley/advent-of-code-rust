@@ -2,9 +2,11 @@ use std::{
     cmp::{Ordering, Reverse},
     collections::{BinaryHeap, HashSet, VecDeque},
     hash::Hash,
+    iter,
+    ops::Add,
 };
 
-pub trait Queue {
+trait Queue {
     type Item;
 
     fn push(&mut self, value: Self::Item);
@@ -49,7 +51,7 @@ impl<V, O: Ord> Ord for CostValue<V, O> {
     }
 }
 
-pub struct CostHeap<V, C, O> {
+struct CostHeap<V, C, O> {
     cost: C,
     binary_heap: BinaryHeap<Reverse<CostValue<V, O>>>,
 }
@@ -74,37 +76,110 @@ where
     }
 }
 
-/// Traversal represents a graph traversal. The graph structure is implicit, it's up to the caller
-/// to push adjacent states after each pop, but we'll remember states we've visited so that each
-/// distinct state is popped at most once.
-pub struct Traversal<Q, H, K> {
-    queue: Q,
-    hash_key: H,
-    visited: HashSet<K>,
-}
-
-impl<Q, H, K> Queue for Traversal<Q, H, K>
+fn search<Q, S, H, K, A>(
+    mut queue: Q,
+    start: S,
+    mut hash_key: H,
+    mut adjacent: A,
+) -> impl Iterator<Item = S>
 where
-    Q: Queue,
-    H: FnMut(&Q::Item) -> K,
+    Q: Queue<Item = S>,
+    H: FnMut(&S) -> K,
     K: Eq + Hash,
+    A: FnMut(&S, &mut dyn FnMut(S)),
 {
-    type Item = Q::Item;
-
-    fn push(&mut self, state: Self::Item) {
-        if !self.visited.contains(&(self.hash_key)(&state)) {
-            self.queue.push(state);
-        }
-    }
-
-    fn pop(&mut self) -> Option<Self::Item> {
-        while let Some(state) = self.queue.pop() {
-            let key = (self.hash_key)(&state);
-            if !self.visited.contains(&key) {
-                self.visited.insert(key);
+    let mut visited = HashSet::new();
+    queue.push(start);
+    iter::from_fn(move || {
+        while let Some(state) = queue.pop() {
+            let key = hash_key(&state);
+            if !visited.contains(&key) {
+                visited.insert(key);
+                adjacent(&state, &mut |a| queue.push(a));
                 return Some(state);
             }
         }
         None
-    }
+    })
+}
+
+/// Search a state space breadth first.
+pub fn breadth_first<S, H, K, A>(start: S, hash_key: H, adjacent: A) -> impl Iterator<Item = S>
+where
+    H: FnMut(&S) -> K,
+    K: Eq + Hash,
+    A: FnMut(&S, &mut dyn FnMut(S)),
+{
+    search(VecDeque::new(), start, hash_key, adjacent)
+}
+
+/// Search a state space min-cost first.
+pub fn dijkstra<S, H, K, A, C, O>(
+    start: S,
+    hash_key: H,
+    cost: C,
+    adjacent: A,
+) -> impl Iterator<Item = S>
+where
+    H: FnMut(&S) -> K,
+    K: Eq + Hash,
+    A: FnMut(&S, &mut dyn FnMut(S)),
+    C: FnMut(&S) -> O,
+    O: Ord,
+{
+    search(
+        CostHeap {
+            cost,
+            binary_heap: BinaryHeap::new(),
+        },
+        start,
+        hash_key,
+        adjacent,
+    )
+}
+
+/// Search a state space min-cost-plus-heuristic first.
+pub fn a_star<S, H, K, A, C, D, O>(
+    start: S,
+    hash_key: H,
+    mut cost: C,
+    mut heuristic: D,
+    adjacent: A,
+) -> impl Iterator<Item = S>
+where
+    H: FnMut(&S) -> K,
+    K: Eq + Hash,
+    A: FnMut(&S, &mut dyn FnMut(S)),
+    C: FnMut(&S) -> O,
+    D: FnMut(&S) -> O,
+    O: Add,
+    O::Output: Ord,
+{
+    dijkstra(
+        start,
+        hash_key,
+        move |state| cost(state) + heuristic(state),
+        adjacent,
+    )
+}
+
+fn search_nohash<Q, S, A>(mut queue: Q, start: S, mut adjacent: A) -> impl Iterator<Item = S>
+where
+    Q: Queue<Item = S>,
+    A: FnMut(&S, &mut dyn FnMut(S)),
+{
+    queue.push(start);
+    iter::from_fn(move || {
+        queue
+            .pop()
+            .inspect(|state| adjacent(state, &mut |a| queue.push(a)))
+    })
+}
+
+/// Search a state space breadth first (may visit the same state multiple times).
+pub fn breadth_first_nohash<S, A>(start: S, adjacent: A) -> impl Iterator<Item = S>
+where
+    A: FnMut(&S, &mut dyn FnMut(S)),
+{
+    search_nohash(VecDeque::new(), start, adjacent)
 }

@@ -1,6 +1,6 @@
 use regex::Regex;
 
-use crate::{combinatorics, search2};
+use crate::{combinatorics, search};
 
 #[derive(Clone, Copy)]
 enum ItemKind {
@@ -149,7 +149,7 @@ fn adjacent(state: &State, push: &mut dyn FnMut(State)) {
 }
 
 fn part_(items: Vec<Item>) -> u8 {
-    search2::a_star(
+    search::a_star(
         State {
             lift: 0,
             items,

@@ -1,6 +1,6 @@
 use std::mem;
 
-use crate::{search2, uniq::Uniq};
+use crate::{search, uniq::Uniq};
 
 fn parse(input: &str) -> (Vec<(&str, &str)>, &str) {
     let (reactions, molecule) = input.split_once("\n\n").unwrap();
@@ -45,7 +45,7 @@ pub fn part2(input: &str) -> usize {
         mem::swap(a, b);
     }
 
-    search2::a_star(
+    search::a_star(
         State {
             molecule: molecule.to_owned(),
             steps: 0,

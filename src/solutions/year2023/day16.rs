@@ -1,6 +1,6 @@
 use crate::{
     grid::{Grid, IntoChar, Turn, Vector, E, LEFT, N, RIGHT, S, W, Z},
-    search2,
+    search,
     uniq::Uniq,
 };
 
@@ -27,7 +27,7 @@ impl Packet {
 }
 
 fn energize(tiles: &Grid<char>, beam: Packet) -> usize {
-    search2::breadth_first(
+    search::breadth_first(
         beam,
         |&packet| packet,
         |&packet, push| {

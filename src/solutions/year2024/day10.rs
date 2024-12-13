@@ -2,7 +2,7 @@ use std::hash::Hash;
 
 use crate::{
     grid::{self, Grid, Vector},
-    search2,
+    search,
 };
 
 fn score<H, K>(grid: &Grid<u32>, v: Vector, hash_key: H) -> usize
@@ -10,7 +10,7 @@ where
     H: FnMut(&Vec<Vector>) -> K,
     K: Eq + Hash,
 {
-    search2::breadth_first(vec![v], hash_key, |path, push| {
+    search::breadth_first(vec![v], hash_key, |path, push| {
         let v = *path.last().unwrap();
         let height = grid[v];
         grid::adjacent4(v)

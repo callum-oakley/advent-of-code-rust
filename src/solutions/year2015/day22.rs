@@ -2,7 +2,7 @@ use std::{cmp, collections::BTreeMap};
 
 use regex::Regex;
 
-use crate::search2;
+use crate::search;
 
 #[derive(Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
 struct Character {
@@ -138,7 +138,7 @@ impl State {
 }
 
 fn part_(hard_mode: bool, input: &str) -> i32 {
-    search2::dijkstra(
+    search::dijkstra(
         State {
             player: Character::PLAYER,
             boss: Character::boss(input),

@@ -6,7 +6,7 @@ use std::{
 use crate::{
     combinatorics::permute,
     grid::{self, Grid, Vector},
-    search2,
+    search,
 };
 
 fn distance(ducts: &HashSet<Vector>, a: Vector, b: Vector) -> u32 {
@@ -14,7 +14,7 @@ fn distance(ducts: &HashSet<Vector>, a: Vector, b: Vector) -> u32 {
         pos: Vector,
         steps: u32,
     }
-    search2::breadth_first(
+    search::breadth_first(
         State { pos: a, steps: 0 },
         |state| state.pos,
         |state, push| {

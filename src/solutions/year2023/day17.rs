@@ -1,6 +1,6 @@
 use crate::{
     grid::{Grid, Turn, Vector, E, LEFT, NW, RIGHT, Z},
-    search2,
+    search,
 };
 
 #[derive(Clone)]
@@ -30,7 +30,7 @@ fn part_(min_straight_len: u8, max_straight_len: u8, input: &str) -> u32 {
     let city = Grid::parse(input, |_, c| c.to_digit(10).unwrap());
     let target = city.size + NW;
 
-    search2::dijkstra(
+    search::dijkstra(
         Crucible {
             pos: Z,
             dir: E,
