@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use crate::search::{self, Queue};
+use crate::search2;
 
 fn parse(input: &str) -> HashMap<u32, Vec<u32>> {
     let mut res = HashMap::new();
@@ -14,17 +14,16 @@ fn parse(input: &str) -> HashMap<u32, Vec<u32>> {
     res
 }
 
+fn search(graph: &HashMap<u32, Vec<u32>>, start: u32) -> impl Iterator<Item = u32> + '_ {
+    search2::breadth_first(
+        start,
+        |&pos| pos,
+        |&pos, push| graph[&pos].iter().copied().for_each(push),
+    )
+}
+
 pub fn part1(input: &str) -> usize {
-    let graph = parse(input);
-    let mut q = search::breadth_first(0, |&pos| pos);
-    let mut count = 0;
-    while let Some(pos) = q.pop() {
-        count += 1;
-        for &p in &graph[&pos] {
-            q.push(p);
-        }
-    }
-    count
+    search(&parse(input), 0).count()
 }
 
 pub fn part2(input: &str) -> usize {
@@ -35,12 +34,8 @@ pub fn part2(input: &str) -> usize {
 
     while !unexplored.is_empty() {
         components += 1;
-        let mut q = search::breadth_first(*unexplored.iter().next().unwrap(), |&pos| pos);
-        while let Some(pos) = q.pop() {
+        for pos in search(&graph, *unexplored.iter().next().unwrap()) {
             unexplored.remove(&pos);
-            for &p in &graph[&pos] {
-                q.push(p);
-            }
         }
     }
 
