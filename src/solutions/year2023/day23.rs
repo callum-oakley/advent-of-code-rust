@@ -1,8 +1,8 @@
-use std::collections::{HashMap, HashSet, VecDeque};
+use std::collections::{HashMap, HashSet};
 
 use crate::{
     grid::{Grid, IntoVector, Vector},
-    search::{self, Queue},
+    search2,
 };
 
 #[derive(Clone, Copy, PartialEq)]
@@ -22,38 +22,25 @@ fn parse(input: &str) -> Grid<Tile> {
 }
 
 fn reachable(map: &Grid<Tile>, nodes: &HashSet<Vector>, start: Vector) -> HashMap<Vector, usize> {
-    struct State {
-        pos: Vector,
-        steps: usize,
-    }
-    let mut res = HashMap::new();
-    let mut q = search::breadth_first(
-        State {
-            pos: start,
-            steps: 0,
-        },
-        |state| state.pos,
-    );
-    while let Some(state) = q.pop() {
-        if nodes.contains(&state.pos) && state.pos != start {
-            res.insert(state.pos, state.steps);
-        } else if let Tile::Slope(dir) = map[state.pos] {
-            q.push(State {
-                pos: state.pos + dir,
-                steps: state.steps + 1,
-            });
-        } else {
-            for (pos, &tile) in map.adjacent4(state.pos) {
-                if tile != Tile::Forest {
-                    q.push(State {
-                        pos,
-                        steps: state.steps + 1,
-                    });
+    search2::breadth_first(
+        (start, 0),
+        |&(pos, _)| pos,
+        |&(pos, steps), push| {
+            if nodes.contains(&pos) && pos != start {
+                // stop
+            } else if let Tile::Slope(dir) = map[pos] {
+                push((pos + dir, steps + 1));
+            } else {
+                for (pos, &tile) in map.adjacent4(pos) {
+                    if tile != Tile::Forest {
+                        push((pos, steps + 1));
+                    }
                 }
             }
-        }
-    }
-    res
+        },
+    )
+    .filter(|&(pos, _)| nodes.contains(&pos) && pos != start)
+    .collect()
 }
 
 fn graph(map: &Grid<Tile>, start: Vector, end: Vector) -> HashMap<Vector, HashMap<Vector, usize>> {
@@ -78,23 +65,22 @@ fn part_(map: &Grid<Tile>) -> usize {
     let start = Vector::new(1, 0);
     let end = map.size - Vector::new(2, 1);
     let graph = graph(map, start, end);
-    let mut q = VecDeque::from([vec![start]]);
-    let mut max_steps = 0;
-    while let Some(path) = q.pop() {
+    search2::breadth_first_nohash(vec![start], |path, push| {
         let pos = *path.last().unwrap();
-        if pos == end {
-            max_steps = max_steps.max(steps(&graph, &path));
-        } else {
+        if pos != end {
             for &p in graph[&pos].keys() {
                 if !path.contains(&p) {
                     let mut path = path.clone();
                     path.push(p);
-                    q.push(path);
+                    push(path);
                 }
             }
         }
-    }
-    max_steps
+    })
+    .filter(|path| *path.last().unwrap() == end)
+    .map(|path| steps(&graph, &path))
+    .max()
+    .unwrap()
 }
 
 pub fn part1(input: &str) -> usize {

@@ -5,7 +5,7 @@ use std::{
 
 use rand::seq::IteratorRandom;
 
-use crate::search::{self, Queue};
+use crate::search2;
 
 fn shortest_path<'a>(
     graph: &HashMap<&'a str, HashSet<&'a str>>,
@@ -16,42 +16,32 @@ fn shortest_path<'a>(
         pos: &'a str,
         path: Vec<&'a str>,
     }
-
-    let mut q = search::breadth_first(
+    search2::breadth_first(
         State {
             pos: start,
             path: vec![start],
         },
         |state| state.pos,
-    );
-
-    while let Some(state) = q.pop() {
-        if state.pos == goal {
-            return state.path;
-        }
-        for &pos in &graph[state.pos] {
-            let mut path = state.path.clone();
-            path.push(pos);
-            q.push(State { pos, path });
-        }
-    }
-
-    unreachable!()
+        |state, push| {
+            for &pos in &graph[state.pos] {
+                let mut path = state.path.clone();
+                path.push(pos);
+                push(State { pos, path });
+            }
+        },
+    )
+    .find(|state| state.pos == goal)
+    .unwrap()
+    .path
 }
 
 fn component_size(graph: &HashMap<&str, HashSet<&str>>, start: &str) -> usize {
-    let mut size = 0;
-
-    let mut q = search::breadth_first(start, |&state| state);
-
-    while let Some(a) = q.pop() {
-        size += 1;
-        for &b in &graph[a] {
-            q.push(b);
-        }
-    }
-
-    size
+    search2::breadth_first(
+        start,
+        |&state| state,
+        |&state, push| graph[state].iter().copied().for_each(push),
+    )
+    .count()
 }
 
 pub fn part1(input: &str) -> usize {

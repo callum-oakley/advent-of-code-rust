@@ -1,6 +1,6 @@
 use crate::{
     grid::{Grid, Turn, Vector, E, LEFT, NW, RIGHT, Z},
-    search::{self, Queue},
+    search2,
 };
 
 #[derive(Clone)]
@@ -29,7 +29,8 @@ impl Crucible {
 fn part_(min_straight_len: u8, max_straight_len: u8, input: &str) -> u32 {
     let city = Grid::parse(input, |_, c| c.to_digit(10).unwrap());
     let target = city.size + NW;
-    let mut q = search::dijkstra(
+
+    search2::dijkstra(
         Crucible {
             pos: Z,
             dir: E,
@@ -38,26 +39,25 @@ fn part_(min_straight_len: u8, max_straight_len: u8, input: &str) -> u32 {
         },
         |crucible| (crucible.pos, crucible.dir, crucible.straight_len),
         |crucible| crucible.heat_loss,
-    );
-    while let Some(crucible) = q.pop() {
-        if crucible.pos == target && crucible.straight_len >= min_straight_len {
-            return crucible.heat_loss;
-        }
-        if crucible.straight_len >= min_straight_len {
-            if let Some(crucible) = crucible.step(&city, Some(LEFT)) {
-                q.push(crucible);
+        move |crucible, push| {
+            if crucible.straight_len >= min_straight_len {
+                if let Some(crucible) = crucible.step(&city, Some(LEFT)) {
+                    push(crucible);
+                }
+                if let Some(crucible) = crucible.step(&city, Some(RIGHT)) {
+                    push(crucible);
+                }
             }
-            if let Some(crucible) = crucible.step(&city, Some(RIGHT)) {
-                q.push(crucible);
+            if crucible.straight_len < max_straight_len {
+                if let Some(crucible) = crucible.step(&city, None) {
+                    push(crucible);
+                }
             }
-        }
-        if crucible.straight_len < max_straight_len {
-            if let Some(crucible) = crucible.step(&city, None) {
-                q.push(crucible);
-            }
-        }
-    }
-    unreachable!()
+        },
+    )
+    .find(|crucible| crucible.pos == target && crucible.straight_len >= min_straight_len)
+    .unwrap()
+    .heat_loss
 }
 
 pub fn part1(input: &str) -> u32 {

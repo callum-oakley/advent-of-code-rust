@@ -1,8 +1,8 @@
-use std::{collections::HashSet, iter};
+use std::collections::HashSet;
 
 use crate::{
     grid::{self, Grid, Vector, E, N, NE, NW, S, SE, SW, W},
-    search::{self, Queue},
+    search2,
 };
 
 fn parse(input: &str) -> (Vector, Grid<Vec<Vector>>) {
@@ -45,16 +45,15 @@ fn boundary(start: Vector, pipes: &Grid<Vec<Vector>>) -> Vec<Vector> {
 }
 
 fn area(start: Vector, boundary: &HashSet<Vector>) -> impl Iterator<Item = Vector> + '_ {
-    let mut q = search::breadth_first(start, |&state| state);
-    iter::from_fn(move || {
-        q.pop().inspect(|&state| {
-            for pos in grid::adjacent4(state) {
-                if !boundary.contains(&pos) {
-                    q.push(pos);
-                }
-            }
-        })
-    })
+    search2::breadth_first(
+        start,
+        |&state| state,
+        |&state, push| {
+            grid::adjacent4(state)
+                .filter(|a| !boundary.contains(a))
+                .for_each(push);
+        },
+    )
 }
 
 fn count_area(start: Vector, boundary: &HashSet<Vector>, size: Vector) -> Option<usize> {

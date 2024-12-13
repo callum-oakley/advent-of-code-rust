@@ -1,6 +1,6 @@
 use crate::{
     grid::{self, Grid, Vector},
-    search::{self, Queue},
+    search2,
 };
 
 fn parse(input: &str) -> (Grid<bool>, Vector) {
@@ -17,43 +17,40 @@ fn parse(input: &str) -> (Grid<bool>, Vector) {
     (garden, start.unwrap())
 }
 
-fn part_(garden: &Grid<bool>, start: Vector, max_steps: u64) -> u64 {
+fn part_(garden: &Grid<bool>, start: Vector, max_steps: usize) -> usize {
     struct State {
         pos: Vector,
-        steps: u64,
+        steps: usize,
     }
-    let mut q = search::breadth_first(
+    search2::breadth_first(
         State {
             pos: start,
             steps: 0,
         },
         |state| state.pos,
-    );
-    let mut res = 0;
-    while let Some(state) = q.pop() {
-        if state.steps % 2 == max_steps % 2 {
-            res += 1;
-        }
-        if state.steps < max_steps {
-            for pos in grid::adjacent4(state.pos) {
-                if garden[pos.zip_map(&garden.size, i32::rem_euclid)] {
-                    q.push(State {
-                        pos,
-                        steps: state.steps + 1,
-                    });
+        |state, push| {
+            if state.steps < max_steps {
+                for pos in grid::adjacent4(state.pos) {
+                    if garden[pos.zip_map(&garden.size, i32::rem_euclid)] {
+                        push(State {
+                            pos,
+                            steps: state.steps + 1,
+                        });
+                    }
                 }
             }
-        }
-    }
-    res
+        },
+    )
+    .filter(|state| state.steps % 2 == max_steps % 2)
+    .count()
 }
 
 // https://en.wikipedia.org/wiki/Lagrange_polynomial
 fn lagrange(
-    (x0, y0): (u64, u64),
-    (x1, y1): (u64, u64),
-    (x2, y2): (u64, u64),
-) -> impl Fn(u64) -> u64 {
+    (x0, y0): (usize, usize),
+    (x1, y1): (usize, usize),
+    (x2, y2): (usize, usize),
+) -> impl Fn(usize) -> usize {
     move |x| {
         y0 * (x - x1) * (x - x2) / ((x1 - x0) * (x2 - x0))
             - y1 * (x - x0) * (x - x2) / ((x2 - x1) * (x1 - x0))
@@ -61,12 +58,12 @@ fn lagrange(
     }
 }
 
-pub fn part1(input: &str) -> u64 {
+pub fn part1(input: &str) -> usize {
     let (garden, start) = parse(input);
     part_(&garden, start, 64)
 }
 
-pub fn part2(input: &str) -> u64 {
+pub fn part2(input: &str) -> usize {
     let (garden, start) = parse(input);
     let y0 = part_(&garden, start, 65);
     let y1 = part_(&garden, start, 65 + 131);

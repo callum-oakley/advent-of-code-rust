@@ -1,8 +1,7 @@
-use std::collections::HashSet;
-
 use crate::{
     grid::{Grid, IntoChar, Turn, Vector, E, LEFT, N, RIGHT, S, W, Z},
-    search::{self, Queue},
+    search2,
+    uniq::Uniq,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
@@ -28,25 +27,28 @@ impl Packet {
 }
 
 fn energize(tiles: &Grid<char>, beam: Packet) -> usize {
-    let mut energized = HashSet::new();
-    let mut q = search::breadth_first(beam, |&p| p);
-    while let Some(packet) = q.pop() {
-        if tiles.get(packet.pos).is_none() {
-            continue;
-        }
-        energized.insert(packet.pos);
-        match (tiles[packet.pos], packet.dir.into_char()) {
-            ('.', _) | ('|', 'N' | 'S') | ('-', 'E' | 'W') => q.push(packet.tick()),
-            ('\\', 'N' | 'S') | ('/', 'E' | 'W') => q.push(packet.turn(LEFT).tick()),
-            ('\\', 'E' | 'W') | ('/', 'N' | 'S') => q.push(packet.turn(RIGHT).tick()),
-            ('|', 'E' | 'W') | ('-', 'N' | 'S') => {
-                q.push(packet.turn(LEFT).tick());
-                q.push(packet.turn(RIGHT).tick());
+    search2::breadth_first(
+        beam,
+        |&packet| packet,
+        |&packet, push| {
+            if let Some(tile) = tiles.get(packet.pos) {
+                match (tile, packet.dir.into_char()) {
+                    ('.', _) | ('|', 'N' | 'S') | ('-', 'E' | 'W') => push(packet.tick()),
+                    ('\\', 'N' | 'S') | ('/', 'E' | 'W') => push(packet.turn(LEFT).tick()),
+                    ('\\', 'E' | 'W') | ('/', 'N' | 'S') => push(packet.turn(RIGHT).tick()),
+                    ('|', 'E' | 'W') | ('-', 'N' | 'S') => {
+                        push(packet.turn(LEFT).tick());
+                        push(packet.turn(RIGHT).tick());
+                    }
+                    _ => unreachable!(),
+                }
             }
-            _ => unreachable!(),
-        }
-    }
-    energized.len()
+        },
+    )
+    .map(|packet| packet.pos)
+    .filter(|&pos| tiles.contains_key(pos))
+    .uniq()
+    .count()
 }
 
 pub fn part1(input: &str) -> usize {

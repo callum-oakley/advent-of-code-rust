@@ -163,3 +163,24 @@ where
         adjacent,
     )
 }
+
+fn search_nohash<Q, S, A>(mut queue: Q, start: S, mut adjacent: A) -> impl Iterator<Item = S>
+where
+    Q: Queue<Item = S>,
+    A: FnMut(&S, &mut dyn FnMut(S)),
+{
+    queue.push(start);
+    iter::from_fn(move || {
+        queue
+            .pop()
+            .inspect(|state| adjacent(state, &mut |a| queue.push(a)))
+    })
+}
+
+/// Search a state space breadth first (may visit the same state multiple times).
+pub fn breadth_first_nohash<S, A>(start: S, adjacent: A) -> impl Iterator<Item = S>
+where
+    A: FnMut(&S, &mut dyn FnMut(S)),
+{
+    search_nohash(VecDeque::new(), start, adjacent)
+}
