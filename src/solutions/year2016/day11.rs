@@ -1,9 +1,6 @@
 use regex::Regex;
 
-use crate::{
-    combinatorics,
-    search::{self, Queue},
-};
+use crate::{combinatorics, search2};
 
 #[derive(Clone, Copy)]
 enum ItemKind {
@@ -96,63 +93,63 @@ impl State {
             _ => vec![self.lift - 1, self.lift + 1],
         }
     }
+}
 
-    // The best we can hope for is to move two items up and one down each step. Annoyingly, the
-    // heuristic alone gives the correct answer for both parts (but fails on the example).
-    fn heuristic(&self) -> u8 {
-        let mut res = 0;
-        let mut count = 0;
-        for floor in 0..=2 {
-            for item in &self.items {
-                if item.microchip == floor {
-                    count += 1;
-                }
-                if item.generator == floor {
-                    count += 1;
-                }
+// The best we can hope for is to move two items up and one down each step. Annoyingly, the
+// heuristic alone gives the correct answer for both parts (but fails on the example).
+fn heuristic(state: &State) -> u8 {
+    let mut res = 0;
+    let mut count = 0;
+    for floor in 0..=2 {
+        for item in &state.items {
+            if item.microchip == floor {
+                count += 1;
             }
-            // At this point count covers all items on this floor, plus all items from lower floors
-            // that we've brought up with us. Add to res the number of steps to take them all to the
-            // next floor.
-            match count {
-                0 => {}
-                1 => res += 1,
-                _ => res += 2 * count - 3,
+            if item.generator == floor {
+                count += 1;
             }
         }
-        res
+        // At this point count covers all items on this floor, plus all items from lower floors that
+        // we've brought up with us. Add to res the number of steps to take them all to the next
+        // floor.
+        match count {
+            0 => {}
+            1 => res += 1,
+            _ => res += 2 * count - 3,
+        }
     }
+    res
+}
 
-    fn push_adjacent(&self, q: &mut impl Queue<Item = State>) {
-        for lift in self.adjacent_floors() {
-            let items_on_floor = self.items_on_floor();
+fn adjacent(state: &State, push: &mut dyn FnMut(State)) {
+    for lift in state.adjacent_floors() {
+        let items_on_floor = state.items_on_floor();
 
-            for items in combinatorics::combinations(1, &items_on_floor)
-                .chain(combinatorics::combinations(2, &items_on_floor))
-            {
-                let mut state = self.clone();
+        for items in combinatorics::combinations(1, &items_on_floor)
+            .chain(combinatorics::combinations(2, &items_on_floor))
+        {
+            let mut state = state.clone();
 
-                state.lift = lift;
+            state.lift = lift;
 
-                for &(i, item_kind) in items {
-                    match item_kind {
-                        ItemKind::Microchip => state.items[i].microchip = lift,
-                        ItemKind::Generator => state.items[i].generator = lift,
-                    }
+            for &(i, item_kind) in items {
+                match item_kind {
+                    ItemKind::Microchip => state.items[i].microchip = lift,
+                    ItemKind::Generator => state.items[i].generator = lift,
                 }
+            }
 
-                if state.is_safe() {
-                    state.items.sort_unstable();
-                    state.steps += 1;
-                    q.push(state);
-                }
+            if state.is_safe() {
+                state.items.sort_unstable();
+                state.steps += 1;
+                push(state);
             }
         }
     }
 }
 
 fn part_(items: Vec<Item>) -> u8 {
-    let mut q = search::a_star(
+    search2::a_star(
         State {
             lift: 0,
             items,
@@ -160,22 +157,19 @@ fn part_(items: Vec<Item>) -> u8 {
         },
         |state| (state.lift, state.items.clone()),
         |state| state.steps,
-        State::heuristic,
-    );
-
-    while let Some(state) = q.pop() {
-        if state.items.iter().all(
+        heuristic,
+        adjacent,
+    )
+    .find(|state| {
+        state.items.iter().all(
             |Item {
                  microchip,
                  generator,
              }| *microchip == 3 && *generator == 3,
-        ) {
-            return state.steps;
-        }
-
-        state.push_adjacent(&mut q);
-    }
-    unreachable!()
+        )
+    })
+    .unwrap()
+    .steps
 }
 
 pub fn part1(input: &str) -> u8 {

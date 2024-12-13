@@ -125,16 +125,6 @@ where
     q
 }
 
-/// Traverse a state space breadth first. It's the caller's responsibility to push adjacent states
-/// after each pop.
-pub fn breadth_first<S, H, K>(start: S, hash_key: H) -> impl Queue<Item = S>
-where
-    H: FnMut(&S) -> K,
-    K: Eq + Hash,
-{
-    traverse(VecDeque::new(), start, hash_key)
-}
-
 /// Traverse a state space min-cost first. It's the caller's responsibility to push adjacent
 /// states after each pop.
 pub fn dijkstra<S, H, K, C, O>(start: S, hash_key: H, cost: C) -> impl Queue<Item = S>

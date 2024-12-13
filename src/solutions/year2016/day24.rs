@@ -6,7 +6,7 @@ use std::{
 use crate::{
     combinatorics::permute,
     grid::{self, Grid, Vector},
-    search::{self, Queue},
+    search2,
 };
 
 fn distance(ducts: &HashSet<Vector>, a: Vector, b: Vector) -> u32 {
@@ -14,21 +14,23 @@ fn distance(ducts: &HashSet<Vector>, a: Vector, b: Vector) -> u32 {
         pos: Vector,
         steps: u32,
     }
-    let mut q = search::breadth_first(State { pos: a, steps: 0 }, |state| state.pos);
-    while let Some(state) = q.pop() {
-        if state.pos == b {
-            return state.steps;
-        }
-        for pos in grid::adjacent4(state.pos) {
-            if ducts.contains(&pos) {
-                q.push(State {
-                    pos,
-                    steps: state.steps + 1,
-                });
+    search2::breadth_first(
+        State { pos: a, steps: 0 },
+        |state| state.pos,
+        |state, push| {
+            for pos in grid::adjacent4(state.pos) {
+                if ducts.contains(&pos) {
+                    push(State {
+                        pos,
+                        steps: state.steps + 1,
+                    });
+                }
             }
-        }
-    }
-    unreachable!()
+        },
+    )
+    .find(|state| state.pos == b)
+    .unwrap()
+    .steps
 }
 
 fn total_dist(dists: &HashMap<(char, char), u32>, route: &[char]) -> u32 {

@@ -2,7 +2,7 @@ use md5::{Digest, Md5};
 
 use crate::{
     grid::{IntoVector, Vector, Z},
-    search::{self, Queue},
+    search2,
 };
 
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -11,74 +11,69 @@ struct State {
     pos: Vector,
 }
 
-impl State {
-    fn push_adjacent(&self, input: &str, q: &mut impl Queue<Item = Self>) {
-        let mut hasher = Md5::new();
-        hasher.update(input);
-        hasher.update(&self.path);
-        let hash = hasher.finalize();
+fn adjacent(input: &str, state: &State, push: &mut dyn FnMut(State)) {
+    if state.pos == Vector::new(3, 3) {
+        return;
+    }
 
-        if self.pos.y > 0 && hash[0] >> 4 > 10 {
-            let mut state = self.clone();
-            state.path.push('U');
-            state.pos += 'U'.into_vector();
-            q.push(state);
-        }
-        if self.pos.y < 3 && hash[0] & 0xf > 10 {
-            let mut state = self.clone();
-            state.path.push('D');
-            state.pos += 'D'.into_vector();
-            q.push(state);
-        }
-        if self.pos.x > 0 && hash[1] >> 4 > 10 {
-            let mut state = self.clone();
-            state.path.push('L');
-            state.pos += 'L'.into_vector();
-            q.push(state);
-        }
-        if self.pos.x < 3 && hash[1] & 0xf > 10 {
-            let mut state = self.clone();
-            state.path.push('R');
-            state.pos += 'R'.into_vector();
-            q.push(state);
-        }
+    let mut hasher = Md5::new();
+    hasher.update(input);
+    hasher.update(&state.path);
+    let hash = hasher.finalize();
+
+    if state.pos.y > 0 && hash[0] >> 4 > 10 {
+        let mut state = state.clone();
+        state.path.push('U');
+        state.pos += 'U'.into_vector();
+        push(state);
+    }
+    if state.pos.y < 3 && hash[0] & 0xf > 10 {
+        let mut state = state.clone();
+        state.path.push('D');
+        state.pos += 'D'.into_vector();
+        push(state);
+    }
+    if state.pos.x > 0 && hash[1] >> 4 > 10 {
+        let mut state = state.clone();
+        state.path.push('L');
+        state.pos += 'L'.into_vector();
+        push(state);
+    }
+    if state.pos.x < 3 && hash[1] & 0xf > 10 {
+        let mut state = state.clone();
+        state.path.push('R');
+        state.pos += 'R'.into_vector();
+        push(state);
     }
 }
 
 pub fn part1(input: &str) -> String {
-    let mut q = search::breadth_first(
+    search2::breadth_first(
         State {
             path: String::new(),
             pos: Z,
         },
         Clone::clone,
-    );
-    while let Some(state) = q.pop() {
-        if state.pos == Vector::new(3, 3) {
-            return state.path;
-        }
-        state.push_adjacent(input, &mut q);
-    }
-    unreachable!()
+        |state, push| adjacent(input, state, push),
+    )
+    .find(|state| state.pos == Vector::new(3, 3))
+    .unwrap()
+    .path
 }
 
 pub fn part2(input: &str) -> usize {
-    let mut q = search::breadth_first(
+    search2::breadth_first(
         State {
             path: String::new(),
             pos: Z,
         },
         Clone::clone,
-    );
-    let mut res = 0;
-    while let Some(state) = q.pop() {
-        if state.pos == Vector::new(3, 3) {
-            res = res.max(state.path.len());
-        } else {
-            state.push_adjacent(input, &mut q);
-        }
-    }
-    res
+        |state, push| adjacent(input, state, push),
+    )
+    .filter(|state| state.pos == Vector::new(3, 3))
+    .map(|state| state.path.len())
+    .max()
+    .unwrap()
 }
 
 pub fn tests() {

@@ -1,8 +1,6 @@
-use std::iter;
-
 use crate::{
     grid::{self, Vector},
-    search::{self, Queue},
+    search2,
 };
 
 fn is_open(seed: u32, v: Vector) -> bool {
@@ -18,31 +16,29 @@ struct State {
     steps: u32,
 }
 
-fn traversal(input: &str) -> impl Iterator<Item = State> {
+fn search(input: &str) -> impl Iterator<Item = State> {
     let seed = input.parse().unwrap();
-    let mut q = search::breadth_first(
+    search2::breadth_first(
         State {
             pos: Vector::new(1, 1),
             steps: 0,
         },
         |state| state.pos,
-    );
-    iter::from_fn(move || {
-        q.pop().inspect(|state| {
+        move |state, push| {
             for pos in grid::adjacent4(state.pos) {
                 if pos.x >= 0 && pos.y >= 0 && is_open(seed, pos) {
-                    q.push(State {
+                    push(State {
                         pos,
                         steps: state.steps + 1,
                     });
                 }
             }
-        })
-    })
+        },
+    )
 }
 
 fn part1_(target: Vector, input: &str) -> u32 {
-    traversal(input)
+    search(input)
         .find(|state| state.pos == target)
         .unwrap()
         .steps
@@ -53,9 +49,7 @@ pub fn part1(input: &str) -> u32 {
 }
 
 pub fn part2(input: &str) -> usize {
-    traversal(input)
-        .take_while(|state| state.steps <= 50)
-        .count()
+    search(input).take_while(|state| state.steps <= 50).count()
 }
 
 pub fn tests() {

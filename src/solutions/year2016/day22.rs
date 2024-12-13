@@ -4,7 +4,7 @@ use regex::Regex;
 
 use crate::{
     grid::{self, Grid, Vector, Z},
-    search::{self, Queue},
+    search2,
 };
 
 #[derive(Copy, Clone)]
@@ -64,7 +64,7 @@ fn part2_(size: Vector, input: &str) -> usize {
         }
     }
 
-    let mut q = search::a_star(
+    search2::a_star(
         State {
             hole: hole.unwrap(),
             goal: Vector::new(size.x - 1, 0),
@@ -78,25 +78,23 @@ fn part2_(size: Vector, input: &str) -> usize {
             usize::try_from((state.goal - state.hole).abs().sum()).unwrap()
                 + 5 * usize::try_from(state.goal.abs().sum()).unwrap()
         },
-    );
-
-    while let Some(state) = q.pop() {
-        if state.goal == Z {
-            return state.steps;
-        }
-        for pos in grid::adjacent4(state.hole) {
-            if viable.contains(&pos) {
-                let mut state = state.clone();
-                if state.goal == pos {
-                    state.goal = state.hole;
+        move |state, push| {
+            for pos in grid::adjacent4(state.hole) {
+                if viable.contains(&pos) {
+                    let mut state = state.clone();
+                    if state.goal == pos {
+                        state.goal = state.hole;
+                    }
+                    state.hole = pos;
+                    state.steps += 1;
+                    push(state);
                 }
-                state.hole = pos;
-                state.steps += 1;
-                q.push(state);
             }
-        }
-    }
-    unreachable!()
+        },
+    )
+    .find(|state| state.goal == Z)
+    .unwrap()
+    .steps
 }
 
 pub fn part2(input: &str) -> usize {
