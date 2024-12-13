@@ -1,11 +1,8 @@
-use std::{
-    collections::{HashMap, HashSet},
-    iter,
-};
+use std::collections::{HashMap, HashSet};
 
 use crate::{
     grid::{IntoVector, Vector, Z},
-    search::{self, Queue},
+    search2,
 };
 
 // Construct a map of the base as a graph by stepping through the regex keeping track of all the
@@ -59,17 +56,18 @@ struct State {
 
 fn search(input: &str) -> impl Iterator<Item = State> {
     let graph = expand(input);
-    let mut q = search::breadth_first(State { pos: Z, dist: 0 }, |state| state.pos);
-    iter::from_fn(move || {
-        q.pop().inspect(|state| {
+    search2::breadth_first(
+        State { pos: Z, dist: 0 },
+        |state| state.pos,
+        move |state, push| {
             for &pos in &graph[&state.pos] {
-                q.push(State {
+                push(State {
                     pos,
                     dist: state.dist + 1,
                 });
             }
-        })
-    })
+        },
+    )
 }
 
 pub fn part1(input: &str) -> usize {

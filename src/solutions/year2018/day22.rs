@@ -2,7 +2,7 @@ use std::{cell::RefCell, collections::HashMap};
 
 use crate::{
     grid::{self, IntoVector, Vector, N, W, Z},
-    search::{self, Queue},
+    search2,
 };
 
 #[derive(Clone, Copy, PartialEq)]
@@ -123,7 +123,8 @@ pub fn part1(input: &str) -> i32 {
 
 pub fn part2(input: &str) -> i32 {
     let cave = parse(input);
-    let mut q = search::a_star(
+    let target = cave.target;
+    search2::a_star(
         State {
             pos: Z,
             tool: Tool::Torch,
@@ -131,17 +132,12 @@ pub fn part2(input: &str) -> i32 {
         },
         |state| (state.pos, state.tool),
         |state| state.mins,
-        |state| (cave.target - state.pos).abs().sum(),
-    );
-    while let Some(state) = q.pop() {
-        if state.pos == cave.target && state.tool == Tool::Torch {
-            return state.mins;
-        }
-        for s in state.adjacent(&cave) {
-            q.push(s);
-        }
-    }
-    unreachable!()
+        move |state| (target - state.pos).abs().sum(),
+        move |state, push| state.adjacent(&cave).for_each(push),
+    )
+    .find(|state| state.pos == target && state.tool == Tool::Torch)
+    .unwrap()
+    .mins
 }
 
 pub fn tests() {

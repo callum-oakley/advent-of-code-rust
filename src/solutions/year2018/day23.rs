@@ -3,7 +3,7 @@ use regex::Regex;
 
 use crate::{
     grid::{Bounds, IntoVector},
-    search::{self, Queue},
+    search2,
 };
 
 #[derive(Copy, Clone)]
@@ -70,29 +70,26 @@ pub fn part1(input: &str) -> usize {
 pub fn part2(input: &str) -> i32 {
     let bots = parse(input);
     let bounds = Bounds::new(bots.iter().map(|bot| bot.pos));
-    let mut q = search::dijkstra(
+    search2::dijkstra(
         Cube {
             pos: bounds.min,
             w: bounds.size().max(),
         },
         Clone::clone,
-        |cube| {
+        move |cube| {
             (
                 bots.iter().filter(|&&bot| !cube.intersects(bot)).count(),
                 // tie break with manhattan distance
                 cube.pos.abs().sum(),
             )
         },
-    );
-    while let Some(cube) = q.pop() {
-        if cube.w == 1 {
-            return cube.pos.abs().sum();
-        }
-        for subcube in cube.subcubes() {
-            q.push(subcube);
-        }
-    }
-    unreachable!()
+        |cube, push| cube.subcubes().for_each(push),
+    )
+    .find(|cube| cube.w == 1)
+    .unwrap()
+    .pos
+    .abs()
+    .sum()
 }
 
 pub fn tests() {

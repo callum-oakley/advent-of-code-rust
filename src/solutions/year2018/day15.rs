@@ -1,7 +1,7 @@
 use crate::{
     grid::{self, Grid, Vector},
     part::Part,
-    search::{self, Queue},
+    search2,
 };
 
 #[derive(Debug)]
@@ -94,7 +94,7 @@ fn first_step(cave: &mut Grid<Square>, pos: Vector, target_kind: Kind) -> Option
         first_step: Option<Vector>,
     }
 
-    let mut q = search::dijkstra(
+    search2::dijkstra(
         State {
             dist: 0,
             pos,
@@ -117,25 +117,20 @@ fn first_step(cave: &mut Grid<Square>, pos: Vector, target_kind: Kind) -> Option
                 state.first_step.map(grid::reading_ord_key),
             )
         },
-    );
-
-    while let Some(state) = q.pop() {
-        if in_range(cave, state.pos, target_kind).is_some() {
-            return state.first_step;
-        }
-
-        for (pos, square) in cave.adjacent4(state.pos) {
-            if let Square::Empty = square {
-                q.push(State {
-                    dist: state.dist + 1,
-                    pos,
-                    first_step: state.first_step.or(Some(pos)),
-                });
+        |state, push| {
+            for (pos, square) in cave.adjacent4(state.pos) {
+                if let Square::Empty = square {
+                    push(State {
+                        dist: state.dist + 1,
+                        pos,
+                        first_step: state.first_step.or(Some(pos)),
+                    });
+                }
             }
-        }
-    }
-
-    None
+        },
+    )
+    .find(|state| in_range(cave, state.pos, target_kind).is_some())
+    .and_then(|state| state.first_step)
 }
 
 fn turn(part: Part, cave: &mut Grid<Square>, mut pos: Vector, target_kind: Kind) -> Result<()> {
