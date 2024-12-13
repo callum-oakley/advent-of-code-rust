@@ -2,7 +2,6 @@ use std::{
     cmp::{Ordering, Reverse},
     collections::{BinaryHeap, HashSet, VecDeque},
     hash::Hash,
-    ops::Add,
 };
 
 pub trait Queue {
@@ -108,57 +107,4 @@ where
         }
         None
     }
-}
-
-fn traverse<Q, S, H, K>(queue: Q, start: S, hash_key: H) -> impl Queue<Item = S>
-where
-    Q: Queue<Item = S>,
-    H: FnMut(&S) -> K,
-    K: Eq + Hash,
-{
-    let mut q = Traversal {
-        queue,
-        hash_key,
-        visited: HashSet::new(),
-    };
-    q.push(start);
-    q
-}
-
-/// Traverse a state space min-cost first. It's the caller's responsibility to push adjacent
-/// states after each pop.
-pub fn dijkstra<S, H, K, C, O>(start: S, hash_key: H, cost: C) -> impl Queue<Item = S>
-where
-    H: FnMut(&S) -> K,
-    K: Eq + Hash,
-    C: FnMut(&S) -> O,
-    O: Ord,
-{
-    traverse(
-        CostHeap {
-            cost,
-            binary_heap: BinaryHeap::new(),
-        },
-        start,
-        hash_key,
-    )
-}
-
-/// Traverse a state space min-cost-plus-heuristic first. It's the caller's responsibility to push
-/// adjacent states after each pop.
-pub fn a_star<S, H, K, C, D, O>(
-    start: S,
-    hash_key: H,
-    mut cost: C,
-    mut heuristic: D,
-) -> impl Queue<Item = S>
-where
-    H: FnMut(&S) -> K,
-    K: Eq + Hash,
-    C: FnMut(&S) -> O,
-    D: FnMut(&S) -> O,
-    O: Add,
-    O::Output: Ord,
-{
-    dijkstra(start, hash_key, move |state| cost(state) + heuristic(state))
 }

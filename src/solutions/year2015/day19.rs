@@ -1,9 +1,6 @@
 use std::mem;
 
-use crate::{
-    search::{self, Queue},
-    uniq::Uniq,
-};
+use crate::{search2, uniq::Uniq};
 
 fn parse(input: &str) -> (Vec<(&str, &str)>, &str) {
     let (reactions, molecule) = input.split_once("\n\n").unwrap();
@@ -48,7 +45,7 @@ pub fn part2(input: &str) -> usize {
         mem::swap(a, b);
     }
 
-    let mut q = search::a_star(
+    search2::a_star(
         State {
             molecule: molecule.to_owned(),
             steps: 0,
@@ -58,20 +55,18 @@ pub fn part2(input: &str) -> usize {
         // The molecule length is NOT an admissible heuristic, but the relaxation returns the
         // correct answer in this case.
         |state| state.molecule.len(),
-    );
-
-    while let Some(state) = q.pop() {
-        if state.molecule == "e" {
-            return state.steps;
-        }
-        for molecule in step(&reactions, &state.molecule) {
-            q.push(State {
-                molecule,
-                steps: state.steps + 1,
-            });
-        }
-    }
-    unreachable!()
+        move |state, push| {
+            for molecule in step(&reactions, &state.molecule) {
+                push(State {
+                    molecule,
+                    steps: state.steps + 1,
+                });
+            }
+        },
+    )
+    .find(|state| state.molecule == "e")
+    .unwrap()
+    .steps
 }
 
 pub fn tests() {

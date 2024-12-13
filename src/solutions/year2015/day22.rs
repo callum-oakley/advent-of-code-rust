@@ -2,7 +2,7 @@ use std::{cmp, collections::BTreeMap};
 
 use regex::Regex;
 
-use crate::search::{self, Queue};
+use crate::search2;
 
 #[derive(Clone, PartialOrd, Ord, PartialEq, Eq, Hash)]
 struct Character {
@@ -138,7 +138,7 @@ impl State {
 }
 
 fn part_(hard_mode: bool, input: &str) -> i32 {
-    let mut q = search::dijkstra(
+    search2::dijkstra(
         State {
             player: Character::PLAYER,
             boss: Character::boss(input),
@@ -149,49 +149,46 @@ fn part_(hard_mode: bool, input: &str) -> i32 {
         },
         std::clone::Clone::clone,
         |state| state.mana_spent,
-    );
-
-    while let Some(state) = q.pop() {
-        if state.boss.hp <= 0 {
-            return state.mana_spent;
-        }
-
-        let mut state = state.clone();
-        if state.hard_mode && state.turn == Turn::Player {
-            state.player.hp -= 1;
-            if state.player.hp <= 0 {
-                continue;
-            }
-        }
-
-        state.apply_effects();
-        if state.player.hp <= 0 {
-            continue;
-        }
-
-        if state.boss.hp <= 0 {
-            q.push(state);
-            continue;
-        }
-
-        match state.turn {
-            Turn::Player => {
-                for spell in &SPELLS {
-                    if spell.cost <= state.player.mana
-                        && spell
-                            .effect
-                            .map_or(true, |(effect, _)| !state.effects.contains_key(&effect))
-                    {
-                        q.push(state.player_attack(spell));
-                    }
+        |state, push| {
+            let mut state = state.clone();
+            if state.hard_mode && state.turn == Turn::Player {
+                state.player.hp -= 1;
+                if state.player.hp <= 0 {
+                    return;
                 }
             }
-            Turn::Boss => {
-                q.push(state.boss_attack());
+
+            state.apply_effects();
+            if state.player.hp <= 0 {
+                return;
             }
-        }
-    }
-    unreachable!()
+
+            if state.boss.hp <= 0 {
+                push(state);
+                return;
+            }
+
+            match state.turn {
+                Turn::Player => {
+                    for spell in &SPELLS {
+                        if spell.cost <= state.player.mana
+                            && spell
+                                .effect
+                                .map_or(true, |(effect, _)| !state.effects.contains_key(&effect))
+                        {
+                            push(state.player_attack(spell));
+                        }
+                    }
+                }
+                Turn::Boss => {
+                    push(state.boss_attack());
+                }
+            }
+        },
+    )
+    .find(|state| state.boss.hp <= 0)
+    .unwrap()
+    .mana_spent
 }
 
 pub fn part1(input: &str) -> i32 {
