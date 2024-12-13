@@ -2,7 +2,7 @@ use std::collections::HashSet;
 
 use crate::{
     grid::{self, IntoVector, Vector},
-    search::{self, Queue},
+    search2,
 };
 
 // Represent a crop square by a pair of position + crop, and the whole garden by the set of crop
@@ -42,15 +42,19 @@ fn regions(garden: &HashSet<(Vector, char)>) -> Vec<HashSet<(Vector, char)>> {
         if res.iter().any(|r| r.contains(&(v, c))) {
             continue;
         }
-        let mut region = HashSet::new();
-        let mut q = search::breadth_first(v, |&v| v);
-        while let Some(v) = q.pop() {
-            region.insert((v, c));
-            grid::adjacent4(v)
-                .filter(|&u| garden.contains(&(u, c)))
-                .for_each(|u| q.push(u));
-        }
-        res.push(region);
+        res.push(
+            search2::breadth_first(
+                v,
+                |&v| v,
+                |&v, push| {
+                    grid::adjacent4(v)
+                        .filter(|&u| garden.contains(&(u, c)))
+                        .for_each(push);
+                },
+            )
+            .map(|v| (v, c))
+            .collect(),
+        );
     }
     res
 }
