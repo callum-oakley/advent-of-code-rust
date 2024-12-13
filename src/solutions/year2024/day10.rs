@@ -1,41 +1,44 @@
-use std::collections::VecDeque;
+use std::hash::Hash;
 
 use crate::{
-    grid::{Grid, Vector},
-    search::{self, Queue},
+    grid::{self, Grid, Vector},
+    search2,
 };
 
-fn part_<F, Q>(search: F, input: &str) -> usize
+fn score<H, K>(grid: &Grid<u32>, v: Vector, hash_key: H) -> usize
 where
-    F: Fn(Vector) -> Q,
-    Q: Queue<Item = Vector>,
+    H: FnMut(&Vec<Vector>) -> K,
+    K: Eq + Hash,
 {
-    let grid = Grid::parse(input, |_, c| c.to_digit(10).unwrap());
-    grid.iter()
-        .filter(|&(_, &height)| height == 0)
-        .map(|(v, _)| {
-            let mut score = 0;
-            let mut q = search(v);
-            while let Some(v) = q.pop() {
-                let height = grid[v];
-                if height == 9 {
-                    score += 1;
-                }
-                grid.adjacent4(v)
-                    .filter(|&(_, &h)| h == height + 1)
-                    .for_each(|(v, _)| q.push(v));
-            }
-            score
-        })
-        .sum()
+    search2::breadth_first(vec![v], hash_key, |path, push| {
+        let v = *path.last().unwrap();
+        let height = grid[v];
+        grid::adjacent4(v)
+            .filter(|&v| grid.get(v).is_some_and(|&h| h == height + 1))
+            .for_each(|v| {
+                let mut path = path.clone();
+                path.push(v);
+                push(path);
+            });
+    })
+    .filter(|path| grid[*path.last().unwrap()] == 9)
+    .count()
 }
 
 pub fn part1(input: &str) -> usize {
-    part_(|v| search::breadth_first(v, |&v| v), input)
+    let grid = Grid::parse(input, |_, c| c.to_digit(10).unwrap());
+    grid.keys()
+        .filter(|&v| grid[v] == 0)
+        .map(|v| score(&grid, v, |path| *path.last().unwrap()))
+        .sum()
 }
 
 pub fn part2(input: &str) -> usize {
-    part_(|v| VecDeque::from([v]), input)
+    let grid = Grid::parse(input, |_, c| c.to_digit(10).unwrap());
+    grid.keys()
+        .filter(|&v| grid[v] == 0)
+        .map(|v| score(&grid, v, Clone::clone))
+        .sum()
 }
 
 pub fn tests() {

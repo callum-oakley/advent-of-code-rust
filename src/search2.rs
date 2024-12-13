@@ -86,7 +86,7 @@ where
     Q: Queue<Item = S>,
     H: FnMut(&S) -> K,
     K: Eq + Hash,
-    A: FnMut(&S, &dyn FnMut(S)),
+    A: FnMut(&S, &mut dyn FnMut(S)),
 {
     let mut visited = HashSet::new();
     queue.push(start);
@@ -95,7 +95,7 @@ where
             let key = hash_key(&state);
             if !visited.contains(&key) {
                 visited.insert(key);
-                adjacent(&state, &|a| queue.push(a));
+                adjacent(&state, &mut |a| queue.push(a));
                 return Some(state);
             }
         }
@@ -108,7 +108,7 @@ pub fn breadth_first<S, H, K, A>(start: S, hash_key: H, adjacent: A) -> impl Ite
 where
     H: FnMut(&S) -> K,
     K: Eq + Hash,
-    A: FnMut(&S, &dyn FnMut(S)),
+    A: FnMut(&S, &mut dyn FnMut(S)),
 {
     search(VecDeque::new(), start, hash_key, adjacent)
 }
@@ -123,7 +123,7 @@ pub fn dijkstra<S, H, K, A, C, O>(
 where
     H: FnMut(&S) -> K,
     K: Eq + Hash,
-    A: FnMut(&S, &dyn FnMut(S)),
+    A: FnMut(&S, &mut dyn FnMut(S)),
     C: FnMut(&S) -> O,
     O: Ord,
 {
@@ -150,7 +150,7 @@ pub fn a_star<S, H, K, A, C, D, O>(
 where
     H: FnMut(&S) -> K,
     K: Eq + Hash,
-    A: FnMut(&S, &dyn FnMut(S)),
+    A: FnMut(&S, &mut dyn FnMut(S)),
     C: FnMut(&S) -> O,
     D: FnMut(&S) -> O,
     O: Add,
