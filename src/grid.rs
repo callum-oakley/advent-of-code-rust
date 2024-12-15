@@ -92,6 +92,22 @@ pub trait IntoChar {
     fn into_char(self) -> char;
 }
 
+impl IntoChar for char {
+    fn into_char(self) -> char {
+        self
+    }
+}
+
+impl IntoChar for bool {
+    fn into_char(self) -> char {
+        if self {
+            '#'
+        } else {
+            '.'
+        }
+    }
+}
+
 impl IntoChar for Vector {
     fn into_char(self) -> char {
         if self == N {
@@ -278,15 +294,9 @@ impl<'a, T> IntoIterator for &'a Grid<T> {
     }
 }
 
-impl fmt::Display for Grid<bool> {
+impl<T: Clone + IntoChar> fmt::Display for Grid<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.fmt_with(f, |t| if *t { '#' } else { '.' })
-    }
-}
-
-impl fmt::Display for Grid<char> {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.fmt_with(f, |t| *t)
+        self.fmt_with(f, |t| t.clone().into_char())
     }
 }
 

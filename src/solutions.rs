@@ -1933,7 +1933,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         15,
         Solution {
             part1: Some(|input| year2024::day15::part1(input).to_string()),
-            part2: None,
+            part2: Some(|input| year2024::day15::part2(input).to_string()),
             tests: Some(year2024::day15::tests),
         },
     );
