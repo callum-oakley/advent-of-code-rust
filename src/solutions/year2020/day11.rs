@@ -38,9 +38,8 @@ where
 
 pub fn part1(input: &str) -> usize {
     part_(input, 4, |state, pos| {
-        state
-            .adjacent8_values(pos)
-            .filter(|&&t| t == Tile::Occupied)
+        grid::adjacent8(pos)
+            .filter(|&v| state.get(v).is_some_and(|&t| t == Tile::Occupied))
             .count()
     })
 }

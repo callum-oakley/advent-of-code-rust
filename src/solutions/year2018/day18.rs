@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::grid::Grid;
+use crate::grid::{self, Grid};
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash)]
 enum Tile {
@@ -21,7 +21,11 @@ fn parse(input: &str) -> Grid<Tile> {
 fn tick(state: &Grid<Tile>) -> Grid<Tile> {
     let mut res = state.clone();
     for pos in state.keys() {
-        let count_adj = |tile| state.adjacent8_values(pos).filter(|&&t| t == tile).count();
+        let count_adj = |tile| {
+            grid::adjacent8(pos)
+                .filter(|&v| state.get(v).is_some_and(|&t| t == tile))
+                .count()
+        };
         match state[pos] {
             Tile::Open => {
                 if count_adj(Tile::Trees) >= 3 {

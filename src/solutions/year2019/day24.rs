@@ -20,7 +20,9 @@ pub fn part1(input: &str) -> u32 {
         seen.insert(bugs.clone());
         let mut bugs_next = bugs.clone();
         for (pos, bug) in &bugs {
-            let adjacent = bugs.adjacent4_values(pos).filter(|&&bug| bug).count();
+            let adjacent = grid::adjacent4(pos)
+                .filter(|&v| bugs.get(v).is_some_and(|&bug| bug))
+                .count();
             bugs_next[pos] = adjacent == 1 || !bug && adjacent == 2;
         }
         bugs = bugs_next;

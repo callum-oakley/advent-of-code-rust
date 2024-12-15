@@ -81,10 +81,12 @@ fn parse(elf_ap: i32, input: &str) -> Grid<Square> {
 }
 
 fn in_range(cave: &Grid<Square>, pos: Vector, target_kind: Kind) -> Option<Vector> {
-    cave.adjacent4(pos)
-        .filter(|(_, square)| square.is_occupied() && square.unit().kind == target_kind)
-        .min_by_key(|(_, square)| square.unit().hp)
-        .map(|(pos, _)| pos)
+    grid::adjacent4(pos)
+        .filter(|&v| {
+            cave.get(v)
+                .is_some_and(|square| square.is_occupied() && square.unit().kind == target_kind)
+        })
+        .min_by_key(|&v| cave[v].unit().hp)
 }
 
 fn first_step(cave: &mut Grid<Square>, pos: Vector, target_kind: Kind) -> Option<Vector> {
@@ -118,8 +120,8 @@ fn first_step(cave: &mut Grid<Square>, pos: Vector, target_kind: Kind) -> Option
             )
         },
         |state, push| {
-            for (pos, square) in cave.adjacent4(state.pos) {
-                if let Square::Empty = square {
+            for pos in grid::adjacent4(state.pos) {
+                if let Some(Square::Empty) = cave.get(pos) {
                     push(State {
                         dist: state.dist + 1,
                         pos,

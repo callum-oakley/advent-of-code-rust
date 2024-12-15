@@ -1,6 +1,9 @@
 use std::collections::HashSet;
 
-use crate::{grid::Grid, hash, search};
+use crate::{
+    grid::{self, Grid},
+    hash, search,
+};
 
 fn disk(input: &str) -> Grid<bool> {
     let mut res = Grid::new(false, [128, 128]);
@@ -31,9 +34,9 @@ pub fn part2(input: &str) -> usize {
             *unexplored.iter().next().unwrap(),
             |&pos| pos,
             |&pos, push| {
-                for (p, _) in disk.adjacent4(pos).filter(|(_, &used)| used) {
-                    push(p);
-                }
+                grid::adjacent4(pos)
+                    .filter(|&v| disk.get(v).is_some_and(|&used| used))
+                    .for_each(push);
             },
         ) {
             unexplored.remove(&pos);

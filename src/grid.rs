@@ -232,22 +232,6 @@ impl<T> Grid<T> {
     pub fn iter(&self) -> impl Iterator<Item = (Vector, &T)> {
         self.keys().map(|k| (k, &self[k]))
     }
-
-    pub fn adjacent4(&self, v: Vector) -> impl Iterator<Item = (Vector, &T)> {
-        adjacent4(v).filter_map(|u| self.get(u).map(|t| (u, t)))
-    }
-
-    pub fn adjacent8(&self, v: Vector) -> impl Iterator<Item = (Vector, &T)> {
-        adjacent8(v).filter_map(|u| self.get(u).map(|t| (u, t)))
-    }
-
-    pub fn adjacent4_values(&self, v: Vector) -> impl Iterator<Item = &T> {
-        adjacent4(v).filter_map(|u| self.get(u))
-    }
-
-    pub fn adjacent8_values(&self, v: Vector) -> impl Iterator<Item = &T> {
-        adjacent8(v).filter_map(|u| self.get(u))
-    }
 }
 
 impl<T, V> Index<V> for Grid<T>
@@ -339,6 +323,6 @@ where
 
 impl Grid<bool> {
     pub fn points(&self) -> impl Iterator<Item = Vector> + '_ {
-        self.iter().filter(|&(_, &v)| v).map(|(k, _)| k)
+        self.keys().filter(|&v| self[v])
     }
 }

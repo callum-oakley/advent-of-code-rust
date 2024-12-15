@@ -22,10 +22,8 @@ fn parse(input: &str) -> (Vector, Grid<Vec<Vector>>) {
         _ => unreachable!(),
     });
     let start = start.unwrap();
-    pipes[start] = pipes
-        .adjacent4(start)
-        .filter(|(_, adj)| adj.contains(&start))
-        .map(|(pos, _)| pos)
+    pipes[start] = grid::adjacent4(start)
+        .filter(|&v| pipes.get(v).is_some_and(|adj| adj.contains(&start)))
         .collect();
     assert_eq!(pipes[start].len(), 2);
     (start, pipes)

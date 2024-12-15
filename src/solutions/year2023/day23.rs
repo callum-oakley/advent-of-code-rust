@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use crate::{
-    grid::{Grid, IntoVector, Vector},
+    grid::{self, Grid, IntoVector, Vector},
     search,
 };
 
@@ -31,11 +31,9 @@ fn reachable(map: &Grid<Tile>, nodes: &HashSet<Vector>, start: Vector) -> HashMa
             } else if let Tile::Slope(dir) = map[pos] {
                 push((pos + dir, steps + 1));
             } else {
-                for (pos, &tile) in map.adjacent4(pos) {
-                    if tile != Tile::Forest {
-                        push((pos, steps + 1));
-                    }
-                }
+                grid::adjacent4(pos)
+                    .filter(|&v| map.get(v).is_some_and(|&tile| tile != Tile::Forest))
+                    .for_each(|v| push((v, steps + 1)));
             }
         },
     )
@@ -46,8 +44,8 @@ fn reachable(map: &Grid<Tile>, nodes: &HashSet<Vector>, start: Vector) -> HashMa
 fn graph(map: &Grid<Tile>, start: Vector, end: Vector) -> HashMap<Vector, HashMap<Vector, usize>> {
     let mut nodes = HashSet::from([start, end]);
     nodes.extend(map.keys().filter(|&pos| {
-        map.adjacent4_values(pos)
-            .filter(|&&tile| tile != Tile::Forest)
+        grid::adjacent4(pos)
+            .filter(|&v| map.get(v).is_some_and(|&tile| tile != Tile::Forest))
             .count()
             >= 3
     }));
