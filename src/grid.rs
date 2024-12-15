@@ -248,20 +248,6 @@ impl<T> Grid<T> {
     pub fn adjacent8_values(&self, v: Vector) -> impl Iterator<Item = &T> {
         adjacent8(v).filter_map(|u| self.get(u))
     }
-
-    pub fn fmt_with<F: FnMut(&T) -> char>(
-        &self,
-        f: &mut fmt::Formatter<'_>,
-        mut to_char: F,
-    ) -> fmt::Result {
-        for y in 0..self.size.y {
-            for x in 0..self.size.x {
-                f.write_char(to_char(&self[[x, y]]))?;
-            }
-            f.write_char('\n')?;
-        }
-        Ok(())
-    }
 }
 
 impl<T, V> Index<V> for Grid<T>
@@ -299,7 +285,13 @@ where
     for<'a> &'a T: IntoChar,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.fmt_with(f, |t| t.into_char())
+        for y in 0..self.size.y {
+            for x in 0..self.size.x {
+                f.write_char(self[[x, y]].into_char())?;
+            }
+            f.write_char('\n')?;
+        }
+        Ok(())
     }
 }
 
