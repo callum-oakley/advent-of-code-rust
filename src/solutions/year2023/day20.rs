@@ -39,7 +39,7 @@ struct Circuit<'a> {
     modules: HashMap<&'a str, Module<'a>>,
 }
 
-impl<'a> Circuit<'a> {
+impl Circuit<'_> {
     fn tick(&mut self, mut hook: impl FnMut((&str, &str, bool))) {
         let mut q = VecDeque::from([("button", "broadcaster", false)]);
         while let Some((src, dst, signal)) = q.pop_front() {

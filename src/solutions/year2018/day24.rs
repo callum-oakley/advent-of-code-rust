@@ -78,7 +78,7 @@ fn parse(input: &str) -> Vec<Group> {
     groups
 }
 
-impl<'a> Group<'a> {
+impl Group<'_> {
     fn effective_power(&self) -> u32 {
         self.units * self.attack_damage
     }

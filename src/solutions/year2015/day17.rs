@@ -33,11 +33,11 @@ fn combinations(eggnog: u32, containers: &[u32]) -> Box<dyn Iterator<Item = Vec<
     }
 }
 
-fn _part1(eggnog: u32, input: &str) -> usize {
+fn part1_(eggnog: u32, input: &str) -> usize {
     combinations(eggnog, &parse(input)).count()
 }
 
-fn _part2(eggnog: u32, input: &str) -> usize {
+fn part2_(eggnog: u32, input: &str) -> usize {
     let containers = parse(input);
     let mut lengths = combinations(eggnog, &containers).map(|combination| combination.len());
     let mut min_len = lengths.next().unwrap();
@@ -58,14 +58,14 @@ fn _part2(eggnog: u32, input: &str) -> usize {
 }
 
 pub fn part1(input: &str) -> usize {
-    _part1(150, input)
+    part1_(150, input)
 }
 
 pub fn part2(input: &str) -> usize {
-    _part2(150, input)
+    part2_(150, input)
 }
 
 pub fn tests() {
-    assert_eq!(_part1(25, "20 15 10 5 5"), 4);
-    assert_eq!(_part2(25, "20 15 10 5 5"), 3);
+    assert_eq!(part1_(25, "20 15 10 5 5"), 4);
+    assert_eq!(part2_(25, "20 15 10 5 5"), 3);
 }
