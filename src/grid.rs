@@ -92,15 +92,15 @@ pub trait IntoChar {
     fn into_char(self) -> char;
 }
 
-impl IntoChar for char {
+impl IntoChar for &char {
     fn into_char(self) -> char {
-        self
+        *self
     }
 }
 
-impl IntoChar for bool {
+impl IntoChar for &bool {
     fn into_char(self) -> char {
-        if self {
+        if *self {
             '#'
         } else {
             '.'
@@ -108,17 +108,17 @@ impl IntoChar for bool {
     }
 }
 
-impl IntoChar for Vector {
+impl IntoChar for &Vector {
     fn into_char(self) -> char {
-        if self == N {
+        if *self == N {
             'N'
-        } else if self == W {
+        } else if *self == W {
             'W'
-        } else if self == Z {
+        } else if *self == Z {
             'Z'
-        } else if self == E {
+        } else if *self == E {
             'E'
-        } else if self == S {
+        } else if *self == S {
             'S'
         } else {
             panic!("don't know how to convert {self} into a char")
@@ -126,11 +126,11 @@ impl IntoChar for Vector {
     }
 }
 
-impl IntoChar for Turn {
+impl IntoChar for &Turn {
     fn into_char(self) -> char {
-        if self == LEFT {
+        if *self == LEFT {
             'L'
-        } else if self == RIGHT {
+        } else if *self == RIGHT {
             'R'
         } else {
             panic!("don't know how to convert {self} into a char")
@@ -294,9 +294,12 @@ impl<'a, T> IntoIterator for &'a Grid<T> {
     }
 }
 
-impl<T: Clone + IntoChar> fmt::Display for Grid<T> {
+impl<T> fmt::Display for Grid<T>
+where
+    for<'a> &'a T: IntoChar,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        self.fmt_with(f, |t| t.clone().into_char())
+        self.fmt_with(f, |t| t.into_char())
     }
 }
 
