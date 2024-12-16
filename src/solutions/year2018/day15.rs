@@ -102,7 +102,18 @@ fn first_step(cave: &mut Grid<Square>, pos: Vector, target_kind: Kind) -> Option
             pos,
             first_step: None,
         },
-        |state| state.pos,
+        |state, push| {
+            for pos in grid::adjacent4(state.pos) {
+                if let Some(Square::Empty) = cave.get(pos) {
+                    push(State {
+                        dist: state.dist + 1,
+                        pos,
+                        first_step: state.first_step.or(Some(pos)),
+                    });
+                }
+            }
+        },
+        search::hash_filter(|state: &State| state.pos),
         // The cost function is fiddly, here's everything it needs to cover:
         // - To move, the unit first considers the squares that are in range and determines which of
         //   those squares it could reach in the fewest steps.
@@ -118,17 +129,6 @@ fn first_step(cave: &mut Grid<Square>, pos: Vector, target_kind: Kind) -> Option
                 grid::reading_ord_key(state.pos),
                 state.first_step.map(grid::reading_ord_key),
             )
-        },
-        |state, push| {
-            for pos in grid::adjacent4(state.pos) {
-                if let Some(Square::Empty) = cave.get(pos) {
-                    push(State {
-                        dist: state.dist + 1,
-                        pos,
-                        first_step: state.first_step.or(Some(pos)),
-                    });
-                }
-            }
         },
     )
     .find(|state| in_range(cave, state.pos, target_kind).is_some())

@@ -147,8 +147,6 @@ fn part_(hard_mode: bool, input: &str) -> i32 {
             hard_mode,
             mana_spent: 0,
         },
-        std::clone::Clone::clone,
-        |state| state.mana_spent,
         |state, push| {
             let mut state = state.clone();
             if state.hard_mode && state.turn == Turn::Player {
@@ -185,6 +183,8 @@ fn part_(hard_mode: bool, input: &str) -> i32 {
                 }
             }
         },
+        search::id_filter(),
+        |state| state.mana_spent,
     )
     .find(|state| state.boss.hp <= 0)
     .unwrap()

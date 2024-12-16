@@ -43,8 +43,8 @@ fn oxygen_system(input: &str) -> State {
             steps: 0,
             found_oxygen_system: false,
         },
-        |state| state.pos,
         |state, push| state.adjacent().for_each(push),
+        search::hash_filter(|state: &State| state.pos),
     )
     .find(|state| state.found_oxygen_system)
     .unwrap()
@@ -60,8 +60,8 @@ pub fn part2(input: &str) -> u32 {
             steps: 0,
             ..oxygen_system(input)
         },
-        |state| state.pos,
         |state, push| state.adjacent().for_each(push),
+        search::hash_filter(|state: &State| state.pos),
     )
     .map(|state| state.steps)
     .max()

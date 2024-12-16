@@ -50,11 +50,6 @@ pub fn part2(input: &str) -> usize {
             molecule: molecule.to_owned(),
             steps: 0,
         },
-        |state| state.molecule.clone(),
-        |state| state.steps,
-        // The molecule length is NOT an admissible heuristic, but the relaxation returns the
-        // correct answer in this case.
-        |state| state.molecule.len(),
         move |state, push| {
             for molecule in step(&reactions, &state.molecule) {
                 push(State {
@@ -63,6 +58,11 @@ pub fn part2(input: &str) -> usize {
                 });
             }
         },
+        search::hash_filter(|state: &State| state.molecule.clone()),
+        |state| state.steps,
+        // The molecule length is NOT an admissible heuristic, but the relaxation returns the
+        // correct answer in this case.
+        |state| state.molecule.len(),
     )
     .find(|state| state.molecule == "e")
     .unwrap()

@@ -21,7 +21,6 @@ fn shortest_path<'a>(
             pos: start,
             path: vec![start],
         },
-        |state| state.pos,
         |state, push| {
             for &pos in &graph[state.pos] {
                 let mut path = state.path.clone();
@@ -29,6 +28,7 @@ fn shortest_path<'a>(
                 push(State { pos, path });
             }
         },
+        search::hash_filter(|state: &State| state.pos),
     )
     .find(|state| state.pos == goal)
     .unwrap()
@@ -38,8 +38,8 @@ fn shortest_path<'a>(
 fn component_size(graph: &HashMap<&str, HashSet<&str>>, start: &str) -> usize {
     search::breadth_first(
         start,
-        |&state| state,
         |&state, push| graph[state].iter().copied().for_each(push),
+        search::id_filter(),
     )
     .count()
 }

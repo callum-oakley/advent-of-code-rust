@@ -17,8 +17,8 @@ fn parse(input: &str) -> HashMap<u32, Vec<u32>> {
 fn search(graph: &HashMap<u32, Vec<u32>>, start: u32) -> impl Iterator<Item = u32> + '_ {
     search::breadth_first(
         start,
-        |&pos| pos,
         |&pos, push| graph[&pos].iter().copied().for_each(push),
+        search::id_filter(),
     )
 }
 

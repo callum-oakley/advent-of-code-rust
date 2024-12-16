@@ -27,7 +27,6 @@ fn part_(garden: &Grid<bool>, start: Vector, max_steps: usize) -> usize {
             pos: start,
             steps: 0,
         },
-        |state| state.pos,
         |state, push| {
             if state.steps < max_steps {
                 for pos in grid::adjacent4(state.pos) {
@@ -40,6 +39,7 @@ fn part_(garden: &Grid<bool>, start: Vector, max_steps: usize) -> usize {
                 }
             }
         },
+        search::hash_filter(|state: &State| state.pos),
     )
     .filter(|state| state.steps % 2 == max_steps % 2)
     .count()

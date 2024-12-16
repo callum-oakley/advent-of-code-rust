@@ -44,7 +44,6 @@ fn reachable(map: &Grid<char>, pos: Vector) -> Vec<Path> {
             keys: BTreeSet::new(),
             found_key: false,
         },
-        |state| state.pos,
         |state, push| {
             if state.found_key {
                 return;
@@ -63,6 +62,7 @@ fn reachable(map: &Grid<char>, pos: Vector) -> Vec<Path> {
                     push(state);
                 });
         },
+        search::hash_filter(|state: &State| state.pos),
     )
     .filter(|state| state.found_key)
     .map(|state| Path {
@@ -110,10 +110,6 @@ fn part_(map: &Grid<char>, robots: Vec<char>) -> usize {
             steps: 0,
             keys: initial_keys,
         },
-        |state| (state.robots.clone(), state.keys.clone()),
-        |state| state.steps,
-        // For each key left to collect, we'll have to move at least min_path_steps.
-        move |state| (final_key_count - state.keys.len()) * min_path_steps,
         move |state, push| {
             for i in 0..state.robots.len() {
                 for path in key_graph[&state.robots[i]]
@@ -128,6 +124,10 @@ fn part_(map: &Grid<char>, robots: Vec<char>) -> usize {
                 }
             }
         },
+        search::hash_filter(|state: &State| (state.robots.clone(), state.keys.clone())),
+        |state| state.steps,
+        // For each key left to collect, we'll have to move at least min_path_steps.
+        move |state| (final_key_count - state.keys.len()) * min_path_steps,
     )
     .find(|state| state.keys.len() == final_key_count)
     .unwrap()

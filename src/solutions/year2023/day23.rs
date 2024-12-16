@@ -24,7 +24,6 @@ fn parse(input: &str) -> Grid<Tile> {
 fn reachable(map: &Grid<Tile>, nodes: &HashSet<Vector>, start: Vector) -> HashMap<Vector, usize> {
     search::breadth_first(
         (start, 0),
-        |&(pos, _)| pos,
         |&(pos, steps), push| {
             if nodes.contains(&pos) && pos != start {
                 // stop
@@ -36,6 +35,7 @@ fn reachable(map: &Grid<Tile>, nodes: &HashSet<Vector>, start: Vector) -> HashMa
                     .for_each(|v| push((v, steps + 1)));
             }
         },
+        search::hash_filter(|&(pos, _)| pos),
     )
     .filter(|&(pos, _)| nodes.contains(&pos) && pos != start)
     .collect()
@@ -63,18 +63,22 @@ fn part_(map: &Grid<Tile>) -> usize {
     let start = Vector::new(1, 0);
     let end = map.size - Vector::new(2, 1);
     let graph = graph(map, start, end);
-    search::breadth_first_nohash(vec![start], |path, push| {
-        let pos = *path.last().unwrap();
-        if pos != end {
-            for &p in graph[&pos].keys() {
-                if !path.contains(&p) {
-                    let mut path = path.clone();
-                    path.push(p);
-                    push(path);
+    search::breadth_first(
+        vec![start],
+        |path, push| {
+            let pos = *path.last().unwrap();
+            if pos != end {
+                for &p in graph[&pos].keys() {
+                    if !path.contains(&p) {
+                        let mut path = path.clone();
+                        path.push(p);
+                        push(path);
+                    }
                 }
             }
-        }
-    })
+        },
+        search::no_filter,
+    )
     .filter(|path| *path.last().unwrap() == end)
     .map(|path| steps(&graph, &path))
     .max()

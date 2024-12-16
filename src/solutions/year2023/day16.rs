@@ -29,7 +29,6 @@ impl Packet {
 fn energize(tiles: &Grid<char>, beam: Packet) -> usize {
     search::breadth_first(
         beam,
-        |&packet| packet,
         |&packet, push| {
             if let Some(tile) = tiles.get(packet.pos) {
                 match (tile, packet.dir.into_char()) {
@@ -44,6 +43,7 @@ fn energize(tiles: &Grid<char>, beam: Packet) -> usize {
                 }
             }
         },
+        search::id_filter(),
     )
     .map(|packet| packet.pos)
     .filter(|&pos| tiles.contains_key(pos))

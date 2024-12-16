@@ -76,25 +76,49 @@ where
     }
 }
 
-fn search<Q, S, H, K, A>(
+/// A filter that prunes the tree whenever we encounter a state with a hash key we've already seen.
+pub fn hash_filter<S, H, K>(mut hash_key: H) -> impl FnMut(&S) -> bool
+where
+    H: FnMut(&S) -> K,
+    K: Eq + Hash,
+{
+    let mut visited = HashSet::new();
+    move |state| {
+        let key = hash_key(state);
+        if visited.contains(&key) {
+            false
+        } else {
+            visited.insert(key);
+            true
+        }
+    }
+}
+
+/// A filter that prunes the tree whenever we encounter a state we've already seen.
+pub fn id_filter<S: Clone + Eq + Hash>() -> impl FnMut(&S) -> bool {
+    hash_filter(Clone::clone)
+}
+
+/// A filter that doesn't prune the tree at all.
+pub fn no_filter<S>(_: &S) -> bool {
+    true
+}
+
+fn search<Q, S, A, F>(
     mut queue: Q,
     start: S,
-    mut hash_key: H,
     mut adjacent: A,
+    mut filter: F,
 ) -> impl Iterator<Item = S>
 where
     Q: Queue<Item = S>,
-    H: FnMut(&S) -> K,
-    K: Eq + Hash,
     A: FnMut(&S, &mut dyn FnMut(S)),
+    F: FnMut(&S) -> bool,
 {
-    let mut visited = HashSet::new();
     queue.push(start);
     iter::from_fn(move || {
         while let Some(state) = queue.pop() {
-            let key = hash_key(&state);
-            if !visited.contains(&key) {
-                visited.insert(key);
+            if filter(&state) {
                 adjacent(&state, &mut |a| queue.push(a));
                 return Some(state);
             }
@@ -104,26 +128,19 @@ where
 }
 
 /// Search a state space breadth first.
-pub fn breadth_first<S, H, K, A>(start: S, hash_key: H, adjacent: A) -> impl Iterator<Item = S>
+pub fn breadth_first<S, A, F>(start: S, adjacent: A, filter: F) -> impl Iterator<Item = S>
 where
-    H: FnMut(&S) -> K,
-    K: Eq + Hash,
     A: FnMut(&S, &mut dyn FnMut(S)),
+    F: FnMut(&S) -> bool,
 {
-    search(VecDeque::new(), start, hash_key, adjacent)
+    search(VecDeque::new(), start, adjacent, filter)
 }
 
 /// Search a state space min-cost first.
-pub fn dijkstra<S, H, K, A, C, O>(
-    start: S,
-    hash_key: H,
-    cost: C,
-    adjacent: A,
-) -> impl Iterator<Item = S>
+pub fn dijkstra<S, A, F, C, O>(start: S, adjacent: A, filter: F, cost: C) -> impl Iterator<Item = S>
 where
-    H: FnMut(&S) -> K,
-    K: Eq + Hash,
     A: FnMut(&S, &mut dyn FnMut(S)),
+    F: FnMut(&S) -> bool,
     C: FnMut(&S) -> O,
     O: Ord,
 {
@@ -133,70 +150,28 @@ where
             binary_heap: BinaryHeap::new(),
         },
         start,
-        hash_key,
         adjacent,
+        filter,
     )
 }
 
 /// Search a state space min-cost-plus-heuristic first.
-pub fn a_star<S, H, K, A, C, D, O>(
+pub fn a_star<S, A, F, C, D, O>(
     start: S,
-    hash_key: H,
+    adjacent: A,
+    filter: F,
     mut cost: C,
     mut heuristic: D,
-    adjacent: A,
 ) -> impl Iterator<Item = S>
 where
-    H: FnMut(&S) -> K,
-    K: Eq + Hash,
     A: FnMut(&S, &mut dyn FnMut(S)),
+    F: FnMut(&S) -> bool,
     C: FnMut(&S) -> O,
     D: FnMut(&S) -> O,
     O: Add,
     O::Output: Ord,
 {
-    dijkstra(
-        start,
-        hash_key,
-        move |state| cost(state) + heuristic(state),
-        adjacent,
-    )
-}
-
-fn search_nohash<Q, S, A>(mut queue: Q, start: S, mut adjacent: A) -> impl Iterator<Item = S>
-where
-    Q: Queue<Item = S>,
-    A: FnMut(&S, &mut dyn FnMut(S)),
-{
-    queue.push(start);
-    iter::from_fn(move || {
-        queue
-            .pop()
-            .inspect(|state| adjacent(state, &mut |a| queue.push(a)))
+    dijkstra(start, adjacent, filter, move |state| {
+        cost(state) + heuristic(state)
     })
-}
-
-/// Search a state space breadth first (may visit the same state multiple times).
-pub fn breadth_first_nohash<S, A>(start: S, adjacent: A) -> impl Iterator<Item = S>
-where
-    A: FnMut(&S, &mut dyn FnMut(S)),
-{
-    search_nohash(VecDeque::new(), start, adjacent)
-}
-
-/// Search a state space min-cost first (may visit the same state multiple times).
-pub fn dijkstra_nohash<S, A, C, O>(start: S, cost: C, adjacent: A) -> impl Iterator<Item = S>
-where
-    A: FnMut(&S, &mut dyn FnMut(S)),
-    C: FnMut(&S) -> O,
-    O: Ord,
-{
-    search_nohash(
-        CostHeap {
-            cost,
-            binary_heap: BinaryHeap::new(),
-        },
-        start,
-        adjacent,
-    )
 }

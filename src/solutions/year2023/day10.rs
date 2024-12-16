@@ -45,12 +45,12 @@ fn boundary(start: Vector, pipes: &Grid<Vec<Vector>>) -> Vec<Vector> {
 fn area(start: Vector, boundary: &HashSet<Vector>) -> impl Iterator<Item = Vector> + '_ {
     search::breadth_first(
         start,
-        |&state| state,
         |&state, push| {
             grid::adjacent4(state)
                 .filter(|a| !boundary.contains(a))
                 .for_each(push);
         },
+        search::id_filter(),
     )
 }
 

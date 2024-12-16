@@ -45,12 +45,12 @@ fn regions(garden: &HashSet<(Vector, char)>) -> Vec<HashSet<(Vector, char)>> {
         res.push(
             search::breadth_first(
                 v,
-                |&v| v,
                 |&v, push| {
                     grid::adjacent4(v)
                         .filter(|&u| garden.contains(&(u, c)))
                         .for_each(push);
                 },
+                search::id_filter(),
             )
             .map(|v| (v, c))
             .collect(),

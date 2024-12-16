@@ -81,7 +81,6 @@ pub fn part1(input: &str) -> u32 {
             pos: maze.start,
             steps: 0,
         },
-        |state| state.pos,
         move |state, push| {
             for p in grid::adjacent4(state.pos) {
                 if maze.passages.contains(&p) {
@@ -103,6 +102,7 @@ pub fn part1(input: &str) -> u32 {
                 });
             }
         },
+        search::hash_filter(|state: &State| state.pos),
     )
     .find(|state| state.pos == maze.finish)
     .unwrap()
@@ -123,7 +123,6 @@ pub fn part2(input: &str) -> u32 {
             level: 0,
             steps: 0,
         },
-        |state| (state.pos, state.level),
         move |state, push| {
             for p in grid::adjacent4(state.pos) {
                 if maze.passages.contains(&p) {
@@ -151,6 +150,7 @@ pub fn part2(input: &str) -> u32 {
                 });
             }
         },
+        search::hash_filter(|state: &State| (state.pos, state.level)),
     )
     .find(|state| state.pos == maze.finish && state.level == 0)
     .unwrap()

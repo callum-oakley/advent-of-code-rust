@@ -23,7 +23,6 @@ fn search(input: &str) -> impl Iterator<Item = State> {
             pos: Vector::new(1, 1),
             steps: 0,
         },
-        |state| state.pos,
         move |state, push| {
             for pos in grid::adjacent4(state.pos) {
                 if pos.x >= 0 && pos.y >= 0 && is_open(seed, pos) {
@@ -34,6 +33,7 @@ fn search(input: &str) -> impl Iterator<Item = State> {
                 }
             }
         },
+        search::hash_filter(|state: &State| state.pos),
     )
 }
 

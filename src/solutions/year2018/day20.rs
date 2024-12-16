@@ -58,7 +58,6 @@ fn search(input: &str) -> impl Iterator<Item = State> {
     let graph = expand(input);
     search::breadth_first(
         State { pos: Z, dist: 0 },
-        |state| state.pos,
         move |state, push| {
             for &pos in &graph[&state.pos] {
                 push(State {
@@ -67,6 +66,7 @@ fn search(input: &str) -> impl Iterator<Item = State> {
                 });
             }
         },
+        search::hash_filter(|state: &State| state.pos),
     )
 }
 

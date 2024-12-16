@@ -155,10 +155,10 @@ fn part_(items: Vec<Item>) -> u8 {
             items,
             steps: 0,
         },
-        |state| (state.lift, state.items.clone()),
+        adjacent,
+        search::hash_filter(|state: &State| (state.lift, state.items.clone())),
         |state| state.steps,
         heuristic,
-        adjacent,
     )
     .find(|state| {
         state.items.iter().all(

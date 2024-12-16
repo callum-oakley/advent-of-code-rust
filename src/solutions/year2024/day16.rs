@@ -41,39 +41,38 @@ impl State {
     }
 }
 
-// We can't use search::dijkstra and hash (pos, dir) because if we can reach the same tile in two
-// different ways with the same minimal score we need to consider both. Instead, keep track of the
-// lowest score that we see each (pos, dir) and only discard branches with a strictly higher score.
 fn search(maze: &Grid<char>) -> impl Iterator<Item = State> + '_ {
     let start = maze.keys().find(|&v| maze[v] == 'S').unwrap();
-    let mut first_seen: HashMap<(Vector, Vector), usize> = HashMap::new();
-    search::dijkstra_nohash(
+    let mut lowest_score = HashMap::new();
+    search::dijkstra(
         State {
             pos: start,
             dir: E,
             score: 0,
             path: vec![start],
         },
-        |state| state.score,
-        move |state, push| {
-            if maze[state.pos] == 'E'
-                || first_seen
-                    .get(&(state.pos, state.dir))
-                    .is_some_and(|&score| score < state.score)
-            {
-                return;
-            }
-            first_seen.insert((state.pos, state.dir), state.score);
-
-            if maze[state.pos + state.dir] != '#' {
-                push(state.run(maze));
-            }
-            for turn in [LEFT, RIGHT] {
-                if maze[state.pos + turn * state.dir] != '#' {
-                    push(state.turn(turn).run(maze));
+        |state, push| {
+            if maze[state.pos] != 'E' {
+                if maze[state.pos + state.dir] != '#' {
+                    push(state.run(maze));
+                }
+                for turn in [LEFT, RIGHT] {
+                    if maze[state.pos + turn * state.dir] != '#' {
+                        push(state.turn(turn).run(maze));
+                    }
                 }
             }
         },
+        // Track the lowest score that we see each (pos, dir) and only consider optimal branches.
+        move |state| {
+            if let Some(&score) = lowest_score.get(&(state.pos, state.dir)) {
+                state.score == score
+            } else {
+                lowest_score.insert((state.pos, state.dir), state.score);
+                true
+            }
+        },
+        |state| state.score,
     )
 }
 

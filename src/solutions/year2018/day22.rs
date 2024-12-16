@@ -130,10 +130,10 @@ pub fn part2(input: &str) -> i32 {
             tool: Tool::Torch,
             mins: 0,
         },
-        |state| (state.pos, state.tool),
+        move |state, push| state.adjacent(&cave).for_each(push),
+        search::hash_filter(|state: &State| (state.pos, state.tool)),
         |state| state.mins,
         move |state| (target - state.pos).abs().sum(),
-        move |state, push| state.adjacent(&cave).for_each(push),
     )
     .find(|state| state.pos == target && state.tool == Tool::Torch)
     .unwrap()

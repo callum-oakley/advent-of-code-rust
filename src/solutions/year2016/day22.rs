@@ -70,14 +70,6 @@ fn part2_(size: Vector, input: &str) -> usize {
             goal: Vector::new(size.x - 1, 0),
             steps: 0,
         },
-        |state| (state.hole, state.goal),
-        |state| state.steps,
-        // First we have to move the hole next to the goal. Then it takes 5 steps to shuffle the
-        // goal along one space.
-        |state| {
-            usize::try_from((state.goal - state.hole).abs().sum()).unwrap()
-                + 5 * usize::try_from(state.goal.abs().sum()).unwrap()
-        },
         move |state, push| {
             for pos in grid::adjacent4(state.hole) {
                 if viable.contains(&pos) {
@@ -90,6 +82,14 @@ fn part2_(size: Vector, input: &str) -> usize {
                     push(state);
                 }
             }
+        },
+        search::hash_filter(|state: &State| (state.hole, state.goal)),
+        |state| state.steps,
+        // First we have to move the hole next to the goal. Then it takes 5 steps to shuffle the
+        // goal along one space.
+        |state| {
+            usize::try_from((state.goal - state.hole).abs().sum()).unwrap()
+                + 5 * usize::try_from(state.goal.abs().sum()).unwrap()
         },
     )
     .find(|state| state.goal == Z)

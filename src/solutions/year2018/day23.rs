@@ -75,7 +75,8 @@ pub fn part2(input: &str) -> i32 {
             pos: bounds.min,
             w: bounds.size().max(),
         },
-        Clone::clone,
+        |cube, push| cube.subcubes().for_each(push),
+        search::id_filter(),
         move |cube| {
             (
                 bots.iter().filter(|&&bot| !cube.intersects(bot)).count(),
@@ -83,7 +84,6 @@ pub fn part2(input: &str) -> i32 {
                 cube.pos.abs().sum(),
             )
         },
-        |cube, push| cube.subcubes().for_each(push),
     )
     .find(|cube| cube.w == 1)
     .unwrap()

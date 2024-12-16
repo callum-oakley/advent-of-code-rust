@@ -38,7 +38,6 @@ fn expand(state: &Grid<char>) -> Grid<char> {
 fn tick(state: &mut Grid<char>, dir: Vector) {
     let objects: Vec<Vector> = search::breadth_first(
         state.keys().find(|&v| state[v] == '@').unwrap(),
-        |&v| v,
         |&v, push| match state[v] {
             '@' | 'O' => {
                 push(v + dir);
@@ -53,6 +52,7 @@ fn tick(state: &mut Grid<char>, dir: Vector) {
             }
             _ => (),
         },
+        search::id_filter(),
     )
     .filter(|&v| "@O[]".contains(state[v]))
     .collect();

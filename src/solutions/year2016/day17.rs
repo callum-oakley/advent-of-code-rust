@@ -53,8 +53,8 @@ pub fn part1(input: &str) -> String {
             path: String::new(),
             pos: Z,
         },
-        Clone::clone,
         |state, push| adjacent(input, state, push),
+        search::id_filter(),
     )
     .find(|state| state.pos == Vector::new(3, 3))
     .unwrap()
@@ -67,8 +67,8 @@ pub fn part2(input: &str) -> usize {
             path: String::new(),
             pos: Z,
         },
-        Clone::clone,
         |state, push| adjacent(input, state, push),
+        search::id_filter(),
     )
     .filter(|state| state.pos == Vector::new(3, 3))
     .map(|state| state.path.len())

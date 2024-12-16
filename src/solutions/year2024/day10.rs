@@ -10,17 +10,21 @@ where
     H: FnMut(&Vec<Vector>) -> K,
     K: Eq + Hash,
 {
-    search::breadth_first(vec![v], hash_key, |path, push| {
-        let v = *path.last().unwrap();
-        let height = grid[v];
-        grid::adjacent4(v)
-            .filter(|&v| grid.get(v).is_some_and(|&h| h == height + 1))
-            .for_each(|v| {
-                let mut path = path.clone();
-                path.push(v);
-                push(path);
-            });
-    })
+    search::breadth_first(
+        vec![v],
+        |path, push| {
+            let v = *path.last().unwrap();
+            let height = grid[v];
+            grid::adjacent4(v)
+                .filter(|&v| grid.get(v).is_some_and(|&h| h == height + 1))
+                .for_each(|v| {
+                    let mut path = path.clone();
+                    path.push(v);
+                    push(path);
+                });
+        },
+        search::hash_filter(hash_key),
+    )
     .filter(|path| grid[*path.last().unwrap()] == 9)
     .count()
 }

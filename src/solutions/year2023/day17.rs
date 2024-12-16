@@ -37,8 +37,6 @@ fn part_(min_straight_len: u8, max_straight_len: u8, input: &str) -> u32 {
             straight_len: 0,
             heat_loss: 0,
         },
-        |crucible| (crucible.pos, crucible.dir, crucible.straight_len),
-        |crucible| crucible.heat_loss,
         move |crucible, push| {
             if crucible.straight_len >= min_straight_len {
                 if let Some(crucible) = crucible.step(&city, Some(LEFT)) {
@@ -54,6 +52,10 @@ fn part_(min_straight_len: u8, max_straight_len: u8, input: &str) -> u32 {
                 }
             }
         },
+        search::hash_filter(|crucible: &Crucible| {
+            (crucible.pos, crucible.dir, crucible.straight_len)
+        }),
+        |crucible| crucible.heat_loss,
     )
     .find(|crucible| crucible.pos == target && crucible.straight_len >= min_straight_len)
     .unwrap()

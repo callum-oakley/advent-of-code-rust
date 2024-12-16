@@ -16,7 +16,6 @@ fn distance(ducts: &HashSet<Vector>, a: Vector, b: Vector) -> u32 {
     }
     search::breadth_first(
         State { pos: a, steps: 0 },
-        |state| state.pos,
         |state, push| {
             for pos in grid::adjacent4(state.pos) {
                 if ducts.contains(&pos) {
@@ -27,6 +26,7 @@ fn distance(ducts: &HashSet<Vector>, a: Vector, b: Vector) -> u32 {
                 }
             }
         },
+        search::hash_filter(|state: &State| state.pos),
     )
     .find(|state| state.pos == b)
     .unwrap()
