@@ -183,3 +183,20 @@ where
 {
     search_nohash(VecDeque::new(), start, adjacent)
 }
+
+/// Search a state space min-cost first (may visit the same state multiple times).
+pub fn dijkstra_nohash<S, A, C, O>(start: S, cost: C, adjacent: A) -> impl Iterator<Item = S>
+where
+    A: FnMut(&S, &mut dyn FnMut(S)),
+    C: FnMut(&S) -> O,
+    O: Ord,
+{
+    search_nohash(
+        CostHeap {
+            cost,
+            binary_heap: BinaryHeap::new(),
+        },
+        start,
+        adjacent,
+    )
+}
