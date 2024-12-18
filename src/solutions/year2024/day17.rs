@@ -48,15 +48,6 @@ fn parse(input: &str) -> (Vec<usize>, usize, usize, usize) {
     (prog, a, b, c)
 }
 
-fn octal_digits_to_int(digits: &[usize]) -> usize {
-    digits
-        .iter()
-        .rev()
-        .enumerate()
-        .map(|(i, d)| d * 8_usize.pow(i.try_into().unwrap()))
-        .sum()
-}
-
 pub fn part1(input: &str) -> String {
     let (prog, a, b, c) = parse(input);
     run(&prog, a, b, c)
@@ -94,30 +85,17 @@ pub fn part1(input: &str) -> String {
 // can find the input by working from left to right, varying a digit at a time until we find a match
 // on the suffix of the output, and backtracking if we reach a dead end.
 pub fn part2(input: &str) -> usize {
-    let (prog, _, b, c) = parse(input);
-    let len = prog.len();
-    let mut digits = vec![0; len];
-    digits[0] = 1;
-    let mut fixed = 0;
-    while fixed < len {
-        loop {
-            if digits[fixed] == 8 {
-                // We've reached a dead end, backtrack.
-                digits[fixed] = 0;
-                fixed -= 1;
-                digits[fixed] += 1;
-                break;
-            }
-            let a = octal_digits_to_int(&digits);
-            let out = run(&prog, a, b, c);
-            if out[len - 1 - fixed] == prog[len - 1 - fixed] {
-                fixed += 1;
-                break;
-            }
-            digits[fixed] += 1;
+    fn search(prog: &[usize], a: usize, b: usize, c: usize, fixed: usize) -> Option<usize> {
+        if fixed == prog.len() {
+            Some(a)
+        } else {
+            (0..8)
+                .filter(|d| run(prog, (a << 3) + d, b, c) == prog[prog.len() - fixed - 1..])
+                .find_map(|d| search(prog, (a << 3) + d, b, c, fixed + 1))
         }
     }
-    octal_digits_to_int(&digits)
+    let (prog, _, b, c) = parse(input);
+    search(&prog, 0, b, c, 0).unwrap()
 }
 
 pub fn tests() {
