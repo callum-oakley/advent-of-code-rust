@@ -38,7 +38,7 @@ fn parse2(input: &str) -> (usize, usize) {
 // The distance travelled is symmetric about time / 2, and is increasing in the first half, so we
 // can binary search to find the first win, and then use the symmetry to find the whole range.
 fn count_wins((time, distance): (usize, usize)) -> usize {
-    let first_win = search::binary(0, time / 2, |i| (time - i) * i <= distance);
+    let first_win = search::binary(0, time / 2, |i| (time - i) * i > distance);
     time - first_win * 2 + 1
 }
 

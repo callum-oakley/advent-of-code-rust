@@ -39,7 +39,7 @@ pub fn part1(input: &str) -> usize {
 fn part2_(size: i32, input: &str) -> String {
     let bytes = parse(input);
     let i = search::binary(0, bytes.len(), |i| {
-        search(size, &bytes[..i].iter().copied().collect()).is_some()
+        search(size, &bytes[..i].iter().copied().collect()).is_none()
     }) - 1;
     format!("{},{}", bytes[i].x, bytes[i].y)
 }

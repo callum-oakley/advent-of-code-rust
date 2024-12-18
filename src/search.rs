@@ -6,6 +6,8 @@ use std::{
     ops::Add,
 };
 
+use num::PrimInt;
+
 trait Queue {
     type Item;
 
@@ -176,33 +178,38 @@ where
     })
 }
 
-/// Like `slice::partition_point` but between two indices rather than on a slice.
-pub fn binary<F>(mut low: usize, mut high: usize, mut pred: F) -> usize
+/// Finds the smallest value where pred is true, assuming that it is false for all lower values, and
+/// true for all higher, given a low and high initial bound.
+pub fn binary<N, F>(mut low: N, mut high: N, mut pred: F) -> N
 where
-    F: FnMut(usize) -> bool,
+    N: PrimInt,
+    F: FnMut(N) -> bool,
 {
-    assert!(pred(low));
-    assert!(!pred(high));
-    while high - low > 1 {
-        let mid = (high + low) / 2;
+    assert!(!pred(low));
+    assert!(pred(high));
+    while high - low > N::one() {
+        let mid = (high + low) / N::from(2).unwrap();
         if pred(mid) {
-            low = mid;
-        } else {
             high = mid;
+        } else {
+            low = mid;
         }
     }
     high
 }
 
-pub fn exponential<F>(mut low: usize, mut pred: F) -> usize
+/// Finds the smallest value where pred is true, assuming that it is false for all lower values, and
+/// true for all higher, given only a low initial bound.
+pub fn exponential<N, F>(mut low: N, mut pred: F) -> N
 where
-    F: FnMut(usize) -> bool,
+    N: PrimInt,
+    F: FnMut(N) -> bool,
 {
-    assert!(pred(low));
-    let mut size = 1;
-    while pred(low + size) {
-        low += size;
-        size *= 2;
+    assert!(!pred(low));
+    let mut size = N::one();
+    while !pred(low + size) {
+        low = low + size;
+        size = size * N::from(2).unwrap();
     }
 
     binary(low, low + size, pred)

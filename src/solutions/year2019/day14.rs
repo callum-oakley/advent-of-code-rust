@@ -63,11 +63,7 @@ pub fn part1(input: &str) -> i64 {
 
 pub fn part2(input: &str) -> i64 {
     let reactions = parse(input);
-    (search::exponential(1, |i| {
-        cost(&reactions, i.try_into().unwrap()) <= 1_000_000_000_000
-    }) - 1)
-        .try_into()
-        .unwrap()
+    search::exponential(1, |i| cost(&reactions, i) > 1_000_000_000_000) - 1
 }
 
 pub fn tests() {
