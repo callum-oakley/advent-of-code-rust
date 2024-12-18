@@ -193,3 +193,17 @@ where
     }
     high
 }
+
+pub fn exponential<F>(mut low: usize, mut pred: F) -> usize
+where
+    F: FnMut(usize) -> bool,
+{
+    assert!(pred(low));
+    let mut size = 1;
+    while pred(low + size) {
+        low += size;
+        size *= 2;
+    }
+
+    binary(low, low + size, pred)
+}

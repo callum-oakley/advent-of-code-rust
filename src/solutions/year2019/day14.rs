@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::search;
+
 struct Reaction<'a> {
     quantity: i64,
     reactants: Vec<(i64, &'a str)>,
@@ -61,24 +63,11 @@ pub fn part1(input: &str) -> i64 {
 
 pub fn part2(input: &str) -> i64 {
     let reactions = parse(input);
-
-    let mut low = 1;
-    let mut high = 2;
-    while cost(&reactions, high) <= 1_000_000_000_000 {
-        low *= 2;
-        high *= 2;
-    }
-
-    while high - low > 1 {
-        let mid = (low + high) / 2;
-        if cost(&reactions, mid) <= 1_000_000_000_000 {
-            low = mid;
-        } else {
-            high = mid;
-        }
-    }
-
-    low
+    (search::exponential(1, |i| {
+        cost(&reactions, i.try_into().unwrap()) <= 1_000_000_000_000
+    }) - 1)
+        .try_into()
+        .unwrap()
 }
 
 pub fn tests() {
