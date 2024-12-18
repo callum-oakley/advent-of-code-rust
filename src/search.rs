@@ -175,3 +175,21 @@ where
         cost(state) + heuristic(state)
     })
 }
+
+/// Like `slice::partition_point` but between two indices rather than on a slice.
+pub fn binary<F>(mut low: usize, mut high: usize, mut pred: F) -> usize
+where
+    F: FnMut(usize) -> bool,
+{
+    assert!(pred(low));
+    assert!(!pred(high));
+    while high - low > 1 {
+        let mid = (high + low) / 2;
+        if pred(mid) {
+            low = mid;
+        } else {
+            high = mid;
+        }
+    }
+    high
+}

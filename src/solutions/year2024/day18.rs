@@ -38,9 +38,9 @@ pub fn part1(input: &str) -> usize {
 
 fn part2_(size: i32, input: &str) -> String {
     let bytes = parse(input);
-    let i = (0..bytes.len())
-        .collect::<Vec<usize>>()
-        .partition_point(|&i| search(size, &bytes[..=i].iter().copied().collect()).is_some());
+    let i = search::binary(0, bytes.len(), |i| {
+        search(size, &bytes[..i].iter().copied().collect()).is_some()
+    }) - 1;
     format!("{},{}", bytes[i].x, bytes[i].y)
 }
 
