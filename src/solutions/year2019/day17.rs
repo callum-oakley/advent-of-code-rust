@@ -6,7 +6,7 @@ use std::{
 use anyhow::{Context, Result};
 
 use crate::{
-    grid::{self, IntoVector, Vector, LEFT, RIGHT},
+    grid::{self, Adjacent, IntoVector, Vector, LEFT, RIGHT},
     intcode::{State, VM},
 };
 
@@ -64,7 +64,7 @@ fn part1_(map: &str) -> i32 {
     let (scaffold, _) = parse(map);
     scaffold
         .iter()
-        .filter(|&&pos| grid::adjacent4(pos).all(|p| scaffold.contains(&p)))
+        .filter(|&&pos| pos.adjacent4().all(|p| scaffold.contains(&p)))
         .map(|pos| pos.y * pos.x)
         .sum()
 }

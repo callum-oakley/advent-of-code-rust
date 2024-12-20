@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
-    grid::{self, Grid, Vector, E, N, NE, NW, S, SE, SW, W},
+    grid::{Adjacent, Grid, Vector, E, N, NE, NW, S, SE, SW, W},
     search,
 };
 
@@ -22,7 +22,8 @@ fn parse(input: &str) -> (Vector, Grid<Vec<Vector>>) {
         _ => unreachable!(),
     });
     let start = start.unwrap();
-    pipes[start] = grid::adjacent4(start)
+    pipes[start] = start
+        .adjacent4()
         .filter(|&v| pipes.get(v).is_some_and(|adj| adj.contains(&start)))
         .collect();
     assert_eq!(pipes[start].len(), 2);
@@ -46,7 +47,8 @@ fn area(start: Vector, boundary: &HashSet<Vector>) -> impl Iterator<Item = Vecto
     search::breadth_first(
         start,
         |&state, push| {
-            grid::adjacent4(state)
+            state
+                .adjacent4()
                 .filter(|a| !boundary.contains(a))
                 .for_each(push);
         },

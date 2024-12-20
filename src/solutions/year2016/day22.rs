@@ -3,7 +3,7 @@ use std::collections::HashSet;
 use regex::Regex;
 
 use crate::{
-    grid::{self, Grid, Vector, Z},
+    grid::{Adjacent, Grid, Vector, Z},
     search,
 };
 
@@ -71,7 +71,7 @@ fn part2_(size: Vector, input: &str) -> usize {
             steps: 0,
         },
         move |state, push| {
-            for pos in grid::adjacent4(state.hole) {
+            for pos in state.hole.adjacent4() {
                 if viable.contains(&pos) {
                     let mut state = state.clone();
                     if state.goal == pos {

@@ -1,7 +1,7 @@
 use std::hash::Hash;
 
 use crate::{
-    grid::{self, Grid, Vector},
+    grid::{Adjacent, Grid, Vector},
     search,
 };
 
@@ -15,7 +15,7 @@ where
         |path, push| {
             let v = *path.last().unwrap();
             let height = grid[v];
-            grid::adjacent4(v)
+            v.adjacent4()
                 .filter(|&v| grid.get(v).is_some_and(|&h| h == height + 1))
                 .for_each(|v| {
                     let mut path = path.clone();

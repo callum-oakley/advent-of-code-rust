@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
-    grid::{self, IntoVector, Vector},
+    grid::{self, Adjacent, IntoVector, Vector},
     search,
 };
 
@@ -46,7 +46,7 @@ fn regions(garden: &HashSet<(Vector, char)>) -> Vec<HashSet<(Vector, char)>> {
             search::breadth_first(
                 v,
                 |&v, push| {
-                    grid::adjacent4(v)
+                    v.adjacent4()
                         .filter(|&u| garden.contains(&(u, c)))
                         .for_each(push);
                 },

@@ -1,6 +1,6 @@
 use std::{collections::HashMap, iter};
 
-use crate::grid::{self, Vector, E, N, S, W, Z};
+use crate::grid::{Adjacent, Vector, E, N, S, W, Z};
 
 fn spiral() -> impl Iterator<Item = Vector> {
     let mut v = W;
@@ -45,7 +45,7 @@ pub fn part2(input: &str) -> i32 {
     mem.insert(Z, 1);
 
     for square in spiral().skip(1) {
-        let value = grid::adjacent8(square).filter_map(|v| mem.get(&v)).sum();
+        let value = square.adjacent8().filter_map(|v| mem.get(&v)).sum();
         if value > input {
             return value;
         }

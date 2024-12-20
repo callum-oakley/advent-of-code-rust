@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
-    grid::{self, Grid},
+    grid::{Adjacent, Grid},
     hash, search,
 };
 
@@ -33,7 +33,7 @@ pub fn part2(input: &str) -> usize {
         for pos in search::breadth_first(
             *unexplored.iter().next().unwrap(),
             |&pos, push| {
-                grid::adjacent4(pos)
+                pos.adjacent4()
                     .filter(|&v| disk.get(v).is_some_and(|&used| used))
                     .for_each(push);
             },

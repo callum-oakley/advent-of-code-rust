@@ -1,5 +1,5 @@
 use crate::{
-    grid::{self, Grid, Vector},
+    grid::{Adjacent, Grid, Vector},
     search,
 };
 
@@ -29,7 +29,7 @@ fn part_(garden: &Grid<bool>, start: Vector, max_steps: usize) -> usize {
         },
         |state, push| {
             if state.steps < max_steps {
-                for pos in grid::adjacent4(state.pos) {
+                for pos in state.pos.adjacent4() {
                     if garden[pos.zip_map(&garden.size, i32::rem_euclid)] {
                         push(State {
                             pos,

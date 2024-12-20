@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::LazyLock};
 
 use crate::{
-    grid::{adjacent4, Bounds, Grid, Vector, E, N, S, W, Z},
+    grid::{Adjacent, Bounds, Grid, Vector, E, N, S, W, Z},
     uniq::Uniq,
 };
 
@@ -99,7 +99,7 @@ fn assemble(tiles: Vec<Tile>) -> HashMap<Vector, Tile> {
     while !free.is_empty() {
         let (v, i, j) = fixed
             .keys()
-            .flat_map(|&v| adjacent4(v))
+            .flat_map(|&v| v.adjacent4())
             .uniq()
             .filter(|v| !fixed.contains_key(v))
             .find_map(|v| {

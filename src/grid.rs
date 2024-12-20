@@ -25,16 +25,23 @@ pub const SE: Vector = Vector::new(1, 1);
 pub const LEFT: Turn = Turn::new(0, 1, -1, 0);
 pub const RIGHT: Turn = Turn::new(0, -1, 1, 0);
 
-pub fn adjacent4<V: Into<Vector>>(v: V) -> impl Iterator<Item = Vector> {
-    let v = v.into();
-    [N, W, E, S].into_iter().map(move |dir| dir + v)
+pub trait Adjacent {
+    fn adjacent4(self) -> impl Iterator<Item = Vector>;
+    fn adjacent8(self) -> impl Iterator<Item = Vector>;
 }
 
-pub fn adjacent8<V: Into<Vector>>(v: V) -> impl Iterator<Item = Vector> {
-    let v = v.into();
-    [NW, N, NE, W, E, SW, S, SE]
-        .into_iter()
-        .map(move |dir| dir + v)
+impl<V: Into<Vector>> Adjacent for V {
+    fn adjacent4(self) -> impl Iterator<Item = Vector> {
+        let v = self.into();
+        [N, W, E, S].into_iter().map(move |dir| dir + v)
+    }
+
+    fn adjacent8(self) -> impl Iterator<Item = Vector> {
+        let v = self.into();
+        [NW, N, NE, W, E, SW, S, SE]
+            .into_iter()
+            .map(move |dir| dir + v)
+    }
 }
 
 pub fn reading_ord_key(v: Vector) -> [i32; 2] {

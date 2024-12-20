@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use crate::{
     freqs::Freqs,
-    grid::{self, Grid, Vector},
+    grid::{Adjacent, Grid, Vector},
     search,
 };
 
@@ -24,7 +24,7 @@ fn run(grid: &Grid<bool>, start: Vector) -> HashMap<Vector, i32> {
     search::breadth_first(
         (start, 0),
         |&(pos, picoseconds), push| {
-            grid::adjacent4(pos)
+            pos.adjacent4()
                 .filter(|&a| grid.get(a).is_some_and(|&t| t))
                 .for_each(|a| {
                     push((a, picoseconds + 1));

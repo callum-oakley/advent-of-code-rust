@@ -1,6 +1,6 @@
 use std::mem;
 
-use crate::grid::{self, Grid, Vector, Z};
+use crate::grid::{Adjacent, Grid, Vector, Z};
 
 #[derive(Clone, Copy, PartialEq)]
 enum Tile {
@@ -38,7 +38,7 @@ where
 
 pub fn part1(input: &str) -> usize {
     part_(input, 4, |state, pos| {
-        grid::adjacent8(pos)
+        pos.adjacent8()
             .filter(|&v| state.get(v).is_some_and(|&t| t == Tile::Occupied))
             .count()
     })
@@ -46,7 +46,7 @@ pub fn part1(input: &str) -> usize {
 
 pub fn part2(input: &str) -> usize {
     part_(input, 5, |state, pos| {
-        grid::adjacent8(Z)
+        Z.adjacent8()
             .filter(|&dir| {
                 let mut pos = pos + dir;
                 while state.get(pos) == Some(&Tile::Floor) {

@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 use regex::Regex;
 
-use crate::grid::{self, Vector};
+use crate::grid::{self, Adjacent, Vector};
 
 struct Label {
     val: u32,
@@ -29,7 +29,7 @@ fn parse(input: &str) -> (HashMap<Vector, char>, Vec<Label>) {
                 covers: (m.start()..m.end())
                     .flat_map(|x| {
                         let x = i32::try_from(x).unwrap();
-                        grid::adjacent8([x, y])
+                        [x, y].adjacent8()
                     })
                     .collect(),
             })

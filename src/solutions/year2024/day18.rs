@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
-    grid::{self, IntoVector, Vector, Z},
+    grid::{Adjacent, IntoVector, Vector, Z},
     search::{self, hash_filter},
 };
 
@@ -16,7 +16,7 @@ fn search(size: i32, corrupted: &HashSet<Vector>) -> Option<usize> {
     search::breadth_first(
         (Z, 0),
         |&(pos, steps), push| {
-            grid::adjacent4(pos)
+            pos.adjacent4()
                 .filter(|a| {
                     a.x >= 0 && a.y >= 0 && a.x <= size && a.y <= size && !corrupted.contains(a)
                 })

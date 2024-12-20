@@ -1,11 +1,12 @@
 use crate::{
-    grid::{self, Grid},
+    grid::{Adjacent, Grid},
     part::Part,
 };
 
 fn step(lights: &mut Grid<bool>, scrap: &mut Grid<bool>) {
     for (pos, light) in &*lights {
-        let neighbors_on = grid::adjacent8(pos)
+        let neighbors_on = pos
+            .adjacent8()
             .filter(|&v| lights.get(v).is_some_and(|&p| p))
             .count();
         scrap[pos] = neighbors_on == 3 || *light && neighbors_on == 2;

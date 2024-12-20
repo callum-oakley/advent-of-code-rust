@@ -1,5 +1,5 @@
 use crate::{
-    grid::{self, Grid, Vector},
+    grid::{self, Adjacent, Grid, Vector},
     part::Part,
     search,
 };
@@ -81,7 +81,7 @@ fn parse(elf_ap: i32, input: &str) -> Grid<Square> {
 }
 
 fn in_range(cave: &Grid<Square>, pos: Vector, target_kind: Kind) -> Option<Vector> {
-    grid::adjacent4(pos)
+    pos.adjacent4()
         .filter(|&v| {
             cave.get(v)
                 .is_some_and(|square| square.is_occupied() && square.unit().kind == target_kind)
@@ -103,7 +103,7 @@ fn first_step(cave: &mut Grid<Square>, pos: Vector, target_kind: Kind) -> Option
             first_step: None,
         },
         |state, push| {
-            for pos in grid::adjacent4(state.pos) {
+            for pos in state.pos.adjacent4() {
                 if let Some(Square::Empty) = cave.get(pos) {
                     push(State {
                         dist: state.dist + 1,

@@ -1,7 +1,7 @@
 use std::collections::{BTreeSet, HashMap};
 
 use crate::{
-    grid::{self, Grid, Vector, E, N, NE, NW, S, SE, SW, W, Z},
+    grid::{Adjacent, Grid, Vector, E, N, NE, NW, S, SE, SW, W, Z},
     search,
 };
 
@@ -48,7 +48,9 @@ fn reachable(map: &Grid<char>, pos: Vector) -> Vec<Path> {
             if state.found_key {
                 return;
             }
-            grid::adjacent4(state.pos)
+            state
+                .pos
+                .adjacent4()
                 .filter(|&v| map.get(v).is_some_and(|&tile| is_open(tile)))
                 .for_each(|pos| {
                     let mut state = state.clone();

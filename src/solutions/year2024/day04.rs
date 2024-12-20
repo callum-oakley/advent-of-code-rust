@@ -1,4 +1,4 @@
-use crate::grid::{adjacent8, Grid, Vector, NE, NW, SE, SW, Z};
+use crate::grid::{Adjacent, Grid, Vector, NE, NW, SE, SW, Z};
 
 pub fn part1(input: &str) -> usize {
     let grid = Grid::parse(input, |_, c| c);
@@ -6,7 +6,7 @@ pub fn part1(input: &str) -> usize {
         (0..4).filter_map(|i| grid.get(v + i * dir)).collect()
     };
     grid.keys()
-        .flat_map(|v| adjacent8(Z).map(move |dir| (v, dir)))
+        .flat_map(|v| Z.adjacent8().map(move |dir| (v, dir)))
         .filter(|&(v, dir)| word_at(v, dir) == "XMAS")
         .count()
 }

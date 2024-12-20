@@ -1,5 +1,5 @@
 use crate::{
-    grid::{self, Vector},
+    grid::{Adjacent, Vector},
     search,
 };
 
@@ -24,7 +24,7 @@ fn search(input: &str) -> impl Iterator<Item = State> {
             steps: 0,
         },
         move |state, push| {
-            for pos in grid::adjacent4(state.pos) {
+            for pos in state.pos.adjacent4() {
                 if pos.x >= 0 && pos.y >= 0 && is_open(seed, pos) {
                     push(State {
                         pos,
