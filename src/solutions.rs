@@ -2007,7 +2007,7 @@ pub fn build() -> BTreeMap<u16, BTreeMap<u8, Solution>> {
         Solution {
             part1: Some(|input| year2024::day20::part1(input).to_string()),
             part2: Some(|input| year2024::day20::part2(input).to_string()),
-            tests: None,
+            tests: Some(year2024::day20::tests),
         },
     );
 
