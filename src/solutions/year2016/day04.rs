@@ -1,6 +1,8 @@
-use std::{cmp::Reverse, collections::HashMap, sync::LazyLock};
+use std::{cmp::Reverse, sync::LazyLock};
 
 use regex::Regex;
+
+use crate::freqs::Freqs;
 
 struct Room<'a> {
     name: &'a str,
@@ -21,10 +23,7 @@ impl<'a> Room<'a> {
     }
 
     fn is_real(&self) -> bool {
-        let mut freqs = HashMap::new();
-        for c in self.name.chars().filter(|c| *c != '-') {
-            *freqs.entry(c).or_insert(0) += 1;
-        }
+        let freqs = self.name.chars().filter(|c| *c != '-').freqs();
         let mut keys = freqs.keys().copied().collect::<Vec<_>>();
         keys.sort_by_key(|k| (Reverse(freqs[k]), *k));
         keys.into_iter().take(5).eq(self.checksum.chars())

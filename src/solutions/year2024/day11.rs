@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use crate::freqs::Freqs;
+
 fn blink(stones: &HashMap<usize, usize>) -> HashMap<usize, usize> {
     let mut next = HashMap::new();
     for (&stone, &freq) in stones {
@@ -17,10 +19,7 @@ fn blink(stones: &HashMap<usize, usize>) -> HashMap<usize, usize> {
 }
 
 fn part_(blinks: usize, input: &str) -> usize {
-    let mut stones: HashMap<usize, usize> = HashMap::new();
-    for stone in input.split_whitespace().map(|s| s.parse().unwrap()) {
-        *stones.entry(stone).or_default() += 1;
-    }
+    let mut stones = input.split_whitespace().map(|s| s.parse().unwrap()).freqs();
     for _ in 0..blinks {
         stones = blink(&stones);
     }

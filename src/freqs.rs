@@ -1,15 +1,15 @@
 use std::{collections::HashMap, hash::Hash};
 
-pub trait Freq: Iterator {
-    fn freq(self) -> HashMap<Self::Item, usize>;
+pub trait Freqs: Iterator {
+    fn freqs(self) -> HashMap<Self::Item, usize>;
 }
 
-impl<T> Freq for T
+impl<T> Freqs for T
 where
     T: Iterator,
     T::Item: Eq + Hash,
 {
-    fn freq(self) -> HashMap<Self::Item, usize> {
+    fn freqs(self) -> HashMap<Self::Item, usize> {
         let mut res = HashMap::new();
         for x in self {
             *res.entry(x).or_default() += 1;

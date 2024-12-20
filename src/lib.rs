@@ -13,7 +13,7 @@ pub mod intcode;
 pub mod solutions;
 
 mod combinatorics;
-mod freq;
+mod freqs;
 mod grid;
 mod hash;
 mod number_theory;

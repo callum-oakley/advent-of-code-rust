@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use crate::freqs::Freqs;
 
 #[derive(Clone, Copy)]
 enum Part {
@@ -13,10 +13,7 @@ fn part_(part: Part, input: &str) -> String {
         .collect();
     let mut res = String::new();
     for i in 0..messages[0].len() {
-        let mut freqs = HashMap::new();
-        for message in &messages {
-            *freqs.entry(message[i]).or_insert(0) += 1;
-        }
+        let freqs = messages.iter().map(|m| m[i]).freqs();
         res.push(match part {
             Part::One => *freqs.keys().max_by_key(|c| freqs[c]).unwrap(),
             Part::Two => *freqs.keys().min_by_key(|c| freqs[c]).unwrap(),

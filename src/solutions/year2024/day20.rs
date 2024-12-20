@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    freq::Freq,
+    freqs::Freqs,
     grid::{self, Grid, Vector},
     search,
 };
@@ -81,7 +81,7 @@ pub fn tests() {
     let (grid, start) = parse(&example);
 
     assert_eq!(
-        cheats(&run(&grid, start), 2).freq(),
+        cheats(&run(&grid, start), 2).freqs(),
         HashMap::from([
             (2, 14),
             (4, 14),
@@ -99,7 +99,7 @@ pub fn tests() {
     assert_eq!(
         cheats(&run(&grid, start), 20)
             .filter(|&saving| saving >= 50)
-            .freq(),
+            .freqs(),
         HashMap::from([
             (50, 32),
             (52, 31),
