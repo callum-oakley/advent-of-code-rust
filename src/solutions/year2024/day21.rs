@@ -5,37 +5,31 @@ use crate::{
     search,
 };
 
-struct Keypad {
-    v_to_c: HashMap<Vector, char>,
-    c_to_v: HashMap<char, Vector>,
-}
-
-fn parse_keypad(s: &str) -> Keypad {
-    let mut v_to_c = HashMap::new();
-    let mut c_to_v = HashMap::new();
+fn parse_keypad(s: &str) -> HashMap<char, Vector> {
+    let mut res = HashMap::new();
     grid::scan(s, |v, c| {
         if c != ' ' {
-            v_to_c.insert(v, c);
-            c_to_v.insert(c, v);
+            res.insert(c, v);
         }
     });
-    Keypad { v_to_c, c_to_v }
+    res
 }
 
-static NUM_KEYPAD: LazyLock<Keypad> = LazyLock::new(|| parse_keypad("789\n456\n123\n 0A"));
+static NUM_KEYPAD: LazyLock<HashMap<char, Vector>> =
+    LazyLock::new(|| parse_keypad("789\n456\n123\n 0A"));
 
-static DIR_KEYPAD: LazyLock<Keypad> = LazyLock::new(|| parse_keypad(" ^A\n<v>"));
+static DIR_KEYPAD: LazyLock<HashMap<char, Vector>> = LazyLock::new(|| parse_keypad(" ^A\n<v>"));
 
 fn key_cost(
     cache: &mut HashMap<(usize, char, char), usize>,
-    keypad: &Keypad,
+    keypad: &HashMap<char, Vector>,
     depth: usize,
     start: char,
     end: char,
 ) -> usize {
     fn go(
         cache: &mut HashMap<(usize, char, char), usize>,
-        keypad: &Keypad,
+        keypad: &HashMap<char, Vector>,
         depth: usize,
         start: char,
         end: char,
@@ -49,13 +43,13 @@ fn key_cost(
         } else {
             let code = search::dijkstra(
                 State {
-                    pos: keypad.c_to_v[&start],
+                    pos: keypad[&start],
                     code: String::new(),
                 },
                 |state, push| {
                     for dir in "^>v<".chars() {
                         let pos = state.pos + dir.into_vector();
-                        if keypad.v_to_c.contains_key(&pos) {
+                        if keypad.values().any(|&v| v == pos) {
                             let mut code = state.code.clone();
                             code.push(dir);
                             push(State { pos, code });
@@ -65,7 +59,7 @@ fn key_cost(
                 search::no_filter,
                 |state| code_cost(cache, &DIR_KEYPAD, depth - 1, &state.code),
             )
-            .find(|state| state.pos == keypad.c_to_v[&end])
+            .find(|state| state.pos == keypad[&end])
             .unwrap()
             .code;
             code_cost(cache, &DIR_KEYPAD, depth - 1, &code)
@@ -83,7 +77,7 @@ fn key_cost(
 
 fn code_cost(
     cache: &mut HashMap<(usize, char, char), usize>,
-    keypad: &Keypad,
+    keypad: &HashMap<char, Vector>,
     depth: usize,
     code: &str,
 ) -> usize {
