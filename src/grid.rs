@@ -145,25 +145,25 @@ impl IntoChar for &Turn {
     }
 }
 
-pub fn scan<F: FnMut(Vector, char)>(s: &str, mut f: F) -> Vector {
-    let mut size = Z;
+pub fn scan(s: &str) -> impl Iterator<Item = (Vector, char)> + '_ {
+    let mut v = Z;
     let mut width = None;
-    for c in s.chars() {
+    s.chars().filter_map(move |c| {
         if c == '\n' {
             if let Some(w) = width {
-                assert!(w == size.x, "string is not rectangular");
+                assert!(w == v.x, "string is not rectangular");
             } else {
-                width = Some(size.x);
+                width = Some(v.x);
             }
-            size.x = 0;
-            size.y += 1;
+            v.x = 0;
+            v.y += 1;
+            None
         } else {
-            f(size, c);
-            size.x += 1;
+            let next = (v, c);
+            v.x += 1;
+            Some(next)
         }
-    }
-    size.y += 1;
-    size
+    })
 }
 
 #[derive(Clone, PartialEq, Eq, Hash)]
@@ -183,8 +183,13 @@ impl<T> Grid<T> {
     }
 
     pub fn parse<F: FnMut(Vector, char) -> T>(s: &str, mut f: F) -> Self {
-        let mut data = Vec::new();
-        let size = scan(s, |v, c| data.push(f(v, c)));
+        let mut size = Z;
+        let data = scan(s)
+            .map(|(v, c)| {
+                size = v + SE;
+                f(v, c)
+            })
+            .collect();
         Self { data, size }
     }
 

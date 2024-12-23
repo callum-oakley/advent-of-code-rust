@@ -6,13 +6,7 @@ use crate::{
 };
 
 fn parse_keypad(s: &str) -> HashMap<Vector, char> {
-    let mut res = HashMap::new();
-    grid::scan(s, |v, c| {
-        if c != ' ' {
-            res.insert(v, c);
-        }
-    });
-    res
+    grid::scan(s).filter(|&(_, c)| c != ' ').collect()
 }
 
 static NUM: LazyLock<HashMap<Vector, char>> = LazyLock::new(|| parse_keypad("789\n456\n123\n 0A"));

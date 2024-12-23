@@ -43,7 +43,7 @@ struct Robot {
 fn parse(map: &str) -> (HashSet<Vector>, Robot) {
     let mut scaffold = HashSet::new();
     let mut robot = None;
-    grid::scan(map, |pos, c| match c {
+    grid::scan(map).for_each(|(pos, c)| match c {
         '#' => {
             scaffold.insert(pos);
         }

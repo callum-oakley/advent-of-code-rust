@@ -8,11 +8,7 @@ use crate::{
 // Represent a crop square by a pair of position + crop, and the whole garden by the set of crop
 // squares.
 fn parse(input: &str) -> HashSet<(Vector, char)> {
-    let mut res = HashSet::new();
-    grid::scan(input, |v, c| {
-        res.insert((v, c));
-    });
-    res
+    grid::scan(input).collect()
 }
 
 // Represent the edge of a square by a pair indicating the position of the square and the compass

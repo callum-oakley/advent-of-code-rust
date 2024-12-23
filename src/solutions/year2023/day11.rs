@@ -1,12 +1,10 @@
 use crate::grid::{self, Bounds, Vector};
 
 fn parse(expansion: i32, input: &str) -> Vec<Vector> {
-    let mut galaxies = Vec::new();
-    grid::scan(input, |pos, c| {
-        if c == '#' {
-            galaxies.push(pos);
-        }
-    });
+    let mut galaxies: Vec<_> = grid::scan(input)
+        .filter(|&(_, c)| c == '#')
+        .map(|(pos, _)| pos)
+        .collect();
 
     let mut size = Bounds::new(galaxies.iter().copied()).size();
     for axis in [0, 1] {

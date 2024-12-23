@@ -12,12 +12,9 @@ struct Label {
 fn parse(input: &str) -> (HashMap<Vector, char>, Vec<Label>) {
     let num = Regex::new(r"\d+").unwrap();
 
-    let mut symbols = HashMap::new();
-    grid::scan(input, |pos, c| {
-        if c != '.' && !c.is_ascii_digit() {
-            symbols.insert(pos, c);
-        }
-    });
+    let symbols = grid::scan(input)
+        .filter(|&(_, c)| c != '.' && !c.is_ascii_digit())
+        .collect();
 
     let labels = input
         .lines()
