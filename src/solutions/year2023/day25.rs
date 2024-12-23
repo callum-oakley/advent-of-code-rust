@@ -3,7 +3,7 @@ use std::{
     collections::{HashMap, HashSet},
 };
 
-use rand::{rngs::StdRng, seq::IteratorRandom, SeedableRng};
+use rand::seq::IteratorRandom;
 
 use crate::search;
 
@@ -56,9 +56,9 @@ pub fn part1(input: &str) -> usize {
 
     let mut heatmap: HashMap<[&str; 2], usize> = HashMap::new();
 
-    let mut rng = StdRng::seed_from_u64(2023);
+    let mut rng = rand::thread_rng();
 
-    for _ in 0..1000 {
+    for _ in 0..2000 {
         let a = *graph.keys().choose(&mut rng).unwrap();
         let b = *graph.keys().choose(&mut rng).unwrap();
 
