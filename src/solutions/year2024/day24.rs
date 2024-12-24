@@ -1,13 +1,26 @@
-use std::collections::HashMap;
+use std::{
+    collections::HashMap,
+    fmt::{self, Display},
+};
 
-#[derive(Debug)]
+#[derive(Clone, Copy)]
 enum Op {
     And,
     Or,
     Xor,
 }
 
-#[derive(Debug)]
+impl Display for Op {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Op::And => write!(f, "AND"),
+            Op::Or => write!(f, "OR"),
+            Op::Xor => write!(f, "XOR"),
+        }
+    }
+}
+
+#[derive(Clone, Copy)]
 struct Gate<'a> {
     a: &'a str,
     b: &'a str,
@@ -61,10 +74,49 @@ fn eval(init: &HashMap<&str, bool>, gates: &HashMap<&str, Gate>, wire: &str) -> 
     }
 }
 
+#[allow(dead_code)]
+fn add(init: &mut HashMap<&str, bool>, gates: &HashMap<&str, Gate>, x: u64, y: u64) -> u64 {
+    for (wire, signal) in &mut *init {
+        if wire.starts_with('x') {
+            let i: u32 = wire.trim_start_matches('x').parse().unwrap();
+            *signal = (x >> i) % 2 != 0;
+        }
+        if wire.starts_with('y') {
+            let i: u32 = wire.trim_start_matches('y').parse().unwrap();
+            *signal = (y >> i) % 2 != 0;
+        }
+    }
+    gates
+        .keys()
+        .filter(|wire| wire.starts_with('z'))
+        .map(|&wire| {
+            if eval(init, gates, wire) {
+                2u64.pow(wire.trim_start_matches('z').parse().unwrap())
+            } else {
+                0
+            }
+        })
+        .sum()
+}
+
+#[allow(dead_code)]
+fn debug(gates: &HashMap<&str, Gate>, wire: &str, depth: usize) -> String {
+    if depth > 0 && gates.contains_key(wire) {
+        format!(
+            "({} {} {})",
+            debug(gates, gates[wire].a, depth - 1),
+            gates[wire].op,
+            debug(gates, gates[wire].b, depth - 1)
+        )
+    } else {
+        wire.to_string()
+    }
+}
+
 pub fn part1(input: &str) -> u64 {
     let (init, gates) = parse(input);
-    init.keys()
-        .chain(gates.keys())
+    gates
+        .keys()
         .filter(|wire| wire.starts_with('z'))
         .map(|&wire| {
             if eval(&init, &gates, wire) {
@@ -76,9 +128,45 @@ pub fn part1(input: &str) -> u64 {
         .sum()
 }
 
+// Using `add` and `debug` above we can test a few values to look for problem bits, and then examine
+// the structure of the circuit to find the broken adders. Rough notes follow:
+//
+// rnk OR mkq -> z05
+// x05 XOR y05 -> wwm
+// tsw XOR wwm -> hdt
+// swap z05 and hdt?
+//
+// x09 AND y09 -> z09
+// y09 XOR x09 -> wqr
+// vkd XOR wqr -> gbf
+// swap z09 and gbf?
+//
+//
+// mht XOR fgc -> z15
+// y15 AND x15 -> mht
+// y15 XOR x15 -> jgt
+// swap mht and jgt?
+//
+// dpr AND nvv -> z30
+// y30 XOR x30 -> dpr
+// dpr XOR nvv -> nbf
+// swap z30 and nbf?
 pub fn part2(input: &str) -> String {
-    let (init, gates) = parse(input);
-    todo!()
+    let (_, mut gates) = parse(input);
+    let swaps = [
+        ("z05", "hdt"),
+        ("z09", "gbf"),
+        ("mht", "jgt"),
+        ("z30", "nbf"),
+    ];
+    for pair in swaps {
+        let tmp = gates[pair.0];
+        *gates.get_mut(pair.0).unwrap() = gates[pair.1];
+        *gates.get_mut(pair.1).unwrap() = tmp;
+    }
+    let mut wires: Vec<&str> = swaps.iter().flat_map(|&(a, b)| [a, b]).collect();
+    wires.sort_unstable();
+    wires.join(",")
 }
 
 pub fn tests() {
