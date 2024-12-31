@@ -182,6 +182,16 @@ impl<T> Grid<T> {
         Self { data, size }
     }
 
+    pub fn from_vec<V: Into<Vector>>(size: V, data: Vec<T>) -> Self {
+        let size: Vector = size.into();
+        assert_eq!(data.len(), usize::try_from(size.x * size.y).unwrap());
+        Self { data, size }
+    }
+
+    pub fn from_iter<V: Into<Vector>, I: IntoIterator<Item = T>>(size: V, i: I) -> Self {
+        Self::from_vec(size, i.into_iter().collect())
+    }
+
     pub fn parse<F: FnMut(Vector, char) -> T>(s: &str, mut f: F) -> Self {
         let mut size = Z;
         let data = scan(s)
@@ -190,7 +200,7 @@ impl<T> Grid<T> {
                 f(v, c)
             })
             .collect();
-        Self { data, size }
+        Self::from_vec(size, data)
     }
 
     pub fn get<V: Into<Vector>>(&self, v: V) -> Option<&T> {
