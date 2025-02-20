@@ -16,7 +16,7 @@ fn amplify1(vm: &VM, phases: &[i64]) -> i64 {
 }
 
 fn amplify2(vm: &VM, phases: &[i64]) -> i64 {
-    let mut amps = [vm.clone(), vm.clone(), vm.clone(), vm.clone(), vm.clone()];
+    let mut amps = vec![vm.clone(); 5];
     for i in 0..5 {
         amps[i].input(phases[i]);
     }

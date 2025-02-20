@@ -1,11 +1,11 @@
-const MEM_SIZE: usize = 6000;
+use crate::unbounded_vec::UnboundedVec;
 
-/// A virtual machine that runs Intcode. Memory is an array of 64 bit signed integers. If you know
-/// what state a VM is in then call `input`, `output`, or `halt`, otherwise call `state` and match
-/// on the result.
+/// A virtual machine that runs Intcode. Memory is an unbounded vec of 64 bit signed integers. If
+/// you know what state a VM is in then call `input`, `output`, or `halt`, otherwise call `state`
+/// and match on the result.
 #[derive(Clone)]
 pub struct VM {
-    pub mem: [i64; MEM_SIZE],
+    pub mem: UnboundedVec<i64>,
     ip: usize,
     base: i64,
 }
@@ -24,12 +24,8 @@ pub enum State {
 impl VM {
     /// Construct a VM which will run the given Intcode program.
     pub fn new(prog: &str) -> Self {
-        let mut mem = [0; MEM_SIZE];
-        for (i, s) in prog.split(',').enumerate() {
-            mem[i] = s.parse().unwrap();
-        }
         Self {
-            mem,
+            mem: prog.split(',').map(|s| s.parse().unwrap()).collect(),
             ip: 0,
             base: 0,
         }
@@ -125,9 +121,15 @@ impl VM {
     /// specified mode.
     fn arg(&mut self, n: usize) -> &mut i64 {
         match self.mem[self.ip] / 10_i64.pow(1 + u32::try_from(n).unwrap()) % 10 {
-            0 => &mut self.mem[usize::try_from(self.mem[self.ip + n]).unwrap()],
+            0 => {
+                let i = usize::try_from(self.mem[self.ip + n]).unwrap();
+                &mut self.mem[i]
+            }
             1 => &mut self.mem[self.ip + n],
-            2 => &mut self.mem[usize::try_from(self.mem[self.ip + n] + self.base).unwrap()],
+            2 => {
+                let i = usize::try_from(self.mem[self.ip + n] + self.base).unwrap();
+                &mut self.mem[i]
+            }
             m => panic!("unsupported mode: {m}"),
         }
     }

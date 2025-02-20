@@ -172,7 +172,7 @@ fn part_(hard_mode: bool, input: &str) -> i32 {
                         if spell.cost <= state.player.mana
                             && spell
                                 .effect
-                                .map_or(true, |(effect, _)| !state.effects.contains_key(&effect))
+                                .is_none_or(|(effect, _)| !state.effects.contains_key(&effect))
                         {
                             push(state.player_attack(spell));
                         }
