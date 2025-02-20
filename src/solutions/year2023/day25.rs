@@ -56,7 +56,7 @@ pub fn part1(input: &str) -> usize {
 
     let mut heatmap: HashMap<[&str; 2], usize> = HashMap::new();
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rand::rng();
 
     for _ in 0..2000 {
         let a = *graph.keys().choose(&mut rng).unwrap();
