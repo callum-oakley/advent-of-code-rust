@@ -46,7 +46,7 @@ fn cost(reactions: &HashMap<&str, Reaction>, fuel: i64) -> i64 {
     let mut chemicals = HashMap::from([("FUEL", fuel)]);
     while let Some((chemical, quantity)) = chemicals
         .iter_mut()
-        .find(|(&chemical, &mut quantity)| chemical != "ORE" && quantity > 0)
+        .find(|&(&chemical, &mut quantity)| chemical != "ORE" && quantity > 0)
     {
         let k = div_ceil(*quantity, reactions[chemical].quantity);
         *quantity -= k * reactions[chemical].quantity;

@@ -72,7 +72,7 @@ fn tick(state: &mut Grid<char>, dir: Vector) {
 fn score(state: &Grid<char>) -> i32 {
     state
         .iter()
-        .filter(|(_, &tile)| "O[".contains(tile))
+        .filter(|&(_, &tile)| "O[".contains(tile))
         .map(|(v, _)| v.x + 100 * v.y)
         .sum()
 }

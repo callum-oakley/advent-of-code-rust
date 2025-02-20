@@ -56,14 +56,14 @@ pub fn part1(input: &str) -> i32 {
 // multiply out.
 pub fn part2(input: &str) -> f64 {
     let (rules, mut state) = parse(input);
-    let mut gen = 0;
+    let mut generation = 0;
     let mut prev_factor = -1f64;
     let mut factor = 0f64;
     while (factor - prev_factor).abs() >= f64::EPSILON {
         state = step(&rules, &state);
-        gen += 1;
+        generation += 1;
         prev_factor = factor;
-        factor = f64::from(score(gen, &state)) / f64::from(gen);
+        factor = f64::from(score(generation, &state)) / f64::from(generation);
     }
     factor * 50_000_000_000f64
 }

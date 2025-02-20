@@ -49,7 +49,7 @@ fn tilt(platform: &mut Grid<Tile>, dir: Vector) {
 fn score(platform: &Grid<Tile>) -> i32 {
     platform
         .iter()
-        .filter(|(_, &tile)| tile == Tile::Ball)
+        .filter(|&(_, &tile)| tile == Tile::Ball)
         .map(|(pos, _)| platform.size.y - pos.y)
         .sum()
 }

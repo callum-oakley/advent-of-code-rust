@@ -35,7 +35,7 @@ pub fn part2(input: &str) -> &str {
     ocr::parse(
         &Grid::from(
             hull.iter()
-                .filter(|(_, &paint)| paint == 1)
+                .filter(|&(_, &paint)| paint == 1)
                 .map(|(&pos, _)| pos),
         )
         .to_string(),

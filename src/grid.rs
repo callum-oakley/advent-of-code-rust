@@ -107,11 +107,7 @@ impl IntoChar for &char {
 
 impl IntoChar for &bool {
     fn into_char(self) -> char {
-        if *self {
-            '#'
-        } else {
-            '.'
-        }
+        if *self { '#' } else { '.' }
     }
 }
 
@@ -225,7 +221,7 @@ impl<T> Grid<T> {
         self.get(v).is_some()
     }
 
-    pub fn keys(&self) -> impl Iterator<Item = Vector> {
+    pub fn keys(&self) -> impl Iterator<Item = Vector> + use<T> {
         let size = self.size;
         let mut pos = Z;
         iter::from_fn(move || {

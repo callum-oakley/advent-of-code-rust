@@ -77,7 +77,7 @@ fn reachable(map: &Grid<char>, pos: Vector) -> Vec<Path> {
 
 fn key_graph(map: &Grid<char>) -> HashMap<char, Vec<Path>> {
     map.iter()
-        .filter(|(_, &tile)| is_key(tile))
+        .filter(|&(_, &tile)| is_key(tile))
         .map(|(pos, &tile)| (tile, reachable(map, pos)))
         .collect()
 }
@@ -142,7 +142,7 @@ pub fn part1(input: &str) -> usize {
 
 pub fn part2(input: &str) -> usize {
     let mut map = Grid::parse(input, |_, tile| tile);
-    let (start, _) = map.iter().find(|(_, &tile)| tile == '@').unwrap();
+    let (start, _) = map.iter().find(|&(_, &tile)| tile == '@').unwrap();
     for dir in [Z, N, E, S, W] {
         map[start + dir] = '#';
     }
