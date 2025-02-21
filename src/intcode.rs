@@ -25,7 +25,7 @@ impl VM {
     /// Construct a VM which will run the given Intcode program.
     pub fn new(prog: &str) -> Self {
         Self {
-            mem: prog.split(',').map(|s| s.parse().unwrap()).collect(),
+            mem: UnboundedVec::new(prog.split(',').map(|s| s.parse().unwrap()).collect(), 0),
             ip: 0,
             base: 0,
         }
