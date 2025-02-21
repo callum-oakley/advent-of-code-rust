@@ -6,6 +6,10 @@ run year day
   YEAR="${year}" DAY="${day}" cargo run -F allow_dead_code -r
   cargo clippy
 
+debug
+  jog debug '' ''
+debug year
+  jog debug "${year}" ''
 debug year day
   RUST_BACKTRACE=1 YEAR="${year}" DAY="${day}" cargo run -F allow_dead_code
   cargo build
