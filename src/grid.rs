@@ -250,6 +250,10 @@ impl<T> Grid<T> {
     pub fn iter(&self) -> impl Iterator<Item = (Vector, &T)> {
         self.keys().map(|k| (k, &self[k]))
     }
+
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
 }
 
 impl<T, V> Index<V> for Grid<T>
