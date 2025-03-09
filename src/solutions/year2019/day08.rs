@@ -54,5 +54,5 @@ pub fn part2(input: &str) -> &str {
             }
         }
     }
-    crate::ocr::parse(&image.to_string())
+    crate::ocr::parse(image)
 }

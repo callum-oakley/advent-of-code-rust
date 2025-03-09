@@ -90,7 +90,7 @@ pub fn part1(input: &str) -> usize {
 }
 
 pub fn part2(input: &str) -> &str {
-    crate::ocr::parse(&part_(Vector::new(50, 6), input).to_string())
+    crate::ocr::parse(part_(Vector::new(50, 6), input))
 }
 
 pub fn tests() {

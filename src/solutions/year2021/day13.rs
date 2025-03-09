@@ -2,7 +2,7 @@ use std::{collections::HashSet, sync::LazyLock};
 
 use regex::Regex;
 
-use crate::grid::{Grid, IntoVector, Vector};
+use crate::grid::{IntoVector, Vector};
 
 #[derive(Clone, Copy)]
 struct Fold {
@@ -46,7 +46,7 @@ pub fn part1(input: &str) -> usize {
 
 pub fn part2(input: &str) -> &str {
     let (dots, folds) = parse(input);
-    crate::ocr::parse(&Grid::from(folds.fold(dots, |d, f| apply_fold(&d, f))).to_string())
+    crate::ocr::parse(folds.fold(dots, |d, f| apply_fold(&d, f)))
 }
 
 pub fn tests() {

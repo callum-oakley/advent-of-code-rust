@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    grid::{Grid, Vector, LEFT, N, RIGHT, Z},
+    grid::{Vector, LEFT, N, RIGHT, Z},
     intcode::{State, VM},
 };
 
@@ -32,11 +32,8 @@ pub fn part2(input: &str) -> &str {
     let mut hull = HashMap::from([(Z, 1)]);
     paint(input, &mut hull);
     crate::ocr::parse(
-        &Grid::from(
-            hull.iter()
-                .filter(|&(_, &paint)| paint == 1)
-                .map(|(&pos, _)| pos),
-        )
-        .to_string(),
+        hull.iter()
+            .filter(|&(_, &paint)| paint == 1)
+            .map(|(&pos, _)| pos),
     )
 }

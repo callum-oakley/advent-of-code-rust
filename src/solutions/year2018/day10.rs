@@ -1,6 +1,6 @@
 use regex::Regex;
 
-use crate::grid::{Bounds, Grid, IntoVector, Vector};
+use crate::grid::{Bounds, IntoVector, Vector};
 
 struct Light {
     position: Vector,
@@ -46,9 +46,7 @@ fn part_(input: &str) -> (&str, usize) {
         } else {
             untick(&mut lights);
             return (
-                crate::ocr::parse(
-                    &Grid::from(lights.iter().map(|light| light.position)).to_string(),
-                ),
+                crate::ocr::parse(lights.iter().map(|light| light.position)),
                 t,
             );
         }
