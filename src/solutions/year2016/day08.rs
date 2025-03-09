@@ -2,10 +2,7 @@ use std::sync::LazyLock;
 
 use regex::Regex;
 
-use crate::{
-    grid::{self, Grid, Vector, E, S},
-    ocr,
-};
+use crate::grid::{self, Grid, Vector, E, S};
 
 enum Instruction {
     Rect(Vector),
@@ -93,7 +90,7 @@ pub fn part1(input: &str) -> usize {
 }
 
 pub fn part2(input: &str) -> &str {
-    ocr::parse(&part_(Vector::new(50, 6), input).to_string())
+    crate::ocr::parse(&part_(Vector::new(50, 6), input).to_string())
 }
 
 pub fn tests() {

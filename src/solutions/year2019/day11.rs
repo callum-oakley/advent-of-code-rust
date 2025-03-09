@@ -3,7 +3,6 @@ use std::collections::HashMap;
 use crate::{
     grid::{Grid, Vector, LEFT, N, RIGHT, Z},
     intcode::{State, VM},
-    ocr,
 };
 
 fn paint(input: &str, hull: &mut HashMap<Vector, i64>) {
@@ -32,7 +31,7 @@ pub fn part1(input: &str) -> usize {
 pub fn part2(input: &str) -> &str {
     let mut hull = HashMap::from([(Z, 1)]);
     paint(input, &mut hull);
-    ocr::parse(
+    crate::ocr::parse(
         &Grid::from(
             hull.iter()
                 .filter(|&(_, &paint)| paint == 1)

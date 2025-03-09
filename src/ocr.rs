@@ -49,6 +49,15 @@ const RJLFBUCU: &str = "
     #..#..##..####.#....###...##...##...##.
 ";
 
+const BFKRCJZU: &str = "
+    ###..####.#..#.###...##....##.####.#..#
+    #..#.#....#.#..#..#.#..#....#....#.#..#
+    ###..###..##...#..#.#.......#...#..#..#
+    #..#.#....#.#..###..#.......#..#...#..#
+    #..#.#....#.#..#.#..#..#.#..#.#....#..#
+    ###..#....#..#.#..#..##...##..####..##.
+";
+
 pub fn parse(s: &str) -> &'static str {
     let s = s.trim();
     if s == CFLELOYFCS.trim().replace(' ', "") {
@@ -61,6 +70,8 @@ pub fn parse(s: &str) -> &'static str {
         "PHPEU"
     } else if s == RJLFBUCU.trim().replace(' ', "") {
         "RJLFBUCU"
+    } else if s == BFKRCJZU.trim().replace(' ', "") {
+        "BFKRCJZU"
     } else {
         panic!("failed to parse:\n{s}")
     }

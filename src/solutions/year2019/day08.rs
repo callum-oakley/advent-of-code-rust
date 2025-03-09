@@ -1,7 +1,4 @@
-use crate::{
-    grid::{Grid, Vector},
-    ocr,
-};
+use crate::grid::{Grid, Vector};
 
 const IMAGE_SIZE: Vector = Vector::new(25, 6);
 
@@ -57,5 +54,5 @@ pub fn part2(input: &str) -> &str {
             }
         }
     }
-    ocr::parse(&image.to_string())
+    crate::ocr::parse(&image.to_string())
 }
