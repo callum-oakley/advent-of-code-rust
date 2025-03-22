@@ -301,6 +301,7 @@ where
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct Bounds<const D: usize> {
     pub min: SVector<i32, D>,
     pub max: SVector<i32, D>,
@@ -326,6 +327,10 @@ impl<const D: usize> Bounds<D> {
 
     pub fn size(&self) -> SVector<i32, D> {
         self.max - self.min + SVector::from_element(1)
+    }
+
+    pub fn contains(&self, v: SVector<i32, D>) -> bool {
+        self.min.iter().zip(&v).all(|(a, b)| a <= b) && self.max.iter().zip(&v).all(|(a, b)| a >= b)
     }
 }
 
