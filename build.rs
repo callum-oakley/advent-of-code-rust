@@ -18,9 +18,9 @@ fn insert_day(solutions: &mut BTreeMap<u16, BTreeMap<u8, Solution>>, year: u16, 
     solutions.entry(year).or_default().insert(
         day,
         Solution {
-            part1: content.contains("pub fn part1"),
-            part2: content.contains("pub fn part2"),
-            tests: content.contains("pub fn tests"),
+            part1: content.starts_with("pub fn part1(") || content.contains("\npub fn part1("),
+            part2: content.starts_with("pub fn part2(") || content.contains("\npub fn part2("),
+            tests: content.starts_with("pub fn tests(") || content.contains("\npub fn tests("),
         },
     );
 }
