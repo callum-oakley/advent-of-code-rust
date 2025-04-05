@@ -1,8 +1,27 @@
-use std::sync::LazyLock;
+use std::{collections::HashMap, sync::LazyLock};
 
 use crate::{freqs::Freqs, uniq::Uniq};
 
 type Vector = nalgebra::Vector3<i32>;
+
+struct Scanner {
+    position: Vector,
+    beacons: Vec<Vector>,
+    // Frequencies of distances between each pair of beacons.
+    fingerprint: HashMap<i32, usize>,
+}
+
+impl Scanner {
+    fn new(beacons: Vec<Vector>) -> Self {
+        Self {
+            position: Vector::zeros(),
+            fingerprint: crate::combinatorics::combinations(2, &beacons)
+                .map(|pair| (pair[0] - pair[1]).abs().sum())
+                .freqs(),
+            beacons,
+        }
+    }
+}
 
 static ROTATIONS: LazyLock<[nalgebra::Matrix3<i32>; 24]> = LazyLock::new(|| {
     let i = nalgebra::matrix![1, 0, 0; 0, 1, 0; 0, 0, 1];
@@ -36,14 +55,25 @@ static ROTATIONS: LazyLock<[nalgebra::Matrix3<i32>; 24]> = LazyLock::new(|| {
     ]
 });
 
-fn parse(input: &str) -> impl Iterator<Item = Vec<Vector>> {
+fn parse(input: &str) -> impl Iterator<Item = Scanner> {
     input.trim().split("\n\n").map(|scanner| {
-        scanner
-            .lines()
-            .skip(1)
-            .map(crate::grid::IntoVector::into_vector)
-            .collect()
+        Scanner::new(
+            scanner
+                .lines()
+                .skip(1)
+                .map(crate::grid::IntoVector::into_vector)
+                .collect(),
+        )
     })
+}
+
+// The distances between pairs of beacons doesn't depend on the position or orientation of the
+// scanner, so if two scanners share 12 beacons, they must share 12 choose 2 = 66 distances.
+fn fingerprints_match(a: &HashMap<i32, usize>, b: &HashMap<i32, usize>) -> bool {
+    a.iter()
+        .filter_map(|(dist, freq_a)| b.get(dist).map(|freq_b| freq_a.min(freq_b)))
+        .sum::<usize>()
+        >= 66
 }
 
 fn offset(beacons0: &[Vector], beacons1: &[Vector]) -> Option<Vector> {
@@ -56,15 +86,23 @@ fn offset(beacons0: &[Vector], beacons1: &[Vector]) -> Option<Vector> {
         .map(|(&offset, _)| offset)
 }
 
-fn find_match(
-    fixed: &[Vec<Vector>],
-    floating: &[[Vec<Vector>; 24]],
-) -> Option<(usize, Vector, Vec<Vector>)> {
-    for beacons in fixed {
-        for (i, orientations) in floating.iter().enumerate() {
-            for orientation in orientations {
-                if let Some(offset) = offset(beacons, orientation) {
-                    return Some((i, offset, orientation.iter().map(|b| b + offset).collect()));
+fn fix(fixed_scanners: &[Scanner], floating_scanners: &mut Vec<Scanner>) -> Option<Scanner> {
+    for fixed_scanner in fixed_scanners {
+        for (i, floating_scanner) in floating_scanners.iter().enumerate() {
+            if !fingerprints_match(&fixed_scanner.fingerprint, &floating_scanner.fingerprint) {
+                continue;
+            }
+            for rotation in ROTATIONS.iter() {
+                let floating_beacons: Vec<Vector> = floating_scanner
+                    .beacons
+                    .iter()
+                    .map(|b| rotation * b)
+                    .collect();
+                if let Some(offset) = offset(&fixed_scanner.beacons, &floating_beacons) {
+                    let mut scanner = floating_scanners.swap_remove(i);
+                    scanner.position = offset;
+                    scanner.beacons = floating_beacons.iter().map(|b| b + offset).collect();
+                    return Some(scanner);
                 }
             }
         }
@@ -72,32 +110,30 @@ fn find_match(
     None
 }
 
-fn part_(input: &str) -> (Vec<Vector>, Vec<Vector>) {
-    let mut beacons = parse(input);
-    let mut scanners: Vec<Vector> = vec![Vector::zeros()];
-    let mut fixed: Vec<Vec<Vector>> = vec![beacons.next().unwrap()];
-    let mut floating: Vec<[Vec<Vector>; 24]> = beacons
-        .map(|beacons| ROTATIONS.map(|r| beacons.iter().map(|b| r * b).collect()))
-        .collect();
-    while let Some((i, scanner, beacons)) = find_match(&fixed, &floating) {
-        floating.swap_remove(i);
-        scanners.push(scanner);
-        fixed.push(beacons);
+fn part_(input: &str) -> Vec<Scanner> {
+    let mut scanners = parse(input);
+    let mut fixed_scanners: Vec<Scanner> = vec![scanners.next().unwrap()];
+    let mut floating_scanners: Vec<Scanner> = scanners.collect();
+    while let Some(scanner) = fix(&fixed_scanners, &mut floating_scanners) {
+        fixed_scanners.push(scanner);
     }
-    assert!(floating.is_empty());
-    (scanners, fixed.iter().flatten().uniq().copied().collect())
+    assert!(floating_scanners.is_empty());
+    fixed_scanners
 }
 
 pub fn part1(input: &str) -> usize {
-    let (_, beacons) = part_(input);
-    beacons.len()
+    part_(input)
+        .into_iter()
+        .flat_map(|s| s.beacons)
+        .uniq()
+        .count()
 }
 
 pub fn part2(input: &str) -> i32 {
-    let (scanners, _) = part_(input);
+    let scanners: Vec<Vector> = part_(input).iter().map(|s| s.position).collect();
     scanners
         .iter()
-        .flat_map(|&a| scanners.iter().map(move |&b| (a - b).abs().sum()))
+        .flat_map(|a| scanners.iter().map(move |b| (a - b).abs().sum()))
         .max()
         .unwrap()
 }
