@@ -36,14 +36,10 @@ pub fn part1(input: &str) -> u32 {
 }
 
 pub fn part2(input: &str) -> u32 {
-    fn wrap(low: u32, high: u32, n: u32) -> u32 {
-        (n - low).rem_euclid(high - low) + low
-    }
-
     let small_cave = Grid::parse(input, |_, c| c.to_digit(10).unwrap());
     let mut big_cave = Grid::new(0, small_cave.size * 5);
     for v in big_cave.keys() {
-        big_cave[v] = wrap(
+        big_cave[v] = crate::number_theory::wrap(
             1,
             10,
             small_cave[v.zip_map(&small_cave.size, i32::rem_euclid)]

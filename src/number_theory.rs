@@ -1,5 +1,7 @@
 use std::cmp;
 
+use num::{Num, traits::Euclid};
+
 /// Congruence of the form x = a (mod n)
 pub struct Congruence {
     pub a: i64,
@@ -23,4 +25,9 @@ pub fn chinese_remainder(mut system: Vec<Congruence>) -> i64 {
         step *= n;
     }
     x
+}
+
+/// Wraps `n` to the range `low..high`
+pub fn wrap<N: Num + Euclid + Copy>(low: N, high: N, n: N) -> N {
+    (n - low).rem_euclid(&(high - low)) + low
 }
