@@ -2,7 +2,7 @@ use regex::Regex;
 
 use crate::number_theory;
 
-fn parse(input: &str) -> Vec<number_theory::Congruence> {
+fn parse(input: &str) -> Vec<number_theory::Congruence<i64>> {
     Regex::new(r"Disc #(\d+) has (\d+) positions; at time=0, it is at position (\d+)\.")
         .unwrap()
         .captures_iter(input)

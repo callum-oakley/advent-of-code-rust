@@ -1,33 +1,33 @@
 use std::cmp;
 
-use num::{Num, traits::Euclid};
+use num::{PrimInt, traits::Euclid};
 
 /// Congruence of the form x = a (mod n)
-pub struct Congruence {
-    pub a: i64,
-    pub n: i64,
+pub struct Congruence<N> {
+    pub a: N,
+    pub n: N,
 }
 
 /// Given a system of congruences, finds x s.t. x = a (mod n) for every a and n.
-pub fn chinese_remainder(mut system: Vec<Congruence>) -> i64 {
+pub fn chinese_remainder<N: PrimInt + Euclid>(mut system: Vec<Congruence<N>>) -> N {
     system.sort_unstable_by_key(|c| cmp::Reverse(c.n));
 
     for congruence in &mut system {
-        congruence.a = congruence.a.rem_euclid(congruence.n);
+        congruence.a = congruence.a.rem_euclid(&congruence.n);
     }
 
     let mut x = system[0].a;
     let mut step = system[0].n;
     for &Congruence { a, n } in &system[1..] {
         while x % n != a {
-            x += step;
+            x = x + step;
         }
-        step *= n;
+        step = step * n;
     }
     x
 }
 
 /// Wraps `n` to the range `low..high`
-pub fn wrap<N: Num + Euclid + Copy>(low: N, high: N, n: N) -> N {
+pub fn wrap<N: PrimInt + Euclid>(low: N, high: N, n: N) -> N {
     (n - low).rem_euclid(&(high - low)) + low
 }
