@@ -28,6 +28,6 @@ pub fn chinese_remainder<N: PrimInt + Euclid>(mut system: Vec<Congruence<N>>) ->
 }
 
 /// Wraps `n` to the range `low..high`
-pub fn wrap<N: PrimInt + Euclid>(low: N, high: N, n: N) -> N {
+pub fn wrap<N: PrimInt + Euclid>(n: N, low: N, high: N) -> N {
     (n - low).rem_euclid(&(high - low)) + low
 }

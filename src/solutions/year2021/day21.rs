@@ -39,7 +39,7 @@ pub fn part1(input: &str) -> usize {
     loop {
         let roll = dice.next().unwrap() + dice.next().unwrap() + dice.next().unwrap();
         rolls += 3;
-        state.position0 = crate::number_theory::wrap(1, 11, state.position0 + roll);
+        state.position0 = crate::number_theory::wrap(state.position0 + roll, 1, 11);
         state.score0 += state.position0;
         if state.score0 >= 1000 {
             return state.score1 * rolls;
@@ -59,7 +59,7 @@ pub fn part2(input: &str) -> usize {
             for b in 1..=3 {
                 for c in 1..=3 {
                     let mut s = state;
-                    s.position0 = crate::number_theory::wrap(1, 11, s.position0 + a + b + c);
+                    s.position0 = crate::number_theory::wrap(s.position0 + a + b + c, 1, 11);
                     s.score0 += s.position0;
                     let wins = game(cache, s.swap());
                     res.0 += wins.1;

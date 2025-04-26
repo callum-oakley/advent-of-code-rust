@@ -40,10 +40,10 @@ pub fn part2(input: &str) -> u32 {
     let mut big_cave = Grid::new(0, small_cave.size * 5);
     for v in big_cave.keys() {
         big_cave[v] = crate::number_theory::wrap(
-            1,
-            10,
             small_cave[v.zip_map(&small_cave.size, i32::rem_euclid)]
                 + u32::try_from(v.zip_map(&small_cave.size, Div::div).abs().sum()).unwrap(),
+            1,
+            10,
         );
     }
     search(&big_cave)
