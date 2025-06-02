@@ -151,14 +151,8 @@ impl IntoChar for &Turn {
 
 pub fn scan(s: &str) -> impl Iterator<Item = (Vector, char)> + '_ {
     let mut v = Z;
-    let mut width = None;
     s.chars().filter_map(move |c| {
         if c == '\n' {
-            if let Some(w) = width {
-                assert!(w == v.x, "string is not rectangular");
-            } else {
-                width = Some(v.x);
-            }
             v.x = 0;
             v.y += 1;
             None
@@ -198,12 +192,16 @@ impl<T> Grid<T> {
 
     pub fn parse<F: FnMut(Vector, char) -> T>(s: &str, mut f: F) -> Self {
         let mut size = Z;
-        let data = scan(s)
+        let data: Vec<T> = scan(s)
             .map(|(v, c)| {
                 size = v + SE;
                 f(v, c)
             })
             .collect();
+        assert!(
+            size.x * size.y == i32::try_from(data.len()).unwrap(),
+            "string is not rectangular",
+        );
         Self::from_vec(size, data)
     }
 

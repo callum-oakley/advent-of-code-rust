@@ -16,6 +16,7 @@ mod combinatorics;
 mod freqs;
 mod grid;
 mod hash;
+mod lex_ord;
 mod number_theory;
 mod ocr;
 mod part;
