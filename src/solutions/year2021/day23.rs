@@ -163,7 +163,7 @@ fn is_organized(state: &State) -> bool {
     })
 }
 
-fn part1(input: &str) -> usize {
+pub fn part1(input: &str) -> usize {
     crate::search::dijkstra(
         parse(input),
         adjacent,
