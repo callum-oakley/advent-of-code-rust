@@ -10,6 +10,7 @@ allow_dead_code = []
 
 [dependencies]
 anyhow = "1"
+bytecount = "0.6.9"
 md-5 = "0.10"
 nalgebra = "0.33.2"
 num = "0.4"
